@@ -3,19 +3,27 @@ import SwiftUI
 struct ContactsPermissionView: View {
     @StateObject var viewModel: ContactsPermissionViewModel
     
+    private let hexagonSize: CGSize = {
+        let spacing = 8
+        let screenWidth = UIScreen.current!.bounds.width
+        let width = (screenWidth - CGFloat(spacing * 5)) / 5
+        let height = tan(Angle(degrees: 30).radians) * width * 2
+        return CGSize(width: width, height: height)
+    }()
+    
     var body: some View {
         GeometryReader {
             let size = $0.size
             Color.appBackground.ignoresSafeArea()
             
             VStack {
-                Image(.onboarding1Contacts)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: size.height / 3)
-                    .padding(.bottom, 25)
-                
-                Group {
+                ScrollView {
+                    Image(.onboarding1Contacts)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: size.height / 3)
+                        .padding(.bottom, 25)
+                    
                     Text(Constants.Strings.title)
                         .font(.system(size: 21, weight: .bold))
                         .lineSpacing(3.5)
@@ -32,34 +40,32 @@ struct ContactsPermissionView: View {
                             .padding(.bottom, 58)
                     }
                     .font(.custom(Font.montseratRegular, size: 14))
-                    .lineSpacing(5)
-                    
+                    .lineSpacing(7)   
                 }
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
                 
-                HexagonButton(title: Constants.Strings.allowButton, action: {
-                    viewModel.handle(.allow)
-                })
-                .padding(.bottom, 26)
-                
+                Spacer()
+
                 PlainTextButton(text: Constants.Strings.skipButton, action: {
                     viewModel.handle(.skip)
                 })
+                .offset(x: hexagonSize.width)
             }
             .backButton {
                 viewModel.handle(.goBack)
             }
             .frame(width: size.width, height: size.height)
             .navigationBarHidden(true)
-            .background(
-                Image(.onboarding1Background)
+            .padding(.bottom, hexagonSize.height)
+            .background(HexagonBackground(icon: {
+                Image(systemName: "chevron.right")
                     .resizable()
-                    .scaledToFill()
-                    .ignoresSafeArea(edges: .bottom)
-                    .frame(width: size.width, height: size.height, alignment: .bottom)
-                    .offset(y: size.height / 10)
-            )
+                    .foregroundColor(.white)
+                    .scaledToFit()
+            }, action: {
+                viewModel.handle(.allow)
+            }))
         }
     }
     
@@ -85,4 +91,3 @@ struct ContactsPermissionView: View {
         }
     }
 }
-

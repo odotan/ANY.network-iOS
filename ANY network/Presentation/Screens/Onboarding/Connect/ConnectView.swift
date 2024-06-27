@@ -6,7 +6,7 @@ struct ConnectView: View {
     var body: some View {
         ConnectHexagonContainerView(focusHegaxonType: .contacts, isFocusItemVerified: .constant(false), focusPressed: {
             viewModel.handle(.goContactsPermission)
-        })
+        }, selected: .contacts)
             .background(Color.appBackground)
             .overlay {
                 VStack(spacing: 29) {
@@ -15,6 +15,7 @@ struct ConnectView: View {
                         .font(.system(size: 24, weight: .bold))
                     
                     Text(Constants.Strings.description)
+                        .multilineTextAlignment(.center)
                         .foregroundStyle(.white.opacity(0.5))
                         .font(.system(size: 18, weight: .regular))
                     
@@ -30,7 +31,7 @@ struct ConnectView: View {
     private enum Constants {
         enum Strings {
             static let title = "Connect"
-            static let description = "Press the hexagon to begin"
+            static let description = "Press the hexagon to allow contacts permission"
         }
     }
 }

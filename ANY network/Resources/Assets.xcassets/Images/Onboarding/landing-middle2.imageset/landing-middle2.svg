@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="104" height="15.022" viewBox="0 0 104 15.022">
+  <g id="Group_870" data-name="Group 870" transform="translate(-135.5 -528.368)">
+    <circle id="Ellipse_168" data-name="Ellipse 168" cx="6.511" cy="6.511" r="6.511" transform="translate(202.33 529.368)" fill="#466bff" stroke="#466bff" stroke-miterlimit="10" stroke-width="2"/>
+    <path id="Path_4112" data-name="Path 4112" d="M136.5,535.879v6.511m13.021-6.511v6.511m0-6.511a6.51,6.51,0,1,0-13.021,0" fill="none" stroke="#ff6061" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <path id="Path_4113" data-name="Path 4113" d="M167.968,535.879a6.51,6.51,0,1,0-13.021,0" fill="none" stroke="#f8bf4d" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <g id="Ellipse_169" data-name="Ellipse 169" transform="translate(160.989 533.879)" fill="none" stroke="#f8bf4d" stroke-miterlimit="10" stroke-width="2">
+      <circle cx="2" cy="2" r="2" stroke="none"/>
+      <circle cx="2" cy="2" r="1" fill="none"/>
+    </g>
+    <path id="Path_4114" data-name="Path 4114" d="M161.457,542.39a6.511,6.511,0,0,1-6.51-6.511" fill="none" stroke="#f8bf4d" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <g id="Ellipse_170" data-name="Ellipse 170" transform="translate(175.011 533.879)" fill="none" stroke="#1cc580" stroke-miterlimit="10" stroke-width="2">
+      <circle cx="2" cy="2" r="2" stroke="none"/>
+      <circle cx="2" cy="2" r="1" fill="none"/>
+    </g>
+    <path id="Path_4115" data-name="Path 4115" d="M179.543,542.39a6.511,6.511,0,0,1-6.511-6.511" fill="none" stroke="#1cc580" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <line id="Line_113" data-name="Line 113" y2="6.511" transform="translate(173.032 529.368)" fill="none" stroke="#1cc580" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <path id="Path_4116" data-name="Path 4116" d="M226.926,529.368a6.511,6.511,0,0,0-6.511,6.511" fill="none" stroke="#ff64ff" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <line id="Line_114" data-name="Line 114" y2="6.511" transform="translate(220.415 535.879)" fill="none" stroke="#ff64ff" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <path id="Path_4117" data-name="Path 4117" d="M231.989,535.879a6.511,6.511,0,0,0,6.511-6.511" fill="none" stroke="#6e4cd4" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <path id="Path_4118" data-name="Path 4118" d="M238.5,542.39a6.511,6.511,0,0,0-6.511-6.511" fill="none" stroke="#6e4cd4" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <line id="Line_115" data-name="Line 115" y2="13.021" transform="translate(231.989 529.368)" fill="none" stroke="#6e4cd4" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <line id="Line_116" data-name="Line 116" y1="9.766" transform="translate(197.266 529.368)" fill="none" stroke="#26b9fb" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <line id="Line_117" data-name="Line 117" y1="9.766" transform="translate(190.755 529.368)" fill="none" stroke="#26b9fb" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <line id="Line_118" data-name="Line 118" y1="9.766" transform="translate(184.245 529.368)" fill="none" stroke="#26b9fb" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <path id="Path_4119" data-name="Path 4119" d="M190.755,539.134a3.256,3.256,0,1,0,6.511,0" fill="none" stroke="#26b9fb" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+    <path id="Path_4120" data-name="Path 4120" d="M184.245,539.134a3.255,3.255,0,1,0,6.51,0" fill="none" stroke="#26b9fb" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+  </g>
+</svg>

@@ -1,106 +1,85 @@
 import SwiftUI
 
 struct ConnectHexagonContainerView: View {
-    struct Item: Hashable {
-        var color: Color
-        var count: Int
-    }
-
-    private let focusHegaxonType: ConnectType
+    @State private var focusHegaxonType: HexagonType
     @Binding var isFocusItemVerified: Bool
     private let focusPressed: () -> Void
 
-    init(focusHegaxonType: ConnectType, isFocusItemVerified: Binding<Bool>, focusPressed: @escaping () -> Void, selected: ConnectType? = nil) {
+    init(focusHegaxonType: HexagonType, isFocusItemVerified: Binding<Bool>, focusPressed: @escaping () -> Void, selected: HexagonType? = nil) {
         self.focusHegaxonType = focusHegaxonType
         _isFocusItemVerified = isFocusItemVerified
         self.focusPressed = focusPressed
     }
     
     private let screenWidth: CGFloat = UIScreen.current!.bounds.size.width
-    private let spacing: CGFloat = 8
-    private let cols: Int = 4
+    private var spacing: CGFloat { 7.7 }
+    private let cols: Int = 5
     private var width: CGFloat {
-        (screenWidth - CGFloat(self.spacing * CGFloat((self.cols - 1)))) / CGFloat(self.cols - 1)
+        72.78// (screenWidth - CGFloat(self.spacing * CGFloat((self.cols - 1)))) / CGFloat(self.cols - 1)
     }
-    private var height: CGFloat { tan(Angle(degrees: 30).radians) * width * 2 }
+    private var height: CGFloat { 81.95 }//tan(Angle(degrees: 30).radians) * width * 2 }
     private var numberOfCells: Int {
-        var rows = Int((UIScreen.current!.bounds.size.height / height) * 1.33)
-        rows = rows % 2 == 0 ? rows + 1 : rows
-        return rows * cols
+        return 12 * cols
     }
     
-    @State private var selected: ConnectType?
-    @State private var scale: CGFloat = 1.0
-    
-    @State private var scrollToId: UUID?
-    
+    @State private var selected: HexagonType?
+    @State private var scale: CGFloat = 1
+
     var body: some View {
         let gridItems = Array(repeating: GridItem(.fixed(width), spacing: spacing), count: cols)
         
-        ScrollViewReader { proxy in
-            ScrollView([.horizontal, .vertical]) {
+        ScrollView([.horizontal, .vertical]) {
+            ScrollViewReader { proxy in
                 LazyVGrid(columns: gridItems, spacing: spacing) {
-                    ForEach(0..<numberOfCells, id: \.self) { idx in
-                        VStack(spacing: 0) {
-                            ConnectHexagonView(action: {
-                                focusPressed()
-                            }, idx: idx, count: numberOfCells, typeEnabled: focusHegaxonType)
-                            .frame(width: width, height: height)
-                            .offset(x: isEvenRow(idx) ? 0 : width / 2 + (spacing/2))
-                        }
+                    ForEach(0..<defaultHexagonItemsList.count, id:\.self) { idx in
+                        HexagonCell(
+                            item: defaultHexagonItemsList[idx],
+                            isEnabled: Binding<Bool>(get: { focusHegaxonType == defaultHexagonItemsList[idx].type }, set: { _ in }),
+                            action: focusPressed
+                        )
+                        .frame(width: width, height: height)
+                        .offset(x: !isEvenRow(idx) ? 0 : width / 2 + (spacing/2))
                         .frame(width: width, height: height * 0.75)
                     }
                 }
-                .frame(width: UIScreen.current!.bounds.width, height: UIScreen.current!.bounds.height)
-                .scaleEffect(scale)
-            }
-            
-            .background(Color.clear)
-            .onAppear {
-                Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-                    withAnimation(.easeOut) {
-                        scale = 1.7
-                        proxy.scrollTo(focusHegaxonType, anchor: .center)
+                .scaleEffect(scale, anchor: UnitPoint(
+                    x: 0.35,
+                    y: 0.58
+                ))
+                .frame(
+                    width: UIScreen.current!.bounds.width,
+                    height: UIScreen.current!.bounds.height
+                )
+                .background(GeometryReader { geometry in
+                    Color.clear.onAppear {
+                        withAnimation(.easeInOut(duration: 0.6).delay(0.1)) {
+                            scale = 2.8
+                        }
                     }
-                }
+                })
             }
-            
         }
+        .scrollDisabled(true)
+        .background(Color.appBackground)
+        .edgesIgnoringSafeArea(.all)
+    }
+    
+    func calculateUnitPoint() -> UnitPoint {
+        print("Position", position)
+        print("ScreenSize", UIScreen.current!.bounds)
+        let point = UnitPoint(
+            x: (UIScreen.current!.bounds.width * 2.8) * 2 / 5,
+            y: (UIScreen.current!.bounds.height * 2.8 * 1 / 2)
+        )
+        return point
     }
     
     func isEvenRow(_ idx: Int) -> Bool { (idx / cols) % 2 == 0 }
 }
 
-struct ContentTestView: View {
-    @State private var scale: CGFloat = 1.0
-    @State private var scrollToId: Int? = nil
-
-    var body: some View {
-        ScrollViewReader { proxy in
-                    GeometryReader { reader in
-                        ScrollView {
-                            VStack {
-                                ForEach(0..<100, id: \.self) { index in
-                                    Text("Item \(index)")
-                                        .padding()
-                                        .background(index == 50 ? Color.red : Color.clear)
-                                        .id(index)
-                                }
-                            }
-//                            .frame(width: reader.size.width, height: reader.size.height * scale)
-                            .scaleEffect(scale)
-                        }
-                        .onAppear {
-                            withAnimation {
-                                scale = 1.7
-                                proxy.scrollTo(78, anchor: .center)
-                            }
-                        }
-                    }
-                }
-    }
+#Preview {
+    ConnectHexagonContainerView(focusHegaxonType: .contacts, isFocusItemVerified: .constant(true), focusPressed: {}, selected: .contacts)
 }
-
 
 extension UIWindow {
     static var current: UIWindow? {

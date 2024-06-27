@@ -92,7 +92,7 @@ private struct FilledHexagonButtonView: View {
 
     @ViewBuilder
     private var background: some View {
-            ExtendedHexagon()
+            RotatedHexagonShape(cornerRadius: 3)
                 .fill(fillColor)
                 .stroke(fillColor, style: StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round))
     }
@@ -112,7 +112,7 @@ private struct BorderedHexagonButtonView: View {
 
     @ViewBuilder
     private var background: some View {
-        ExtendedHexagon()
+        RotatedHexagonShape(cornerRadius: 3)
             .fill(.clear)
             .stroke(.appTransparentWhiteBorder, style: StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round))
     }

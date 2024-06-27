@@ -24,9 +24,9 @@ struct HexagonTextField: View {
         .padding(.leading, 28)
         .padding(.vertical, 19)
         .frame(height: 54)
-        .clipShape(ExtendedHexagon())
+        .clipShape(RotatedHexagonShape(cornerRadius: 3))
         .background(
-            ExtendedHexagon()
+            RotatedHexagonShape(cornerRadius: 3)
                 .fill(.appTransparentWhiteFill)
                 .stroke(.appTransparentWhiteBorder, style: StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round))
         )

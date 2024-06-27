@@ -11,7 +11,11 @@
 		5E10BF362C1303C800DB47F7 /* ConnectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E10BF322C1303C800DB47F7 /* ConnectView.swift */; };
 		5E10BF372C1303C800DB47F7 /* ConnectViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E10BF332C1303C800DB47F7 /* ConnectViewModel.swift */; };
 		5E10BF392C1328F200DB47F7 /* HexagonShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E10BF382C1328F200DB47F7 /* HexagonShape.swift */; };
-		5E5A4BA92C172B4F00329544 /* ConnectHexagonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5A4BA82C172B4F00329544 /* ConnectHexagonView.swift */; };
+		5E1A66A82C2D5F7700A7ABCC /* GlowModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66A72C2D5F7700A7ABCC /* GlowModifier.swift */; };
+		5E2649662C25A3330047DDCF /* HexagonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2649652C25A3330047DDCF /* HexagonItem.swift */; };
+		5E2649682C25A3D90047DDCF /* HexagonType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2649672C25A3D90047DDCF /* HexagonType.swift */; };
+		5E26496A2C25B8290047DDCF /* HexagonBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2649692C25B8290047DDCF /* HexagonBackground.swift */; };
+		5E5A4BA92C172B4F00329544 /* HexagonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5A4BA82C172B4F00329544 /* HexagonCell.swift */; };
 		5E6D92F52C10C5F9005ADF06 /* MyProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D92F42C10C5F9005ADF06 /* MyProfileView.swift */; };
 		5E6D92F72C10C60B005ADF06 /* MyProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D92F62C10C60B005ADF06 /* MyProfileViewModel.swift */; };
 		5E6D92F92C10C611005ADF06 /* MyProfileState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D92F82C10C611005ADF06 /* MyProfileState.swift */; };
@@ -20,6 +24,13 @@
 		5E6D93032C11D71C005ADF06 /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D93022C11D71C005ADF06 /* Contact.swift */; };
 		5E6D93062C11DF04005ADF06 /* GetAllContactsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D93052C11DF04005ADF06 /* GetAllContactsUseCase.swift */; };
 		5E6D93082C11E138005ADF06 /* GetContactUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D93072C11E138005ADF06 /* GetContactUseCase.swift */; };
+		5EB41EC12C218EA2001CF7DD /* Montserrat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5EB41EBB2C218EA2001CF7DD /* Montserrat-Bold.ttf */; };
+		5EB41EC22C218EA2001CF7DD /* Montserrat-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5EB41EBC2C218EA2001CF7DD /* Montserrat-Medium.ttf */; };
+		5EB41EC32C218EA2001CF7DD /* Montserrat-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5EB41EBD2C218EA2001CF7DD /* Montserrat-Regular.ttf */; };
+		5EB41EC42C218EA2001CF7DD /* Montserrat-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5EB41EBE2C218EA2001CF7DD /* Montserrat-SemiBold.ttf */; };
+		5EB41EC62C21C5E3001CF7DD /* ProportionalSizeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB41EC52C21C5E3001CF7DD /* ProportionalSizeModifier.swift */; };
+		5EB41ECC2C22F901001CF7DD /* LandingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB41EC82C22F901001CF7DD /* LandingView.swift */; };
+		5EB41ECF2C242B33001CF7DD /* RegularHexagonButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB41ECE2C242B33001CF7DD /* RegularHexagonButton.swift */; };
 		5EC639F42C1894B900839AA5 /* IntroState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EC639F02C1894B900839AA5 /* IntroState.swift */; };
 		5EC639F52C1894B900839AA5 /* IntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EC639F12C1894B900839AA5 /* IntroView.swift */; };
 		5EC639F62C1894B900839AA5 /* IntroViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EC639F22C1894B900839AA5 /* IntroViewModel.swift */; };
@@ -50,13 +61,14 @@
 		5EEB1AFF2C10A0B3000F310E /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EEB1AFE2C10A0B3000F310E /* HomeView.swift */; };
 		5EEB1B012C10A0BA000F310E /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EEB1B002C10A0BA000F310E /* HomeViewModel.swift */; };
 		5EEB1B032C10A0C8000F310E /* HomeViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EEB1B022C10A0C8000F310E /* HomeViewState.swift */; };
+		5EEC65FC2C2079EB0084BE67 /* CornerRadiusWithBorderModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EEC65FB2C2079EB0084BE67 /* CornerRadiusWithBorderModifier.swift */; };
 		5EF4B28B2C11F25700344F35 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF4B2892C11F25700344F35 /* Fonts.swift */; };
 		5EF4B2962C11F26A00344F35 /* HexagonButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF4B28C2C11F26A00344F35 /* HexagonButton.swift */; };
 		5EF4B2972C11F26A00344F35 /* PlainTextButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF4B28D2C11F26A00344F35 /* PlainTextButton.swift */; };
 		5EF4B2982C11F26A00344F35 /* RadioButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF4B28E2C11F26A00344F35 /* RadioButton.swift */; };
 		5EF4B2992C11F26A00344F35 /* HexagonTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF4B2902C11F26A00344F35 /* HexagonTextField.swift */; };
 		5EF4B29A2C11F26A00344F35 /* ToggleSwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF4B2912C11F26A00344F35 /* ToggleSwitch.swift */; };
-		5EF4B29B2C11F26A00344F35 /* ExtendedHexagon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF4B2932C11F26A00344F35 /* ExtendedHexagon.swift */; };
+		5EF4B29B2C11F26A00344F35 /* RotatedHexagonShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF4B2932C11F26A00344F35 /* RotatedHexagonShape.swift */; };
 		5EF4B29E2C11F53200344F35 /* GetContactsStatusUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF4B29D2C11F53200344F35 /* GetContactsStatusUseCase.swift */; };
 		5EF4B2A02C11F85600344F35 /* GetRequestAccessUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF4B29F2C11F85600344F35 /* GetRequestAccessUseCase.swift */; };
 /* End PBXBuildFile section */
@@ -66,7 +78,11 @@
 		5E10BF322C1303C800DB47F7 /* ConnectView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectView.swift; sourceTree = "<group>"; };
 		5E10BF332C1303C800DB47F7 /* ConnectViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectViewModel.swift; sourceTree = "<group>"; };
 		5E10BF382C1328F200DB47F7 /* HexagonShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonShape.swift; sourceTree = "<group>"; };
-		5E5A4BA82C172B4F00329544 /* ConnectHexagonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectHexagonView.swift; sourceTree = "<group>"; };
+		5E1A66A72C2D5F7700A7ABCC /* GlowModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlowModifier.swift; sourceTree = "<group>"; };
+		5E2649652C25A3330047DDCF /* HexagonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonItem.swift; sourceTree = "<group>"; };
+		5E2649672C25A3D90047DDCF /* HexagonType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonType.swift; sourceTree = "<group>"; };
+		5E2649692C25B8290047DDCF /* HexagonBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonBackground.swift; sourceTree = "<group>"; };
+		5E5A4BA82C172B4F00329544 /* HexagonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonCell.swift; sourceTree = "<group>"; };
 		5E6D92F42C10C5F9005ADF06 /* MyProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyProfileView.swift; sourceTree = "<group>"; };
 		5E6D92F62C10C60B005ADF06 /* MyProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyProfileViewModel.swift; sourceTree = "<group>"; };
 		5E6D92F82C10C611005ADF06 /* MyProfileState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyProfileState.swift; sourceTree = "<group>"; };
@@ -75,6 +91,13 @@
 		5E6D93022C11D71C005ADF06 /* Contact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
 		5E6D93052C11DF04005ADF06 /* GetAllContactsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetAllContactsUseCase.swift; sourceTree = "<group>"; };
 		5E6D93072C11E138005ADF06 /* GetContactUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetContactUseCase.swift; sourceTree = "<group>"; };
+		5EB41EBB2C218EA2001CF7DD /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Bold.ttf"; sourceTree = "<group>"; };
+		5EB41EBC2C218EA2001CF7DD /* Montserrat-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Medium.ttf"; sourceTree = "<group>"; };
+		5EB41EBD2C218EA2001CF7DD /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Regular.ttf"; sourceTree = "<group>"; };
+		5EB41EBE2C218EA2001CF7DD /* Montserrat-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-SemiBold.ttf"; sourceTree = "<group>"; };
+		5EB41EC52C21C5E3001CF7DD /* ProportionalSizeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProportionalSizeModifier.swift; sourceTree = "<group>"; };
+		5EB41EC82C22F901001CF7DD /* LandingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LandingView.swift; sourceTree = "<group>"; };
+		5EB41ECE2C242B33001CF7DD /* RegularHexagonButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegularHexagonButton.swift; sourceTree = "<group>"; };
 		5EC639F02C1894B900839AA5 /* IntroState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroState.swift; sourceTree = "<group>"; };
 		5EC639F12C1894B900839AA5 /* IntroView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroView.swift; sourceTree = "<group>"; };
 		5EC639F22C1894B900839AA5 /* IntroViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroViewModel.swift; sourceTree = "<group>"; };
@@ -108,13 +131,14 @@
 		5EEB1AFE2C10A0B3000F310E /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		5EEB1B002C10A0BA000F310E /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		5EEB1B022C10A0C8000F310E /* HomeViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewState.swift; sourceTree = "<group>"; };
+		5EEC65FB2C2079EB0084BE67 /* CornerRadiusWithBorderModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CornerRadiusWithBorderModifier.swift; sourceTree = "<group>"; };
 		5EF4B2892C11F25700344F35 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		5EF4B28C2C11F26A00344F35 /* HexagonButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HexagonButton.swift; sourceTree = "<group>"; };
 		5EF4B28D2C11F26A00344F35 /* PlainTextButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlainTextButton.swift; sourceTree = "<group>"; };
 		5EF4B28E2C11F26A00344F35 /* RadioButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioButton.swift; sourceTree = "<group>"; };
 		5EF4B2902C11F26A00344F35 /* HexagonTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HexagonTextField.swift; sourceTree = "<group>"; };
 		5EF4B2912C11F26A00344F35 /* ToggleSwitch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToggleSwitch.swift; sourceTree = "<group>"; };
-		5EF4B2932C11F26A00344F35 /* ExtendedHexagon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtendedHexagon.swift; sourceTree = "<group>"; };
+		5EF4B2932C11F26A00344F35 /* RotatedHexagonShape.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RotatedHexagonShape.swift; sourceTree = "<group>"; };
 		5EF4B29D2C11F53200344F35 /* GetContactsStatusUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetContactsStatusUseCase.swift; sourceTree = "<group>"; };
 		5EF4B29F2C11F85600344F35 /* GetRequestAccessUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetRequestAccessUseCase.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -139,6 +163,17 @@
 				5E10BF332C1303C800DB47F7 /* ConnectViewModel.swift */,
 			);
 			path = Connect;
+			sourceTree = "<group>";
+		};
+		5E1A66A62C2ACD0D00A7ABCC /* Hexagons */ = {
+			isa = PBXGroup;
+			children = (
+				5E2649672C25A3D90047DDCF /* HexagonType.swift */,
+				5E5A4BA82C172B4F00329544 /* HexagonCell.swift */,
+				5E2649652C25A3330047DDCF /* HexagonItem.swift */,
+				5E2649692C25B8290047DDCF /* HexagonBackground.swift */,
+			);
+			path = Hexagons;
 			sourceTree = "<group>";
 		};
 		5E229AFE2C1208AF002D8463 /* Presentation */ = {
@@ -171,7 +206,6 @@
 		5E5A4BA72C172AF300329544 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				5E5A4BA82C172B4F00329544 /* ConnectHexagonView.swift */,
 				5EC639F92C19BF1100839AA5 /* ConnectHexagonContainerView.swift */,
 			);
 			path = Views;
@@ -230,6 +264,25 @@
 				5EF4B29F2C11F85600344F35 /* GetRequestAccessUseCase.swift */,
 			);
 			path = UseCase;
+			sourceTree = "<group>";
+		};
+		5EB41EBF2C218EA2001CF7DD /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				5EB41EBB2C218EA2001CF7DD /* Montserrat-Bold.ttf */,
+				5EB41EBC2C218EA2001CF7DD /* Montserrat-Medium.ttf */,
+				5EB41EBD2C218EA2001CF7DD /* Montserrat-Regular.ttf */,
+				5EB41EBE2C218EA2001CF7DD /* Montserrat-SemiBold.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+		5EB41ECA2C22F901001CF7DD /* Landing */ = {
+			isa = PBXGroup;
+			children = (
+				5EB41EC82C22F901001CF7DD /* LandingView.swift */,
+			);
+			path = Landing;
 			sourceTree = "<group>";
 		};
 		5EC639F32C1894B900839AA5 /* Intro */ = {
@@ -322,6 +375,7 @@
 			isa = PBXGroup;
 			children = (
 				5EE54FD92C0F778F0058F6AE /* Coordinator */,
+				5EB41ECA2C22F901001CF7DD /* Landing */,
 				5EC639F32C1894B900839AA5 /* Intro */,
 				5E10BF342C1303C800DB47F7 /* Connect */,
 				5EEB1AEB2C1093C2000F310E /* ContactsPermission */,
@@ -389,9 +443,20 @@
 			path = Home;
 			sourceTree = "<group>";
 		};
+		5EEC65FD2C2079F40084BE67 /* ViewModifiers */ = {
+			isa = PBXGroup;
+			children = (
+				5EEC65FB2C2079EB0084BE67 /* CornerRadiusWithBorderModifier.swift */,
+				5EB41EC52C21C5E3001CF7DD /* ProportionalSizeModifier.swift */,
+				5E1A66A72C2D5F7700A7ABCC /* GlowModifier.swift */,
+			);
+			path = ViewModifiers;
+			sourceTree = "<group>";
+		};
 		5EF4B2752C11F1DE00344F35 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5EB41EBF2C218EA2001CF7DD /* Fonts */,
 				5EE54FC12C0F1A930058F6AE /* ANY-network-Info.plist */,
 				5EE54FC22C0F1AF50058F6AE /* Launch Screen.storyboard */,
 				5EE54FB82C0F11C30058F6AE /* ANY_network.entitlements */,
@@ -412,6 +477,7 @@
 			isa = PBXGroup;
 			children = (
 				5EF4B28C2C11F26A00344F35 /* HexagonButton.swift */,
+				5EB41ECE2C242B33001CF7DD /* RegularHexagonButton.swift */,
 				5EF4B28D2C11F26A00344F35 /* PlainTextButton.swift */,
 				5EF4B28E2C11F26A00344F35 /* RadioButton.swift */,
 				5EC639F72C19AA4800839AA5 /* BackButton.swift */,
@@ -424,6 +490,7 @@
 			children = (
 				5EF4B2902C11F26A00344F35 /* HexagonTextField.swift */,
 				5EF4B2912C11F26A00344F35 /* ToggleSwitch.swift */,
+				5E1A66A62C2ACD0D00A7ABCC /* Hexagons */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -431,7 +498,7 @@
 		5EF4B2942C11F26A00344F35 /* Shapes */ = {
 			isa = PBXGroup;
 			children = (
-				5EF4B2932C11F26A00344F35 /* ExtendedHexagon.swift */,
+				5EF4B2932C11F26A00344F35 /* RotatedHexagonShape.swift */,
 				5E10BF382C1328F200DB47F7 /* HexagonShape.swift */,
 			);
 			path = Shapes;
@@ -440,6 +507,7 @@
 		5EF4B2952C11F26A00344F35 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				5EEC65FD2C2079F40084BE67 /* ViewModifiers */,
 				5EF4B28F2C11F26A00344F35 /* Buttons */,
 				5EF4B2922C11F26A00344F35 /* Common */,
 				5EF4B2942C11F26A00344F35 /* Shapes */,
@@ -505,6 +573,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5EB41EC32C218EA2001CF7DD /* Montserrat-Regular.ttf in Resources */,
+				5EB41EC12C218EA2001CF7DD /* Montserrat-Bold.ttf in Resources */,
+				5EB41EC22C218EA2001CF7DD /* Montserrat-Medium.ttf in Resources */,
+				5EB41EC42C218EA2001CF7DD /* Montserrat-SemiBold.ttf in Resources */,
 				5EE54FC32C0F1AF50058F6AE /* Launch Screen.storyboard in Resources */,
 				5EE54FBB2C0F11C30058F6AE /* Preview Assets.xcassets in Resources */,
 				5EE54FB72C0F11C30058F6AE /* Assets.xcassets in Resources */,
@@ -525,16 +597,19 @@
 				5EEB1AED2C10966B000F310E /* OnboardingCoordinator.swift in Sources */,
 				5E6D93082C11E138005ADF06 /* GetContactUseCase.swift in Sources */,
 				5E6D93062C11DF04005ADF06 /* GetAllContactsUseCase.swift in Sources */,
+				5EEC65FC2C2079EB0084BE67 /* CornerRadiusWithBorderModifier.swift in Sources */,
 				5E6D92F52C10C5F9005ADF06 /* MyProfileView.swift in Sources */,
 				5EC639F82C19AA4800839AA5 /* BackButton.swift in Sources */,
 				5E6D92FC2C11ACF1005ADF06 /* ContactsService.swift in Sources */,
 				5EF4B2A02C11F85600344F35 /* GetRequestAccessUseCase.swift in Sources */,
 				5EC639FA2C19BF1100839AA5 /* ConnectHexagonContainerView.swift in Sources */,
-				5E5A4BA92C172B4F00329544 /* ConnectHexagonView.swift in Sources */,
+				5E5A4BA92C172B4F00329544 /* HexagonCell.swift in Sources */,
 				5EEB1B032C10A0C8000F310E /* HomeViewState.swift in Sources */,
 				5EE54FC52C0F6E460058F6AE /* AppFactory.swift in Sources */,
+				5EB41ECC2C22F901001CF7DD /* LandingView.swift in Sources */,
 				5EE54FB32C0F11C20058F6AE /* ANY_networkApp.swift in Sources */,
 				5EE54FE52C0F78EF0058F6AE /* ViewModel.swift in Sources */,
+				5EB41EC62C21C5E3001CF7DD /* ProportionalSizeModifier.swift in Sources */,
 				5EF4B29A2C11F26A00344F35 /* ToggleSwitch.swift in Sources */,
 				5E6D93002C11D6E9005ADF06 /* ContactsRepository.swift in Sources */,
 				5E10BF352C1303C800DB47F7 /* ConnectState.swift in Sources */,
@@ -552,11 +627,14 @@
 				5EF4B2962C11F26A00344F35 /* HexagonButton.swift in Sources */,
 				5EF4B2972C11F26A00344F35 /* PlainTextButton.swift in Sources */,
 				5EEB1AF42C109C5D000F310E /* OnboardingCoordinatorView.swift in Sources */,
+				5E2649682C25A3D90047DDCF /* HexagonType.swift in Sources */,
 				5EC639F42C1894B900839AA5 /* IntroState.swift in Sources */,
 				5EE54FE72C0F7BB00058F6AE /* ContactsPermissionViewState.swift in Sources */,
 				5E6D93032C11D71C005ADF06 /* Contact.swift in Sources */,
 				5EEB1B012C10A0BA000F310E /* HomeViewModel.swift in Sources */,
 				5EF4B28B2C11F25700344F35 /* Fonts.swift in Sources */,
+				5EB41ECF2C242B33001CF7DD /* RegularHexagonButton.swift in Sources */,
+				5E26496A2C25B8290047DDCF /* HexagonBackground.swift in Sources */,
 				5EF4B2992C11F26A00344F35 /* HexagonTextField.swift in Sources */,
 				5EF4B2982C11F26A00344F35 /* RadioButton.swift in Sources */,
 				5EE54FCC2C0F6EC40058F6AE /* AppCoordinatorView.swift in Sources */,
@@ -565,8 +643,10 @@
 				5EEB1AFB2C10A08F000F310E /* MainCoordinatorProtocol.swift in Sources */,
 				5E6D92F72C10C60B005ADF06 /* MyProfileViewModel.swift in Sources */,
 				5EE54FD22C0F732C0058F6AE /* CoordinatorFactoryProtocols.swift in Sources */,
+				5E2649662C25A3330047DDCF /* HexagonItem.swift in Sources */,
 				5E6D92F92C10C611005ADF06 /* MyProfileState.swift in Sources */,
-				5EF4B29B2C11F26A00344F35 /* ExtendedHexagon.swift in Sources */,
+				5E1A66A82C2D5F7700A7ABCC /* GlowModifier.swift in Sources */,
+				5EF4B29B2C11F26A00344F35 /* RotatedHexagonShape.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,14 +7,13 @@ struct AppCoordinatorView: View {
     init(screenFactory: ScreenFactory, coordinator: AppCoordinator) {
         self.screenFactory = screenFactory
         self.coordinator = coordinator
+        
+        coordinator.handle(.checkPermissions)
     }
     
     var body: some View {
         sceneView
-            .transition(.slide)
-            .onAppear {
-                coordinator.handle(.checkPermissions)
-            }
+//            .transition(.slide)
     }
     
     @ViewBuilder
