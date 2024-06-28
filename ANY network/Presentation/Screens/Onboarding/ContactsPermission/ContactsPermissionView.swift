@@ -3,70 +3,59 @@ import SwiftUI
 struct ContactsPermissionView: View {
     @StateObject var viewModel: ContactsPermissionViewModel
     
-    private let hexagonSize: CGSize = {
-        let spacing = 8
-        let screenWidth = UIScreen.current!.bounds.width
-        let width = (screenWidth - CGFloat(spacing * 5)) / 5
-        let height = tan(Angle(degrees: 30).radians) * width * 2
-        return CGSize(width: width, height: height)
-    }()
-    
     var body: some View {
-        GeometryReader {
-            let size = $0.size
-            Color.appBackground.ignoresSafeArea()
-            
-            VStack {
-                ScrollView {
-                    Image(.onboarding1Contacts)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: size.height / 3)
-                        .padding(.bottom, 25)
-                    
+        ScrollView {
+            VStack(spacing: 0) {
+                Image(.onboarding1Contacts)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(.horizontal, <->86)
+                    .padding(.bottom, |33)
+                
+                Group {
                     Text(Constants.Strings.title)
-                        .font(.system(size: 21, weight: .bold))
-                        .lineSpacing(3.5)
-                        .padding(.bottom, 25)
+                        .font(.system(size: |21, weight: .bold))
+                        .lineSpacing(|3.5)
+                        .padding(.bottom, |25)
                     
-                    Group {
-                        Text(Constants.Strings.subText1)
-                            .padding(.bottom, 14)
-                        
-                        Text(Constants.Strings.subText2)
-                            .padding(.bottom, 25)
-                        
-                        Text(Constants.Strings.subText3)
-                            .padding(.bottom, 58)
-                    }
-                    .font(.custom(Font.montseratRegular, size: 14))
-                    .lineSpacing(7)   
+                    Text(Constants.Strings.subText1)
+                        .padding(.bottom, |14)
+                    
+                    Text(Constants.Strings.subText2)
+                        .padding(.bottom, |25)
+                    
+                    Text(Constants.Strings.subText3)
+                        .padding(.bottom, |58)
                 }
+                .font(.custom(Font.montseratRegular, size: |14))
+                .lineSpacing(|4)
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
-                
-                Spacer()
-
-                PlainTextButton(text: Constants.Strings.skipButton, action: {
-                    viewModel.handle(.skip)
-                })
-                .offset(x: hexagonSize.width)
             }
-            .backButton {
-                viewModel.handle(.goBack)
-            }
-            .frame(width: size.width, height: size.height)
-            .navigationBarHidden(true)
-            .padding(.bottom, hexagonSize.height)
-            .background(HexagonBackground(icon: {
+        }
+        .backButton {
+            viewModel.handle(.goBack)
+        }
+        .navigationBarHidden(true)
+        .padding(.bottom, |140)
+        .background(
+            HexagonBackground(icon: {
                 Image(systemName: "chevron.right")
                     .resizable()
                     .foregroundColor(.white)
                     .scaledToFit()
             }, action: {
                 viewModel.handle(.allow)
-            }))
-        }
+            })
+        )
+        .overlay(alignment: .bottom, content: {
+            PlainTextButton(text: Constants.Strings.skipButton, action: {
+                viewModel.handle(.skip)
+            })
+            .frame(width: <->79.93)
+            .padding(.vertical, |4)
+            .offset(x: <->(79.93 + 7.7))
+        })
     }
     
     private enum Constants {
@@ -90,4 +79,8 @@ struct ContactsPermissionView: View {
             static let skipButton = "Skip"
         }
     }
+}
+
+#Preview {
+    ContactsPermissionView(viewModel: .init(coordinator: OnboardingCoordinator(showMainFlowHandler: {}), getRequestAccessUseCase: .init(repository: ContactsService())))
 }

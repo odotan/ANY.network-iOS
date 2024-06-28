@@ -10,9 +10,9 @@ struct RadioButton: View {
     }
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: <->14) {
             Button(action: { self.isActive.toggle() }) {
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: <->6)
                     .stroke(.appRadioButtonBorder, style: StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round))
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
@@ -21,10 +21,10 @@ struct RadioButton: View {
                     )
 #warning("Change radio button filled look when design is received")
             }
-            .frame(width: 17, height: 17)
+            .frame(width: <->17, height: |17)
 
             Text(text)
-                .font(.custom(Font.montseratRegular, size: 14))
+                .font(.custom(Font.montseratRegular, size: |14))
                 .foregroundStyle(.appTransparentWhiteText)
         }
     }

@@ -4,20 +4,21 @@ struct ConnectView: View {
     @StateObject var viewModel: ConnectViewModel
     
     var body: some View {
-        ConnectHexagonContainerView(focusHegaxonType: .contacts, isFocusItemVerified: .constant(false), focusPressed: {
+        ConnectHexagonContainerView(isFocusItemVerified: .constant(false), focusPressed: {
             viewModel.handle(.goContactsPermission)
         }, selected: .contacts)
             .background(Color.appBackground)
             .overlay {
-                VStack(spacing: 29) {
+                VStack(spacing: |29) {
                     Text(Constants.Strings.title)
                         .foregroundStyle(.white)
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.system(size: |24, weight: .bold))
                     
                     Text(Constants.Strings.description)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.white.opacity(0.5))
-                        .font(.system(size: 18, weight: .regular))
+                        .font(.system(size: |18, weight: .regular))
+                        .padding(.horizontal)
                     
                     Spacer()
                 }

@@ -12,6 +12,9 @@
 		5E10BF372C1303C800DB47F7 /* ConnectViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E10BF332C1303C800DB47F7 /* ConnectViewModel.swift */; };
 		5E10BF392C1328F200DB47F7 /* HexagonShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E10BF382C1328F200DB47F7 /* HexagonShape.swift */; };
 		5E1A66A82C2D5F7700A7ABCC /* GlowModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66A72C2D5F7700A7ABCC /* GlowModifier.swift */; };
+		5E1A66AB2C2DB91300A7ABCC /* SizePreferenceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66AA2C2DB91300A7ABCC /* SizePreferenceKey.swift */; };
+		5E1A66AD2C2DBCCF00A7ABCC /* SizeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66AC2C2DBCCF00A7ABCC /* SizeModifier.swift */; };
+		5E1A66AF2C2EF21500A7ABCC /* FlexibleSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66AE2C2EF21500A7ABCC /* FlexibleSize.swift */; };
 		5E2649662C25A3330047DDCF /* HexagonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2649652C25A3330047DDCF /* HexagonItem.swift */; };
 		5E2649682C25A3D90047DDCF /* HexagonType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2649672C25A3D90047DDCF /* HexagonType.swift */; };
 		5E26496A2C25B8290047DDCF /* HexagonBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2649692C25B8290047DDCF /* HexagonBackground.swift */; };
@@ -28,7 +31,6 @@
 		5EB41EC22C218EA2001CF7DD /* Montserrat-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5EB41EBC2C218EA2001CF7DD /* Montserrat-Medium.ttf */; };
 		5EB41EC32C218EA2001CF7DD /* Montserrat-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5EB41EBD2C218EA2001CF7DD /* Montserrat-Regular.ttf */; };
 		5EB41EC42C218EA2001CF7DD /* Montserrat-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5EB41EBE2C218EA2001CF7DD /* Montserrat-SemiBold.ttf */; };
-		5EB41EC62C21C5E3001CF7DD /* ProportionalSizeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB41EC52C21C5E3001CF7DD /* ProportionalSizeModifier.swift */; };
 		5EB41ECC2C22F901001CF7DD /* LandingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB41EC82C22F901001CF7DD /* LandingView.swift */; };
 		5EB41ECF2C242B33001CF7DD /* RegularHexagonButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB41ECE2C242B33001CF7DD /* RegularHexagonButton.swift */; };
 		5EC639F42C1894B900839AA5 /* IntroState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EC639F02C1894B900839AA5 /* IntroState.swift */; };
@@ -79,6 +81,9 @@
 		5E10BF332C1303C800DB47F7 /* ConnectViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectViewModel.swift; sourceTree = "<group>"; };
 		5E10BF382C1328F200DB47F7 /* HexagonShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonShape.swift; sourceTree = "<group>"; };
 		5E1A66A72C2D5F7700A7ABCC /* GlowModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlowModifier.swift; sourceTree = "<group>"; };
+		5E1A66AA2C2DB91300A7ABCC /* SizePreferenceKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizePreferenceKey.swift; sourceTree = "<group>"; };
+		5E1A66AC2C2DBCCF00A7ABCC /* SizeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeModifier.swift; sourceTree = "<group>"; };
+		5E1A66AE2C2EF21500A7ABCC /* FlexibleSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexibleSize.swift; sourceTree = "<group>"; };
 		5E2649652C25A3330047DDCF /* HexagonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonItem.swift; sourceTree = "<group>"; };
 		5E2649672C25A3D90047DDCF /* HexagonType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonType.swift; sourceTree = "<group>"; };
 		5E2649692C25B8290047DDCF /* HexagonBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonBackground.swift; sourceTree = "<group>"; };
@@ -95,7 +100,6 @@
 		5EB41EBC2C218EA2001CF7DD /* Montserrat-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Medium.ttf"; sourceTree = "<group>"; };
 		5EB41EBD2C218EA2001CF7DD /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Regular.ttf"; sourceTree = "<group>"; };
 		5EB41EBE2C218EA2001CF7DD /* Montserrat-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-SemiBold.ttf"; sourceTree = "<group>"; };
-		5EB41EC52C21C5E3001CF7DD /* ProportionalSizeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProportionalSizeModifier.swift; sourceTree = "<group>"; };
 		5EB41EC82C22F901001CF7DD /* LandingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LandingView.swift; sourceTree = "<group>"; };
 		5EB41ECE2C242B33001CF7DD /* RegularHexagonButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegularHexagonButton.swift; sourceTree = "<group>"; };
 		5EC639F02C1894B900839AA5 /* IntroState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroState.swift; sourceTree = "<group>"; };
@@ -176,6 +180,14 @@
 			path = Hexagons;
 			sourceTree = "<group>";
 		};
+		5E1A66A92C2DB90000A7ABCC /* PreferenceKeys */ = {
+			isa = PBXGroup;
+			children = (
+				5E1A66AA2C2DB91300A7ABCC /* SizePreferenceKey.swift */,
+			);
+			path = PreferenceKeys;
+			sourceTree = "<group>";
+		};
 		5E229AFE2C1208AF002D8463 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
@@ -188,6 +200,7 @@
 		5E229AFF2C1208C9002D8463 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				5E1A66A92C2DB90000A7ABCC /* PreferenceKeys */,
 				5E229B002C120AE9002D8463 /* Constants */,
 				5EE54FE12C0F78EF0058F6AE /* Protocols */,
 				5EF4B28A2C11F25700344F35 /* Fonts */,
@@ -447,8 +460,8 @@
 			isa = PBXGroup;
 			children = (
 				5EEC65FB2C2079EB0084BE67 /* CornerRadiusWithBorderModifier.swift */,
-				5EB41EC52C21C5E3001CF7DD /* ProportionalSizeModifier.swift */,
 				5E1A66A72C2D5F7700A7ABCC /* GlowModifier.swift */,
+				5E1A66AC2C2DBCCF00A7ABCC /* SizeModifier.swift */,
 			);
 			path = ViewModifiers;
 			sourceTree = "<group>";
@@ -511,6 +524,7 @@
 				5EF4B28F2C11F26A00344F35 /* Buttons */,
 				5EF4B2922C11F26A00344F35 /* Common */,
 				5EF4B2942C11F26A00344F35 /* Shapes */,
+				5E1A66AE2C2EF21500A7ABCC /* FlexibleSize.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -595,6 +609,7 @@
 				5EE54FE42C0F78EF0058F6AE /* Routable.swift in Sources */,
 				5EE54FD52C0F73C10058F6AE /* ContactsPermissionView.swift in Sources */,
 				5EEB1AED2C10966B000F310E /* OnboardingCoordinator.swift in Sources */,
+				5E1A66AB2C2DB91300A7ABCC /* SizePreferenceKey.swift in Sources */,
 				5E6D93082C11E138005ADF06 /* GetContactUseCase.swift in Sources */,
 				5E6D93062C11DF04005ADF06 /* GetAllContactsUseCase.swift in Sources */,
 				5EEC65FC2C2079EB0084BE67 /* CornerRadiusWithBorderModifier.swift in Sources */,
@@ -609,7 +624,6 @@
 				5EB41ECC2C22F901001CF7DD /* LandingView.swift in Sources */,
 				5EE54FB32C0F11C20058F6AE /* ANY_networkApp.swift in Sources */,
 				5EE54FE52C0F78EF0058F6AE /* ViewModel.swift in Sources */,
-				5EB41EC62C21C5E3001CF7DD /* ProportionalSizeModifier.swift in Sources */,
 				5EF4B29A2C11F26A00344F35 /* ToggleSwitch.swift in Sources */,
 				5E6D93002C11D6E9005ADF06 /* ContactsRepository.swift in Sources */,
 				5E10BF352C1303C800DB47F7 /* ConnectState.swift in Sources */,
@@ -622,7 +636,9 @@
 				5EEB1AF92C10A089000F310E /* MainCoordinator.swift in Sources */,
 				5EE54FDB2C0F77B70058F6AE /* OnboardingCoordinatorProtocol.swift in Sources */,
 				5EF4B29E2C11F53200344F35 /* GetContactsStatusUseCase.swift in Sources */,
+				5E1A66AD2C2DBCCF00A7ABCC /* SizeModifier.swift in Sources */,
 				5EEB1AFF2C10A0B3000F310E /* HomeView.swift in Sources */,
+				5E1A66AF2C2EF21500A7ABCC /* FlexibleSize.swift in Sources */,
 				5E10BF362C1303C800DB47F7 /* ConnectView.swift in Sources */,
 				5EF4B2962C11F26A00344F35 /* HexagonButton.swift in Sources */,
 				5EF4B2972C11F26A00344F35 /* PlainTextButton.swift in Sources */,

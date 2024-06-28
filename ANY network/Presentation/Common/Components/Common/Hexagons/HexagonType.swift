@@ -25,10 +25,7 @@ enum HexagonType {
         case .action:
             EmptyView()
         case .photo:
-            Image(systemName: "person.fill")
-                .resizable()
-                .scaledToFit()
-                .foregroundColor(.white)
+            EmptyView()
         case .contacts:
             Image(.iconPhonebook)
                 .resizable()

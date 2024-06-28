@@ -24,14 +24,12 @@ let defaultHexagonItemsList: [HexagonItem] = {[
     .init(color: .clear),
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
     .init(color: .clear),
-    .init(color: .clear),
     
     // Row 2
     .init(color: .clear),
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
-    .init(color: .clear),
     .init(color: .clear),
     
     // Row 3
@@ -40,7 +38,6 @@ let defaultHexagonItemsList: [HexagonItem] = {[
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
     .init(color: .clear),
-    .init(color: .clear),
 
     // Row 4
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
@@ -48,7 +45,6 @@ let defaultHexagonItemsList: [HexagonItem] = {[
     .init(color: .appOrange, opacity: 0.56, opacitySF: 0.126), // type
     .init(color: .clear),
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
-    .init(color: .clear),
     
     // Row 5
     .init(color: .appLightPink, opacity: 0.8, opacitySF: 0.126), // type
@@ -56,14 +52,12 @@ let defaultHexagonItemsList: [HexagonItem] = {[
     .init(color: .appPink, opacity: 0.09), // type FB MESSANGER
     .init(color: .appGreen, opacity: 0.39, opacitySF: 0.126), // type
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
-    .init(color: .clear),
     
     // Row 6
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
     .init(color: .appLightBlue, opacity: 0.11), // type PHONE
     .init(type: .photo, color: .appPurple, opacity: 0.36), // type PHOTO
     .init(color: .appOrange, opacity: 0.11), // type INSTAGRAM
-    .init(color: .clear),
     .init(color: .clear),
     
     // Row 7
@@ -72,7 +66,6 @@ let defaultHexagonItemsList: [HexagonItem] = {[
     .init(color: .appYellow, opacity: 0.08), // Type EMAIL
     .init(color: .appOrange, opacity: 0.7, opacitySF: 0.126),
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
-    .init(color: .clear),
     
     // Row 8
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
@@ -80,13 +73,11 @@ let defaultHexagonItemsList: [HexagonItem] = {[
     .init(color: .appLightBlue, opacity: 0.5, opacitySF: 0.2), // Type
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
-    .init(color: .clear),
     
     // Row 9
     .init(color: .clear),
     .init(color: .appPurple, opacity: 0.15, opacitySF: 0.2), // Type
     .init(color: .appOrange, opacity: 0.44, opacitySF: 0.2), // Type
-    .init(color: .clear),
     .init(color: .clear),
     .init(color: .clear),
     
@@ -96,7 +87,6 @@ let defaultHexagonItemsList: [HexagonItem] = {[
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
-    .init(color: .clear),
     
     // Row 11
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
@@ -104,27 +94,25 @@ let defaultHexagonItemsList: [HexagonItem] = {[
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
     .init(color: .clear),
     .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
-    .init(color: .clear),
     
     // Row 12
     .init(color: .appYellow, opacity: 0.10, opacitySF: 0.2),
     .init(color: .clear),
     .init(color: .appOrange, opacity: 0.10, opacitySF: 0.2),
     .init(color: .appPink, opacity: 0.10, opacitySF: 0.2),
-    .init(color: .appGray, opacity: 0.10, opacitySF: 0.2),
-    .init(color: .clear)
+    .init(color: .appGray, opacity: 0.10, opacitySF: 0.2)
 ]}()
 
 let backgroundHexagonItemsList: [HexagonItem] = {[
     // Row 1
-    .init(color: .clear),
+//    .init(color: .clear),
     .init(color: .white, opacity: 0.01),
     .init(color: .white, opacity: 0.01),
     .init(color: .white, opacity: 0.01),
     .init(color: .white, opacity: 0.01),
     .init(color: .white, opacity: 0.01),
     .init(color: .white, opacity: 0.01),
-    
+
     // Row 2
     .init(color: .white, opacity: 0.01),
     .init(color: .white, opacity: 0.02),
@@ -132,10 +120,10 @@ let backgroundHexagonItemsList: [HexagonItem] = {[
     .init(color: .white, opacity: 0.01),
     .init(color: .clear),
     .init(color: .white, opacity: 0.02),
-    .init(color: .white, opacity: 0.01),
+//    .init(color: .white, opacity: 0.01),
     
     // Row 3
-    .init(color: .clear),
+//    .init(color: .clear),
     .init(color: .white, opacity: 0.01),
     .init(color: .white, opacity: 0.02),
     .init(color: .clear),
@@ -150,10 +138,10 @@ let backgroundHexagonItemsList: [HexagonItem] = {[
     .init(color: .clear),
     .init(color: .white, opacity: 0.03),
     .init(color: .clear),
-    .init(color: .white, opacity: 0.01),
+//    .init(color: .white, opacity: 0.01),
     
     // Row 5
-    .init(color: .clear),
+//    .init(color: .clear),
     .init(color: .clear),
     .init(color: .clear),
     .init(color: .clear),
@@ -168,10 +156,10 @@ let backgroundHexagonItemsList: [HexagonItem] = {[
     .init(color: .clear),
     .init(color: .clear),
     .init(color: .white, opacity: 0.02),
-    .init(color: .white, opacity: 0.01),
+//    .init(color: .white, opacity: 0.01),
     
     // Row 7
-    .init(color: .clear),
+//    .init(color: .clear),
     .init(color: .white, opacity: 0.02),
     .init(color: .white, opacity: 0.03),
     .init(color: .clear),
@@ -186,10 +174,10 @@ let backgroundHexagonItemsList: [HexagonItem] = {[
     .init(color: .clear),
     .init(color: .clear),
     .init(color: .clear),
-    .init(color: .white, opacity: 0.01),
+//    .init(color: .white, opacity: 0.01),
     
     // Row 9
-    .init(color: .clear),
+//    .init(color: .clear),
     .init(color: .clear),
     .init(color: .white, opacity: 0.03),
     .init(color: .clear),
@@ -204,10 +192,10 @@ let backgroundHexagonItemsList: [HexagonItem] = {[
     .init(color: .white, opacity: 0.02),
     .init(color: .clear),
     .init(color: .white, opacity: 0.02),
-    .init(color: .white, opacity: 0.01),
+//    .init(color: .white, opacity: 0.01),
     
     // Row 11
-    .init(color: .clear),
+//    .init(color: .clear),
     .init(color: .white, opacity: 0.01),
     .init(color: .clear),
     .init(color: .white, opacity: 0.01),
@@ -222,5 +210,5 @@ let backgroundHexagonItemsList: [HexagonItem] = {[
     .init(color: .white, opacity: 0.01),
     .init(color: .clear),
     .init(color: .white, opacity: 0.02),
-    .init(color: .white, opacity: 0.01)
+//    .init(color: .white, opacity: 0.01)
 ]}()

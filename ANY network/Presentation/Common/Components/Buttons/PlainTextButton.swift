@@ -7,7 +7,7 @@ struct PlainTextButton: View {
     var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.custom(Font.montseratRegular, size: 14))
+                .font(.custom(Font.montseratRegular, size: |14))
         }
         .buttonStyle(PlainTextButtonStyle())
     }
@@ -33,7 +33,6 @@ struct PlainTextButtonView: View {
         config.label
             .foregroundStyle(.appTransparentWhiteText)
             .brightness(config.isPressed ? -0.5 : 0)
-
-            .frame(maxWidth: .infinity, maxHeight: 17)
+            .frame(maxWidth: .infinity, maxHeight: |17)
     }
 }

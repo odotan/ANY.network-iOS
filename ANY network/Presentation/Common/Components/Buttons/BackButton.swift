@@ -13,8 +13,8 @@ struct BackButton: View {
     var body: some View {
         Button(action: action, label: {
             Image(.backBtn)
-                .padding(.top, 8)
-                .padding(.bottom, 5)
+                .padding(.top, |8)
+                .padding(.bottom, |5)
                 .padding(.horizontal)
         })
     }

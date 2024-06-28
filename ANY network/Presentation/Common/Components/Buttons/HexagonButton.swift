@@ -23,17 +23,18 @@ struct HexagonButton: View {
         Button(action: action) {
             Text(title)
                 .font(font)
-                .frame(height: 54)
+                .frame(height: |54)
         }
         .hexagonButtonStyle(self.type)
     }
 
+    @MainActor
     private var font: Font {
         switch type {
         case .filled:
-            return Font.system(size: 16, weight: .bold)
+            return Font.system(size: |16, weight: .bold)
         case .bordered:
-            return Font.custom(Font.montseratRegular, size: 18)
+            return Font.custom(Font.montseratRegular, size: |18)
         }
     }
 }
@@ -86,7 +87,7 @@ private struct FilledHexagonButtonView: View {
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .background(background)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, <->16)
             .brightness(config.isPressed ? -0.2 : 0)
     }
 
@@ -106,7 +107,7 @@ private struct BorderedHexagonButtonView: View {
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .background(background)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, <->16)
             .brightness(config.isPressed ? -0.2 : 0)
     }
 

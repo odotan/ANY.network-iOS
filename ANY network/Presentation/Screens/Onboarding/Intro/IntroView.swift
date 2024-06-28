@@ -3,38 +3,31 @@ import SwiftUI
 struct IntroView: View {
     @StateObject var viewModel: IntroViewModel
     
-    private let hexagonHeight: CGFloat = {
-        let spacing = 8
-        let screenWidth = UIScreen.current!.bounds.width
-        let width = (screenWidth - CGFloat(spacing * 5)) / 5
-        return tan(Angle(degrees: 30).radians) * width * 2
-    }()
-    
     var body: some View {
         ScrollView {
             Image(.introHeader)
                 .resizable()
                 .scaledToFit()
-                .padding(.horizontal, 48)
-                .padding(.bottom, 25)
+                .padding(.horizontal, <->51)
+                .padding(.bottom, |25)
             
             Group {
                 Text(Constants.Strings.title)
-                    .font(.system(size: 21, weight: .bold))
-                    .lineSpacing(3.5)
-                    .padding(.bottom, 25)
+                    .font(.system(size: |21, weight: .bold))
+                    .lineSpacing(|3.5)
+                    .padding(.bottom, |25)
                 
                 Text(Constants.Strings.subText)
-                    .padding(.bottom, 58)
-                    .font(.custom(Font.montseratRegular, size: 14))
-                    .lineSpacing(4)
+                    .padding(.bottom, |58)
+                    .font(.custom(Font.montseratRegular, size: |13))
+                    .lineSpacing(|4)
                     .kerning(0)
             }
             .foregroundStyle(.white)
             .multilineTextAlignment(.center)
-            .padding(.horizontal, relevantLength: 16)
+            .padding(.horizontal, <->16)
         }
-        .padding(.bottom, hexagonHeight)
+        .padding(.bottom, |130)
         .background(HexagonBackground(icon: {
             Image(systemName: "chevron.right")
                 .resizable()
@@ -64,4 +57,5 @@ struct IntroView: View {
 
 #Preview {
     IntroView(viewModel: .init(coordinator: OnboardingCoordinator(showMainFlowHandler: {})))
+        .previewDevice(PreviewDevice(rawValue: "iPhone 15 Pro Max"))
 }

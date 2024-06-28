@@ -14,8 +14,8 @@ struct LandingView: View {
                 Image(.landingTop)
                     .resizable()
                     .scaledToFit()
-                    .frame(relevantWidth: 143, relevantHeight: 180)
-                    .padding(.top, relevantLength: 151)
+                    .frame(width: <->143, height: |180)
+                    .padding(.top, |151)
                     .transition(.opacity)
             }
             
@@ -23,8 +23,8 @@ struct LandingView: View {
                 Image(.landingMiddle1)
                     .resizable()
                     .scaledToFit()
-                    .frame(relevantWidth: 136, relevantHeight: 39.5)
-                    .padding(.top, relevantLength: 24)
+                    .frame(width: <->136, height: |39.5)
+                    .padding(.top, |24)
                     .transition(.opacity)
             }
             
@@ -32,8 +32,8 @@ struct LandingView: View {
                 Image(.landingMiddle2)
                     .resizable()
                     .scaledToFit()
-                    .frame(relevantWidth: 102, relevantHeight: 13)
-                    .padding(.top, relevantLength: 16)
+                    .frame(width: <->102, height: |13)
+                    .padding(.top, |16)
                     .transition(.opacity)
             }
             
@@ -42,11 +42,11 @@ struct LandingView: View {
             if showByImage {
                 Image(.landingBy)
                     .resizable()
-                    .scaledToFit()
-                    .frame(relevantWidth: 15, relevantHeight: 33.35)
-                    .padding(.bottom, relevantLength: 10)
+                    .scaledToFit() 
+                    .frame(width: <->15, height: |33.35)
+                    .padding(.bottom, |10)
                     .offset(x: 8)
-                    .offset(relevantY: showBottomImage ? 0 : -126)
+                    .offset(y: showBottomImage ? 0 : -(|126))
                     .transition(.opacity)
             }
             
@@ -54,9 +54,9 @@ struct LandingView: View {
                 Image(.landingBtp)
                     .resizable()
                     .scaledToFit()
-                    .frame(relevantWidth: 106, relevantHeight: 54)
+                    .frame(width: <->106, height: |54)
                     .transition(.opacity)
-                    .padding(.bottom, relevantLength: 72)
+                    .padding(.bottom, |72)
             }
 
         }
