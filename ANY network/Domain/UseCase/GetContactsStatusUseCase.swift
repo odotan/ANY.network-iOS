@@ -1,9 +1,9 @@
 import Foundation
 
 final class GetContactsStatusUseCase {
-    private let repository: ContactsRepository
+    private let repository: ContactsAccessRepository
     
-    init(repository: ContactsRepository) {
+    init(repository: ContactsAccessRepository) {
         self.repository = repository
     }
     

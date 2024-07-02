@@ -2,71 +2,134 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject var viewModel: HomeViewModel
+    
+    private let minOffset: CGFloat = 0
+    private let maxOffset: CGFloat = 500
 
-    var body: some View {
-        HomeViewTemp()
-    }
-}
+    @State private var screenSize: CGSize = .zero
+    @State var offset: CGFloat = 391
+    
+    @State private var selectedSection: String?
 
-struct HomeViewTemp: View {
-    private let initialHeight: CGFloat = 300
-
-    @State var offset: CGFloat = 0
     
     var body: some View {
-        ZStack {
-            VStack(spacing: 0) {
+        VStack(spacing: 0) {
+            header
+            
+            SearchBarView(
+                term: searchTerm,
+                searchPressed: {
+                    viewModel.handle(.searchPressed)
+                }, 
+                filterPressed: {
+                    viewModel.handle(.filterPressed)
+                }
+            )
+            .padding(.horizontal, <->16)
+            .padding(.top, |24)
+            
+            if !viewModel.state.showSearch {
                 favourites
-                recently
+                    .frame(height: offset)
+                
+                HomeRecentView { dragGesture }
+            } else {
+                searchList
             }
         }
-        .background(Color.appBackground)
-        .edgesIgnoringSafeArea(.all)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onSizeChange(perform: { size in
+            screenSize = size
+        })
+        .background(Color.appBackground.ignoresSafeArea())
+//        .onAppear {
+//            viewModel.handle(.getAllContacts)
+//        }
+    }
+    
+    @ViewBuilder
+    var header: some View {
+        HStack(spacing: 0) {
+            Spacer()
+            
+            Image(.flowerNav)
+                .resizable()
+                .frame(width: <->20.11, height: |19.5)
+            
+            Spacer()
+        }
+        .frame(height: |40)
     }
     
     @ViewBuilder
     var favourites: some View {
         Color.clear
+            .overlay(alignment: .topLeading) {
+                HStack {
+                    Text("Favorites")
+                        .font(Font.custom(Font.montseratMedium, size: |18))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, <->16)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        viewModel.handle(.addFavoritePressed)
+                    }, label: {
+                        Text("Add")
+                            .font(.custom(Font.montseratMedium, size: |18))
+                            .lineSpacing(4)
+                            .foregroundColor(.appGreen)
+                    })
+                    .padding(.trailing, <->16)
+                }
+            }
+            .padding(.top, |19)
     }
     
     @ViewBuilder
-    var recently: some View {
-        VStack {
-            DragableView(offset: $offset)
-                
-            Spacer()
+    var searchList: some View {
+        List(viewModel.state.searched!) { contact in
+            ContactCell(contact: contact)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
         }
-        .frame(height: UIScreen.main.bounds.height - initialHeight - offset)
-        .frame(maxWidth: .infinity)
-        .background(Color.appBackground)
-//        .clipShape(RoundedRectangle(cornerRadius: 50))
-        //.cornerRadiusWithBorder(cornerRadii: .init(topLeading: 50, topTrailing: 50), borderColor: Color.white.opacity(0.14))
-        .shadow(color: /*@START_MENU_TOKEN@*/.black/*@END_MENU_TOKEN@*/, radius: 50, x: /*@START_MENU_TOKEN@*/0.0/*@END_MENU_TOKEN@*/, y: -50)
+        .listRowSpacing(-10)
+        .listStyle(.plain)
+        .background(.appBackground)
+    }
+    
+    var dragGesture: some Gesture {
+        DragGesture()
+            .onChanged { drag in
+                var new = offset
+                new += drag.translation.height
+                
+                if new < minOffset {
+                    offset = minOffset
+                } else if new > maxOffset {
+                    offset = maxOffset
+                } else {
+                    offset = new
+                }
+            }
+    }
+    
+    private var searchTerm: Binding<String> {
+        return Binding(
+            get: { viewModel.state.searchTerm },
+            set: { viewModel.handle(.searchUpdated(term: $0)) }
+        )
     }
 }
 
 #Preview {
-    HomeViewTemp()
-}
-
-
-struct DragableView: View {
-    @Binding var offset: CGFloat
-
-    var body: some View {
-        RoundedRectangle(cornerRadius: 3)
-            .foregroundColor(.white.opacity(0.4))
-            .frame(width: 72, height: 3)
-            .padding(.top, 14)
-            .padding(.bottom, 30)
-            .padding(.horizontal, 30)
-            .background(Color.appBackground)
-            .gesture(
-                DragGesture()
-                    .onChanged { drag in
-                        offset += drag.translation.height
-//                        print(offset)
-                    }
+    HomeView(viewModel: 
+            .init(
+                coordinator: MainCoordinator(),
+                getAllContactsUseCase:
+                    GetAllContactsUseCase(repository: ContactsService()),
+                searchUseCase: SearchNameUseCase(repository: ContactsService())
             )
-    }
+    )
 }

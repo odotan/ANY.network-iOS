@@ -1,10 +1,10 @@
 import Foundation
 
 final class GetContactUseCase {
-    private let repository: ContactsRepository
+    private let repository: ContactsServicesRepository
     private let identifier: String
     
-    init(repository: ContactsRepository, identifier: String) {
+    init(repository: ContactsServicesRepository, identifier: String) {
         self.repository = repository
         self.identifier = identifier
     }

@@ -45,7 +45,8 @@ extension ScreenFactory: HomeFactory {
     func makeHome(coordinator: MainCoordinatorProtocol) -> HomeView {
         let viewModel = HomeViewModel(
             coordinator: coordinator,
-            getAllContactsUseCase: appFactory.makeGetAll()
+            getAllContactsUseCase: appFactory.makeGetAll(),
+            searchUseCase: appFactory.makeSearch()
         )
 
         let view = HomeView(viewModel: viewModel)

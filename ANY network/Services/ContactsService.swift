@@ -1,12 +1,14 @@
 import Foundation
 import Contacts
 
-final class ContactsService: ContactsRepository {
+final class ContactsService {
     private let store = CNContactStore()
-    
+}
+
+extension ContactsService: ContactsAccessRepository {
     var status: ContactsServicesStatus {
         let status = CNContactStore.authorizationStatus(for: .contacts)
-
+        
         switch status {
         case .notDetermined:
             return .notDetermined
@@ -24,47 +26,45 @@ final class ContactsService: ContactsRepository {
     func requestAccess() async throws {
         try await store.requestAccess(for: .contacts)
     }
-    
+}
+
+extension ContactsService: ContactsServicesRepository {
     func getAll() throws -> [Contact] {
         let containers = try store.containers(matching: nil)
-        
-        let keys = [
-            CNContactIdentifierKey as CNKeyDescriptor,
-            CNContactGivenNameKey as CNKeyDescriptor,
-            CNContactFamilyNameKey as CNKeyDescriptor,
-            CNContactPhoneNumbersKey as CNKeyDescriptor,
-            CNContactEmailAddressesKey as CNKeyDescriptor,
-            CNContactImageDataKey as  CNKeyDescriptor,
-            CNContactImageDataAvailableKey as CNKeyDescriptor
-        ]
-        
+                
         var all = [CNContact]()
         try containers.forEach { container in
             let predicate = CNContact.predicateForContactsInContainer(withIdentifier: container.identifier)
             
-            let contacts = try store.unifiedContacts(matching: predicate, keysToFetch: keys)
+            let contacts = try store.unifiedContacts(matching: predicate, keysToFetch: keysToFetch)
             all += contacts
         }
 
-        return all
+        return all.asContacts()
     }
     
     func getContact(withIdentifier identifier: String) throws -> Contact {
-        let keys = [
-            CNContactIdentifierKey as CNKeyDescriptor,
-            CNContactGivenNameKey as CNKeyDescriptor,
-            CNContactFamilyNameKey as CNKeyDescriptor,
-            CNContactPhoneNumbersKey as CNKeyDescriptor,
-            CNContactEmailAddressesKey as CNKeyDescriptor,
-            CNContactImageDataKey as  CNKeyDescriptor,
-            CNContactImageDataAvailableKey as CNKeyDescriptor
-        ]
-
-        let contact = try store.unifiedContact(withIdentifier: identifier, keysToFetch: keys)
+        let contact = try store.unifiedContact(withIdentifier: identifier, keysToFetch: keysToFetch)
         
-        return contact
+        return contact.asContact()
+    }
+    
+    func search(name: String) throws -> [Contact] {
+        let predicate = CNContact.predicateForContacts(matchingName: name)
+        let contacts = try store.unifiedContacts(matching: predicate, keysToFetch: keysToFetch)
+        return contacts.asContacts()
     }
 }
+
+fileprivate let keysToFetch = [
+    CNContactIdentifierKey as CNKeyDescriptor,
+    CNContactGivenNameKey as CNKeyDescriptor,
+    CNContactFamilyNameKey as CNKeyDescriptor,
+    CNContactPhoneNumbersKey as CNKeyDescriptor,
+    CNContactEmailAddressesKey as CNKeyDescriptor,
+    CNContactImageDataKey as  CNKeyDescriptor,
+    CNContactImageDataAvailableKey as CNKeyDescriptor
+]
 
 enum ContactsServicesStatus {
     case notDetermined
@@ -73,7 +73,7 @@ enum ContactsServicesStatus {
     case authorized
 }
 
-extension CNContact: Contact {
+extension CNContact: AnyContact {
     var id: String {
         identifier
     }

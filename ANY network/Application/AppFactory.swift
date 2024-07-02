@@ -20,4 +20,8 @@ extension AppFactory {
     func makeGetAll() -> GetAllContactsUseCase {
         GetAllContactsUseCase(repository: contactsService)
     }
+    
+    func makeSearch() -> SearchNameUseCase {
+        SearchNameUseCase(repository: contactsService)
+    }
 }

@@ -15,6 +15,11 @@
 		5E1A66AB2C2DB91300A7ABCC /* SizePreferenceKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66AA2C2DB91300A7ABCC /* SizePreferenceKey.swift */; };
 		5E1A66AD2C2DBCCF00A7ABCC /* SizeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66AC2C2DBCCF00A7ABCC /* SizeModifier.swift */; };
 		5E1A66AF2C2EF21500A7ABCC /* FlexibleSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66AE2C2EF21500A7ABCC /* FlexibleSize.swift */; };
+		5E1A66B42C2F103700A7ABCC /* ContactsServicesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66B32C2F103700A7ABCC /* ContactsServicesRepository.swift */; };
+		5E1A66B62C2F139000A7ABCC /* HomeRecentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66B52C2F139000A7ABCC /* HomeRecentView.swift */; };
+		5E1A66B82C2FEC0E00A7ABCC /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66B72C2FEC0E00A7ABCC /* SearchBarView.swift */; };
+		5E1A66BA2C30132C00A7ABCC /* SearchNameUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66B92C30132C00A7ABCC /* SearchNameUseCase.swift */; };
+		5E1A66BC2C30186E00A7ABCC /* ContactCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A66BB2C30186E00A7ABCC /* ContactCell.swift */; };
 		5E2649662C25A3330047DDCF /* HexagonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2649652C25A3330047DDCF /* HexagonItem.swift */; };
 		5E2649682C25A3D90047DDCF /* HexagonType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2649672C25A3D90047DDCF /* HexagonType.swift */; };
 		5E26496A2C25B8290047DDCF /* HexagonBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2649692C25B8290047DDCF /* HexagonBackground.swift */; };
@@ -23,7 +28,7 @@
 		5E6D92F72C10C60B005ADF06 /* MyProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D92F62C10C60B005ADF06 /* MyProfileViewModel.swift */; };
 		5E6D92F92C10C611005ADF06 /* MyProfileState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D92F82C10C611005ADF06 /* MyProfileState.swift */; };
 		5E6D92FC2C11ACF1005ADF06 /* ContactsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D92FB2C11ACF1005ADF06 /* ContactsService.swift */; };
-		5E6D93002C11D6E9005ADF06 /* ContactsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D92FF2C11D6E9005ADF06 /* ContactsRepository.swift */; };
+		5E6D93002C11D6E9005ADF06 /* ContactsAccessRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D92FF2C11D6E9005ADF06 /* ContactsAccessRepository.swift */; };
 		5E6D93032C11D71C005ADF06 /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D93022C11D71C005ADF06 /* Contact.swift */; };
 		5E6D93062C11DF04005ADF06 /* GetAllContactsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D93052C11DF04005ADF06 /* GetAllContactsUseCase.swift */; };
 		5E6D93082C11E138005ADF06 /* GetContactUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E6D93072C11E138005ADF06 /* GetContactUseCase.swift */; };
@@ -84,6 +89,11 @@
 		5E1A66AA2C2DB91300A7ABCC /* SizePreferenceKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizePreferenceKey.swift; sourceTree = "<group>"; };
 		5E1A66AC2C2DBCCF00A7ABCC /* SizeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeModifier.swift; sourceTree = "<group>"; };
 		5E1A66AE2C2EF21500A7ABCC /* FlexibleSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexibleSize.swift; sourceTree = "<group>"; };
+		5E1A66B32C2F103700A7ABCC /* ContactsServicesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsServicesRepository.swift; sourceTree = "<group>"; };
+		5E1A66B52C2F139000A7ABCC /* HomeRecentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRecentView.swift; sourceTree = "<group>"; };
+		5E1A66B72C2FEC0E00A7ABCC /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
+		5E1A66B92C30132C00A7ABCC /* SearchNameUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchNameUseCase.swift; sourceTree = "<group>"; };
+		5E1A66BB2C30186E00A7ABCC /* ContactCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactCell.swift; sourceTree = "<group>"; };
 		5E2649652C25A3330047DDCF /* HexagonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonItem.swift; sourceTree = "<group>"; };
 		5E2649672C25A3D90047DDCF /* HexagonType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonType.swift; sourceTree = "<group>"; };
 		5E2649692C25B8290047DDCF /* HexagonBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexagonBackground.swift; sourceTree = "<group>"; };
@@ -92,7 +102,7 @@
 		5E6D92F62C10C60B005ADF06 /* MyProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyProfileViewModel.swift; sourceTree = "<group>"; };
 		5E6D92F82C10C611005ADF06 /* MyProfileState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyProfileState.swift; sourceTree = "<group>"; };
 		5E6D92FB2C11ACF1005ADF06 /* ContactsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsService.swift; sourceTree = "<group>"; };
-		5E6D92FF2C11D6E9005ADF06 /* ContactsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsRepository.swift; sourceTree = "<group>"; };
+		5E6D92FF2C11D6E9005ADF06 /* ContactsAccessRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsAccessRepository.swift; sourceTree = "<group>"; };
 		5E6D93022C11D71C005ADF06 /* Contact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
 		5E6D93052C11DF04005ADF06 /* GetAllContactsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetAllContactsUseCase.swift; sourceTree = "<group>"; };
 		5E6D93072C11E138005ADF06 /* GetContactUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetContactUseCase.swift; sourceTree = "<group>"; };
@@ -188,6 +198,16 @@
 			path = PreferenceKeys;
 			sourceTree = "<group>";
 		};
+		5E1A66B02C2F0ADF00A7ABCC /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5E1A66B52C2F139000A7ABCC /* HomeRecentView.swift */,
+				5E1A66B72C2FEC0E00A7ABCC /* SearchBarView.swift */,
+				5E1A66BB2C30186E00A7ABCC /* ContactCell.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		5E229AFE2C1208AF002D8463 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
@@ -255,7 +275,8 @@
 		5E6D92FE2C11D6D5005ADF06 /* Repositories */ = {
 			isa = PBXGroup;
 			children = (
-				5E6D92FF2C11D6E9005ADF06 /* ContactsRepository.swift */,
+				5E6D92FF2C11D6E9005ADF06 /* ContactsAccessRepository.swift */,
+				5E1A66B32C2F103700A7ABCC /* ContactsServicesRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -275,6 +296,7 @@
 				5E6D93072C11E138005ADF06 /* GetContactUseCase.swift */,
 				5EF4B29D2C11F53200344F35 /* GetContactsStatusUseCase.swift */,
 				5EF4B29F2C11F85600344F35 /* GetRequestAccessUseCase.swift */,
+				5E1A66B92C30132C00A7ABCC /* SearchNameUseCase.swift */,
 			);
 			path = UseCase;
 			sourceTree = "<group>";
@@ -449,6 +471,7 @@
 		5EEB1AFD2C10A0A3000F310E /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				5E1A66B02C2F0ADF00A7ABCC /* Views */,
 				5EEB1AFE2C10A0B3000F310E /* HomeView.swift */,
 				5EEB1B002C10A0BA000F310E /* HomeViewModel.swift */,
 				5EEB1B022C10A0C8000F310E /* HomeViewState.swift */,
@@ -622,13 +645,15 @@
 				5EEB1B032C10A0C8000F310E /* HomeViewState.swift in Sources */,
 				5EE54FC52C0F6E460058F6AE /* AppFactory.swift in Sources */,
 				5EB41ECC2C22F901001CF7DD /* LandingView.swift in Sources */,
+				5E1A66B82C2FEC0E00A7ABCC /* SearchBarView.swift in Sources */,
 				5EE54FB32C0F11C20058F6AE /* ANY_networkApp.swift in Sources */,
 				5EE54FE52C0F78EF0058F6AE /* ViewModel.swift in Sources */,
 				5EF4B29A2C11F26A00344F35 /* ToggleSwitch.swift in Sources */,
-				5E6D93002C11D6E9005ADF06 /* ContactsRepository.swift in Sources */,
+				5E6D93002C11D6E9005ADF06 /* ContactsAccessRepository.swift in Sources */,
 				5E10BF352C1303C800DB47F7 /* ConnectState.swift in Sources */,
 				5EE54FC92C0F6E880058F6AE /* ScreenFactory.swift in Sources */,
 				5EC639F52C1894B900839AA5 /* IntroView.swift in Sources */,
+				5E1A66B42C2F103700A7ABCC /* ContactsServicesRepository.swift in Sources */,
 				5EE54FE22C0F78EF0058F6AE /* Coordinator.swift in Sources */,
 				5E10BF392C1328F200DB47F7 /* HexagonShape.swift in Sources */,
 				5E10BF372C1303C800DB47F7 /* ConnectViewModel.swift in Sources */,
@@ -640,6 +665,7 @@
 				5EEB1AFF2C10A0B3000F310E /* HomeView.swift in Sources */,
 				5E1A66AF2C2EF21500A7ABCC /* FlexibleSize.swift in Sources */,
 				5E10BF362C1303C800DB47F7 /* ConnectView.swift in Sources */,
+				5E1A66B62C2F139000A7ABCC /* HomeRecentView.swift in Sources */,
 				5EF4B2962C11F26A00344F35 /* HexagonButton.swift in Sources */,
 				5EF4B2972C11F26A00344F35 /* PlainTextButton.swift in Sources */,
 				5EEB1AF42C109C5D000F310E /* OnboardingCoordinatorView.swift in Sources */,
@@ -648,6 +674,7 @@
 				5EE54FE72C0F7BB00058F6AE /* ContactsPermissionViewState.swift in Sources */,
 				5E6D93032C11D71C005ADF06 /* Contact.swift in Sources */,
 				5EEB1B012C10A0BA000F310E /* HomeViewModel.swift in Sources */,
+				5E1A66BA2C30132C00A7ABCC /* SearchNameUseCase.swift in Sources */,
 				5EF4B28B2C11F25700344F35 /* Fonts.swift in Sources */,
 				5EB41ECF2C242B33001CF7DD /* RegularHexagonButton.swift in Sources */,
 				5E26496A2C25B8290047DDCF /* HexagonBackground.swift in Sources */,
@@ -656,6 +683,7 @@
 				5EE54FCC2C0F6EC40058F6AE /* AppCoordinatorView.swift in Sources */,
 				5EC639F62C1894B900839AA5 /* IntroViewModel.swift in Sources */,
 				5EEB1AF72C10A07E000F310E /* MainCoordinatorView.swift in Sources */,
+				5E1A66BC2C30186E00A7ABCC /* ContactCell.swift in Sources */,
 				5EEB1AFB2C10A08F000F310E /* MainCoordinatorProtocol.swift in Sources */,
 				5E6D92F72C10C60B005ADF06 /* MyProfileViewModel.swift in Sources */,
 				5EE54FD22C0F732C0058F6AE /* CoordinatorFactoryProtocols.swift in Sources */,
