@@ -5,5 +5,7 @@ protocol OnboardingCoordinatorFactory: IntroFactory,
                                        ContactsPermissionFactory { }
 
 protocol MainCoordinatorFactory: HomeFactory,
-                                 MyProfileFactory { }
+                                 MyProfileFactory,
+                                 DetailsFactory,
+                                 SearchFactory { }
 

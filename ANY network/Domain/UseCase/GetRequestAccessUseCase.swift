@@ -1,9 +1,9 @@
 import Foundation
 
 final class GetRequestAccessUseCase {
-    private let repository: ContactsAccessRepository
+    private let repository: ContactsRepository
     
-    init(repository: ContactsAccessRepository) {
+    init(repository: ContactsRepository) {
         self.repository = repository
     }
     

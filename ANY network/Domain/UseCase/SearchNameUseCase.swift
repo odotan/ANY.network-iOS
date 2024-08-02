@@ -1,13 +1,13 @@
 import Foundation
 
 final class SearchNameUseCase {
-    private let repository: ContactsServicesRepository
+    private let repository: ContactsRepository
     
-    init(repository: ContactsServicesRepository) {
+    init(repository: ContactsRepository) {
         self.repository = repository
     }
     
-    func search(name: String) async throws -> [Contact] {
-        try repository.search(name: name)
+    func execute(name: String) async throws -> [Contact] {
+        try await repository.search(name: name)
     }
 }

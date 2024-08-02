@@ -10,17 +10,14 @@ struct ContactCell: View {
     var body: some View {
         HStack(spacing: 0) {
             Group {
-                if let data = contact.imageData, let uiImage = UIImage(data: data) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
+                if let data = contact.imageData {
+                    AsyncImageWithCache(imageData: data, cacheKey: "\(data.hashValue)")
                 } else {
-                    Color.appPurple
+                    Color.appRaisinBlack
                         .overlay {
-                            Text(String(contact.givenName.first!) + String(contact.familyName.first!))
-                                .foregroundColor(.white)
-                                .font(Font.custom(Font.montseratSemiBold, size: |22))
-
+                            Image(.avatar)
+                                .resizable()
+                                .frame(width: <->26.37, height: |30.7)
                         }
                 }
             }
@@ -28,24 +25,23 @@ struct ContactCell: View {
             .clipShape(HexagonShape(cornerRadius: 5))
             
             VStack(alignment: .leading, spacing: |2) {
-                Text(contact.givenName + " " + contact.familyName)
+                Text(contact.fullName)
                     .lineLimit(1)
-                    .font(Font.custom(Font.montseratSemiBold, size: |18))
+                    .font(.montserat(size: |18, weight: .semibold))
                     .minimumScaleFactor(0.5)
                 
-                Text("+558 5225 22544")
-                    .font(.custom(Font.montseratRegular, size: |14))
-                    .opacity(0.7)
+                if let topNumber = contact.topNumber {
+                    Text(topNumber)
+                        .font(.montserat(size: |14))
+                        .opacity(0.7)
+                }
             }
             .padding(.horizontal, <->16)
             .foregroundColor(.white)
             
             Spacer()
+            
+            SwitcherView() 
         }
     }
-}
-
-#Preview {
-    ContactCell(contact: Contact(id: "1", givenName: "Danail", familyName: "Vrachev", imageData: nil, imageDataAvailable: false))
-        .background(.appBackground)
 }

@@ -1,13 +1,14 @@
 import SwiftUI
 
-struct HexagonShape: Shape {
+public struct HexagonShape: Shape {
+    public static let aspectRatio: CGFloat = sqrt(3) / 2
     private let cornerRadius: CGFloat
     
     init(cornerRadius: CGFloat) {
         self.cornerRadius = cornerRadius
     }
-    
-    func path(in rect: CGRect) -> Path {
+
+    public func path(in rect: CGRect) -> Path {
         var path = Path()
         
         let topCenter = CGPoint(x: rect.midX, y: rect.minY)
@@ -28,12 +29,26 @@ struct HexagonShape: Shape {
 
         return path
     }
+
+    public func sizeThatFits(_ proposal: ProposedViewSize) -> CGSize {
+        let size = proposal.replacingUnspecifiedDimensions(by: .infinity)
+        let diameter = Self.diameter(for: size)
+        return CGSize(width: diameter, height: diameter / Self.aspectRatio)
+    }
+
+    private static func diameter(for size: CGSize) -> CGFloat {
+        return min(size.width, size.height * Self.aspectRatio)
+    }
+}
+
+extension CGSize {
+    static var infinity: Self {
+        CGSize(width: CGFloat.infinity, height: CGFloat.infinity)
+    }
 }
 
 #Preview {
-    Color.red
-        .clipShape(HexagonShape(cornerRadius: 30))
-        .frame(
-            width: UIScreen.main.bounds.width - 10,
-            height: tan(Angle(degrees: 30).radians) * (UIScreen.main.bounds.width - 10) * 2)
+    HexagonShape(cornerRadius: 60)
+        .padding()
+        .previewLayout(.sizeThatFits)
 }

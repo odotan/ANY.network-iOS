@@ -7,7 +7,7 @@ struct PlainTextButton: View {
     var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.custom(Font.montseratRegular, size: |14))
+                .font(.montserat(size: |14))
         }
         .buttonStyle(PlainTextButtonStyle())
     }

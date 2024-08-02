@@ -19,7 +19,7 @@ struct GlowModifier: ViewModifier {
                         radius: animate ? 10 : 5,
                         x: 0, y: 0)
                 .onAppear {
-                    withAnimation(Animation.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                    withAnimation(Animation.easeInOut.repeatForever(autoreverses: true)) {
                         animate.toggle()
                     }
                 }

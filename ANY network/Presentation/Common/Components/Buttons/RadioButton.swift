@@ -24,7 +24,7 @@ struct RadioButton: View {
             .frame(width: <->17, height: |17)
 
             Text(text)
-                .font(.custom(Font.montseratRegular, size: |14))
+                .font(.montserat(size: |14))
                 .foregroundStyle(.appTransparentWhiteText)
         }
     }

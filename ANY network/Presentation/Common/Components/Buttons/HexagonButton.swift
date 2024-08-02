@@ -34,7 +34,7 @@ struct HexagonButton: View {
         case .filled:
             return Font.system(size: |16, weight: .bold)
         case .bordered:
-            return Font.custom(Font.montseratRegular, size: |18)
+            return Font.montserat(size: |18)
         }
     }
 }

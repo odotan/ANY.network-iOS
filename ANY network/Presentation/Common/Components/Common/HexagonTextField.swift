@@ -19,7 +19,7 @@ struct HexagonTextField: View {
         )
         .textInputAutocapitalization(.never)
         .keyboardType(keyboardType)
-        .font(.custom(Font.montseratRegular, size: 14))
+        .font(.montserat(size: |14))
         .foregroundStyle(.appTransparentWhiteText)
         .padding(.leading, 28)
         .padding(.vertical, 19)

@@ -3,8 +3,8 @@ import SwiftUI
 prefix operator <->
 prefix operator |
 
-private let dWidth: CGFloat = 375
-private let dHeight: CGFloat = 812
+private let dWidth: CGFloat = 393
+private let dHeight: CGFloat = 852
 
 @MainActor
 public prefix func <-> (_ value: CGFloat) -> CGFloat {
@@ -21,3 +21,4 @@ public prefix func | (_ value: CGFloat) -> CGFloat {
 
     return height * percent
 }
+

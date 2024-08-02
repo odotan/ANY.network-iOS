@@ -28,7 +28,7 @@ struct SearchBarView: View {
                     }
             }
             .foregroundColor(.white)
-            .font(Font.custom(Font.montseratRegular, size: |14))
+            .font(.montserat(size: |14))
             .frame(maxWidth: .infinity)
             .frame(height: |18)
             .padding(.horizontal, <->11)

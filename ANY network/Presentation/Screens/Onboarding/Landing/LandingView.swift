@@ -2,87 +2,100 @@ import SwiftUI
 
 struct LandingView: View {
     @Binding var animationFinished: Bool
-    @State private var showTopImage = false
-    @State private var showMiddleImage1 = false
-    @State private var showMiddleImage2 = false
-    @State private var showByImage = false
-    @State private var showBottomImage = false
+    @State private var showLogo = false
+    @State private var showLabel = false
+    @State private var changeImages = false
+    @State private var scale: CGFloat = 1
+    @State private var changeBackgroundColor = false
     
     var body: some View {
         VStack(spacing: 0) {
-            if showTopImage {
-                Image(.landingTop)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: <->143, height: |180)
-                    .padding(.top, |151)
-                    .transition(.opacity)
-            }
+            Spacer()
+                .frame(height: |238)
+
+            Image(!changeImages ? .landingLogo : .landingLogoHex)
+                .resizable()
+                .scaledToFit()
+                .frame(width: <->143, height: |180.54)
+                .opacity(showLogo ? 1 : 0)
+                .scaleEffect(scale, anchor: .init(x: 0.45, y: 0.25))
+                .transition(.opacity)
             
-            if showMiddleImage1 {
-                Image(.landingMiddle1)
+            Group {
+                Image(.landingAny)
                     .resizable()
                     .scaledToFit()
                     .frame(width: <->136, height: |39.5)
-                    .padding(.top, |24)
-                    .transition(.opacity)
-            }
-            
-            if showMiddleImage2 {
-                Image(.landingMiddle2)
+                    .padding(.top, |23.85)
+                
+                Image(.landingNetwork)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: <->102, height: |13)
-                    .padding(.top, |16)
-                    .transition(.opacity)
+                    .frame(width: <->102, height: |13.08)
+                    .padding(.top, |15.5)
             }
+            .opacity(showLabel ? 1 : 0)
             
             Spacer()
-
-            if showByImage {
-                Image(.landingBy)
-                    .resizable()
-                    .scaledToFit() 
-                    .frame(width: <->15, height: |33.35)
-                    .padding(.bottom, |10)
-                    .offset(x: 8)
-                    .offset(y: showBottomImage ? 0 : -(|126))
-                    .transition(.opacity)
-            }
-            
-            if showBottomImage {
-                Image(.landingBtp)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: <->106, height: |54)
-                    .transition(.opacity)
-                    .padding(.bottom, |72)
-            }
-
         }
         .frame(maxWidth: .infinity, maxHeight: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
         .edgesIgnoringSafeArea(.all)
         .background(Color.appBackground)
+        .onTapGesture {
+            self.animationFinished = true
+        }
         .onAppear {
-            withAnimation(.easeOut(duration: 0.5)) {
-                showTopImage = true
+            withAnimation(
+                .easeIn(duration: Constants.Duration.showLogo)
+                .delay(Constants.Delay.initial)
+            ) {
+                showLogo = true
             }
-            withAnimation(.easeOut(duration: 0.5).delay(0.5)) {
-                showMiddleImage1 = true
+            withAnimation(
+                .easeIn(duration: Constants.Duration.showLabel)
+                .delay(Constants.Delay.showLabel)
+            ) {
+                showLabel = true
             }
-            withAnimation(.easeOut(duration: 0.5).delay(1.0)) {
-                showMiddleImage2 = true
+            withAnimation(
+                .easeIn(duration: Constants.Duration.purpleHexagon)
+                .delay(Constants.Delay.purpleHexagon)
+            ) {
+                showLabel = false
+                changeImages = true
             }
-            withAnimation(.easeOut(duration: 0.5).delay(1.5)) {
-                showByImage = true
-            }
-            withAnimation(.easeOut(duration: 0.5).delay(2.0)) {
-                showBottomImage = true
+            withAnimation(
+                .easeIn(duration: Constants.Duration.purpleHexagonScale)
+                .delay(Constants.Delay.purpleHexagonScale)
+            ) {
+                scale = 30
             } completion: {
-                withAnimation(.easeInOut.delay(0.5)) {
+                withAnimation(
+                    .easeIn(duration: Constants.Duration.switchScreens)
+                    .delay(Constants.Delay.switchScreens)
+                ) {
                     self.animationFinished = true
                 }
             }
+        }
+    }
+    
+    // MARK: -- OFIR
+    private enum Constants {
+        enum Delay {
+            static let initial: CGFloat = 0.8
+            static let showLabel: CGFloat = 1.8 // 1.6 + 0.2
+            static let purpleHexagon: CGFloat = 3.4 // 2.6 + 0.8
+            static let purpleHexagonScale: CGFloat = 4.7 // 4.6 + 0.1
+            static let switchScreens: CGFloat = 0.4
+        }
+
+        enum Duration {
+            static let showLogo: CGFloat = 0.8
+            static let showLabel: CGFloat = 0.8
+            static let purpleHexagon: CGFloat = 1
+            static let purpleHexagonScale: CGFloat = 1
+            static let switchScreens: CGFloat = 1.5
         }
     }
 }

@@ -10,6 +10,7 @@ final class ScreenFactory: OnboardingCoordinatorFactory,
     }
 }
 
+// MARK: Onboarding
 extension ScreenFactory: IntroFactory {
     func makeIntro(coordinator: OnboardingCoordinatorProtocol) -> IntroView {
         let viewModel = IntroViewModel(coordinator: coordinator)
@@ -41,10 +42,13 @@ extension ScreenFactory: ConnectFactory {
     }
 }
 
+
+// MARK: Main
 extension ScreenFactory: HomeFactory {
     func makeHome(coordinator: MainCoordinatorProtocol) -> HomeView {
         let viewModel = HomeViewModel(
             coordinator: coordinator,
+            getFavoriteContactsUseCase: appFactory.makeGetFavoriteContacts(),
             getAllContactsUseCase: appFactory.makeGetAll(),
             searchUseCase: appFactory.makeSearch()
         )
@@ -60,6 +64,31 @@ extension ScreenFactory: MyProfileFactory {
         let viewModel = MyProfileViewModel(coordinator: coordinator)
         let view = MyProfileView(viewModel: viewModel)
         
+        return view
+    }
+}
+
+extension ScreenFactory: DetailsFactory {
+    func makeDetails(contact: Contact, coordinator: MainCoordinatorProtocol) -> DetailsView {
+        let viewModel = DetailsViewModel(
+            contact: contact,
+            coordinator: coordinator,
+            toggleFavoriteUseCase: appFactory.makeToggleFavorite()
+        )
+        let view = DetailsView(viewModel: viewModel)
+        
+        return view
+    }
+}
+
+extension ScreenFactory: SearchFactory {
+    func makeSearch(coordinator: MainCoordinatorProtocol) -> SearchView {
+        let viewModel = SearchViewModel(
+            coordinator: coordinator,
+            getAllContactsUseCase: appFactory.makeGetAll(),
+            searchUseCase: appFactory.makeSearch()
+        )
+        let view = SearchView(viewModel: viewModel)
         return view
     }
 }

@@ -1,15 +1,13 @@
 import Foundation
 
 final class GetContactUseCase {
-    private let repository: ContactsServicesRepository
-    private let identifier: String
+    private let repository: ContactsRepository
     
-    init(repository: ContactsServicesRepository, identifier: String) {
+    init(repository: ContactsRepository) {
         self.repository = repository
-        self.identifier = identifier
     }
     
-    func execute() throws -> Contact {
-        try repository.getContact(withIdentifier: identifier)
+    func execute(with identifier: String) async throws -> Contact? {
+        try await repository.getContact(withIdentifier: identifier)
     }
 }

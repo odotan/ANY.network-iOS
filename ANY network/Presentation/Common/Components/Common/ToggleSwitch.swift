@@ -32,7 +32,7 @@ struct ToggleSwitch: View {
             }
 
             Text(text)
-                .font(.custom(Font.montseratRegular, size: 16))
+                .font(.montserat(size: |16))
                 .foregroundStyle(.white)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -1,0 +1,37 @@
+name: "ANY network"
+
+options:
+  minimumXcodeGenVersion: "2.38.0"
+  xcodeVersion: "15.4"
+  settings:
+    base:
+      SWIFT_VERSION: 5.4
+      
+packages:
+  RealmSwift:
+    url: https://github.com/realm/realm-swift
+    from: "10.52.1"
+
+targets:
+  ANY network:
+    type: application
+    platform: iOS
+    name: "ANY network"
+
+    settings:
+      base:
+        INFOPLIST_FILE: ANY network/Resources/Info.plist
+        MARKETING_VERSION: 1 # app version
+        CURRENT_PROJECT_VERSION: 1 # build version
+        TARGETED_DEVICE_FAMILY: 1 # iPhone
+        PRODUCT_BUNDLE_IDENTIFIER: network.any.any
+        ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+        DEVELOPMENT_TEAM: 3DV26K7BE7
+        GENERATE_INFOPLIST_FILE: NO
+
+    deploymentTarget: "17.0"
+    sources: ANY network
+
+    dependencies:
+      - package: RealmSwift
+        embed: true

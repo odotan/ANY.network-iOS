@@ -25,6 +25,10 @@ struct MainCoordinatorView: View {
             factory.makeHome(coordinator: coordinator)
         case .myProfile:
             factory.makeMyProfile(coordinator: coordinator)
+        case .details(let contact):
+            factory.makeDetails(contact: contact, coordinator: coordinator)
+        case .search:
+            factory.makeSearch(coordinator: coordinator)
         }
     }
 }
