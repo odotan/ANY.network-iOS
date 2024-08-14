@@ -83,16 +83,27 @@ final class RealmContactsDataSource {
     }
     
     @RealmActor
-    func toggleFavorite(forRealmId id: String) async throws {
+    func checkIfFavorite(forRealmId id: String) async throws -> Bool {
         guard
             let storage = await realmProvider.realm(),
             let contact = storage.object(ofType: ContactObject.self, forPrimaryKey: id) else
-        { return }
+        { throw RealmError.unknown }
+        
+        return contact.isFavorite
+    }
+    
+    @RealmActor
+    func toggleFavorite(forRealmId id: String) async throws -> Bool {
+        guard
+            let storage = await realmProvider.realm(),
+            let contact = storage.object(ofType: ContactObject.self, forPrimaryKey: id) else
+        { throw RealmError.unknown }
         
         contact.isFavorite.toggle()
         storage.writeAsync {
             storage.add(contact, update: .modified)
         }
+        return contact.isFavorite
     }
 }
 
@@ -105,17 +116,32 @@ extension RealmContactsDataSource {
     }
     
     @RealmActor
-    func toggleFavorite(forNativeId id: String) async throws {
-        guard let storage = await realmProvider.realm() else { return }
+    func checkIfFavorite(forNativeId id: String) async throws -> Bool {
+        guard let storage = await realmProvider.realm() else { throw RealmError.unknown }
+        guard let _ = storage.object(ofType: NativeFavoriteObject.self, forPrimaryKey: id) else { return false }
+
+        return true
+    }
+    
+    @RealmActor
+    func toggleFavorite(forNativeId id: String) async throws -> Bool {
+        guard let storage = await realmProvider.realm() else { throw RealmError.unknown }
 
         if let object = storage.object(ofType: NativeFavoriteObject.self, forPrimaryKey: id) {
             storage.writeAsync {
                 storage.delete(object)
             }
+            return false
         } else {
             storage.writeAsync {
                 storage.add(NativeFavoriteObject(nativeId: id))
             }
+            
+            return true
         }
     }
+}
+
+enum RealmError: Error {
+    case unknown
 }

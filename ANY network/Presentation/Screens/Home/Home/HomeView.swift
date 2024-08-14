@@ -3,23 +3,6 @@ import SwiftUI
 struct HomeView: View {
     @StateObject var viewModel: HomeViewModel
     
-    // Sizes
-    @State private var screenSize: CGSize = .zero
-    @State private var sheetSize: CGSize = .zero
-    @State private var gridContainerSize: CGSize = .zero
-    
-    // Grid
-    @State private var gridSize: CGSize = .zero
-    @State private var gridZoomScale: CGFloat = 1
-    @State private var gridContentOffset: CGPoint = .zero
-    @State private var gridContentSize: CGSize = .zero
-    
-    // Sheet
-    @State private var detentSelected: PresentationDetent = .top
-    
-    @State var list: [HexCell] = HexCell.inline
-
-    
     var body: some View {
         VStack(spacing: 0) {
             header
@@ -31,63 +14,52 @@ struct HomeView: View {
                 }
             
             favourites
-                .onChange(of: gridContentSize) { old, new in
+                .onChange(of: viewModel.uiState.gridContentSize) { old, new in
                     guard old == .zero else { return }
-                    gridContentOffset = CGPoint(
-                        x: (new.width - gridContainerSize.width) / 2 ,
-                        y: (new.height - gridContainerSize.height) / 2
-                    )
+                    viewModel.handle(.recenter)
                 }
-                .overlay(alignment: .bottom) {
+                .overlay(alignment: .bottomLeading) {
                     HStack {
                         SearchButton {
                             viewModel.handle(.goToSearch)
                         }
                         
                         Spacer()
+                        
+                        RecenterButton {
+                            viewModel.handle(.recenter)
+                        }
                     }
                     .padding(.bottom, 20)
                     .padding(.horizontal, <->18)
                 }
             
             Spacer()
-                .frame(height: sheetSize.height + 20) // 20 is the size of the corner radius of the sheet
+                .frame(height: sheetSize.wrappedValue.height + 20) // 20 is the size of the corner radius of the sheet
         }
         .sheet(isPresented: isSheetPresented) {
             VStack {
                 if viewModel.state.showAll {
-                    allAndSearchedList
+                    allContacts
                 }
             }
             .padding(.top)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .presentationDetents([.bottom, .middle, .top], selection: $detentSelected)
+            .presentationDetents([.bottom, .middle, .top], selection: detent)
             .presentationCornerRadius(20)
             .presentationBackground(Color.appBackground)
             .presentationBackgroundInteraction(.enabled)
             .presentationContentInteraction(.scrolls)
             .ignoresSafeArea()
-            .sizeInfo(size: $sheetSize)
-        }
-        .onChange(of: detentSelected) { _ , newValue in
-            switch detentSelected {
-            case .top:
-                list = HexCell.inline
-            case .middle:
-                list = HexCell.middle
-            case .bottom:
-                list = HexCell.all
-            default:
-                list = [HexCell]()
-            }
-        }
-        .task {
-            viewModel.handle(.getAllContacts)
+            .sizeInfo(size: sheetSize)
         }
 //        .task {
-//            viewModel.handle(.getFavoriteContacts)
+//            viewModel.handle(.getAllContacts)
 //        }
-        .onChange(of: viewModel.state.list) { oldValue, newValue in
+        .task {
+            viewModel.handle(.getFavoriteContacts)
+        }
+        .onChange(of: viewModel.state.gridItems) { oldValue, newValue in
             isSheetPresented.wrappedValue = newValue != nil && !newValue!.isEmpty
         }
         .onAppear { viewModel.handle(.sheetPresentationUpdated(to: true)) }
@@ -115,14 +87,29 @@ struct HomeView: View {
         let cellSize = CGSize(width: <->79.74, height: |90.46)
         
         ScrollViewWrapper(
-            contentOffset: $gridContentOffset,
-            contentSize: $gridContentSize,
-            size: $gridContainerSize,
-            zoomScale: $gridZoomScale,
+            contentOffset: gridContentOffset,
+            contentSize: gridContentSize,
+            size: gridContainerSize,
+            zoomScale: gridZoomScale,
             animationDuration: 0.35
         ) {
-            HexGrid(list, spacing: 8, cornerRadius: 6, fixedCellSize: cellSize) { cell in
-                Color.appRaisinBlack
+            HexGrid(viewModel.state.gridItems, spacing: 8, cornerRadius: 6, fixedCellSize: cellSize, indentLine: .odd) { cell in
+//                if
+//                    let priority = cell.priority,
+//                    priority < (viewModel.state.favorites?.count ?? 0),
+//                    let contact = viewModel.state.favorites?[priority] {
+//                    AvatarHexCell(imageData: contact.imageData, color: .clear) {
+//                        viewModel.handle(.goToDetails(contact: contact))
+//                    }
+//                } else {
+                    Color.green
+                        .overlay {
+                            Text("\(cell.priority ?? -1)")
+                                .font(.title)
+                                .colorMultiply(.white)
+                        }
+//                    ColorHexCell(color: cell.color)
+//                }
             }
             .background { Color.appBackground }
         }
@@ -131,16 +118,18 @@ struct HomeView: View {
             LinearGradient(colors: [.appBackground, .clear], startPoint: .init(x: 0, y: 0), endPoint: .init(x: 0, y: 1))
                 .frame(height: 50)
                 .blur(radius: 1)
+                .allowsHitTesting(false)
         }
         .overlay(alignment: .bottom) {
             LinearGradient(colors: [.clear, .appBackground], startPoint: .init(x: 0, y: 0), endPoint: .init(x: 0, y: 1))
                 .frame(height: 50)
                 .blur(radius: 1)
+                .allowsHitTesting(false)
         }
     }
     
     @ViewBuilder
-    var allAndSearchedList: some View {
+    var allContacts: some View {
         List(viewModel.state.list!) { contact in
             Button {
                 viewModel.handle(.goToDetails(contact: contact))
@@ -154,17 +143,68 @@ struct HomeView: View {
         .listStyle(.plain)
         .background(.appBackground)
     }
+}
 
+extension PresentationDetent {
+    static var bottom: PresentationDetent { .height(60) }
+    static var middle: PresentationDetent { .height(482) }
+    static var top: PresentationDetent { .height(600) }
+}
+
+extension HomeView {
     private var isSheetPresented: Binding<Bool> {
         return Binding(
             get: { viewModel.state.isSheetPresented },
             set: { viewModel.handle(.sheetPresentationUpdated(to: $0)) }
         )
     }
-}
 
-extension PresentationDetent {
-    @MainActor static var bottom: PresentationDetent { .height(|60) }
-    @MainActor static var middle: PresentationDetent { .height(|482) }
-    @MainActor static var top: PresentationDetent { .height(|600) }
+    private var sheetSize: Binding<CGSize> {
+        .init(
+            get: { viewModel.uiState.sheetSize },
+            set: { viewModel.handle(.setSheetSize($0)) }
+        )
+    }
+    
+    private var gridContainerSize: Binding<CGSize> {
+        .init(
+            get: { viewModel.uiState.gridContainerSize },
+            set: { viewModel.handle(.setGridContainerSize($0)) }
+        )
+    }
+    
+    private var gridZoomScale: Binding<CGFloat> {
+        .init(
+            get: { viewModel.uiState.gridZoomScale },
+            set: { viewModel.handle(.setGridZoomScale($0)) }
+        )
+    }
+    
+    private var gridContentOffset: Binding<CGPoint> {
+        .init(
+            get: { viewModel.uiState.gridContentOffset },
+            set: { viewModel.handle(.setGridContentOffset($0)) }
+        )
+    }
+    
+    private var gridContentSize: Binding<CGSize> {
+        .init(
+            get: { viewModel.uiState.gridContentSize },
+            set: { viewModel.handle(.setGridContentSize($0)) }
+        )
+    }
+         
+//    private var list: Binding<[HexCell]> {
+//        .init(
+//            get: { viewModel.state.gridItems },
+//            set: { viewModel.handle(.setGridItems($0)) }
+//        )
+//    }
+    
+    private var detent: Binding<PresentationDetent> {
+        .init(
+            get: { viewModel.state.detent },
+            set: { viewModel.handle(.setDetent($0)) }
+        )
+    }
 }

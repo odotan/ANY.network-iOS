@@ -62,24 +62,34 @@ extension ContactsRepositoryImplementation: ContactsRepository {
         if status == .authorized {
             guard let favoriteIdsObjects = try await realmDataSource.getFavoritesForNative() else { return [] }
 
-            var favorites = [Contact]()
+            var favoritesArray = [Contact]()
             for idObj in favoriteIdsObjects {
                 let contact = try nativeDataSource.getContact(withIdentifier: idObj.nativeId)!.asContact()
-                favorites.append(contact)
+                favoritesArray.append(contact)
             }
-            return favorites
+            
+            return favoritesArray
         }
         
-        guard let favorites = try await realmDataSource.getFavorite() else { return [] }
-        return favorites.compactMap { $0.asContact() }
+        guard let favoritesArray = try await realmDataSource.getFavorite() else { return [] }
+        return favoritesArray.compactMap { $0.asContact() }
     }
     
     @RealmActor
-    func toggleFavorite(contactId: String) async throws {
+    func checkIfFavorite(contactId: String) async throws -> Bool {
         if status == .authorized {
-            try await realmDataSource.toggleFavorite(forNativeId: contactId)
+            return try await realmDataSource.checkIfFavorite(forNativeId: contactId)
         } else {
-            try await realmDataSource.toggleFavorite(forRealmId: contactId)
+            return try await realmDataSource.checkIfFavorite(forRealmId: contactId)
+        }
+    }
+    
+    @RealmActor
+    func toggleFavorite(contactId: String) async throws -> Bool {
+        if status == .authorized {
+            return try await realmDataSource.toggleFavorite(forNativeId: contactId)
+        } else {
+            return try await realmDataSource.toggleFavorite(forRealmId: contactId)
         }
     }
 }

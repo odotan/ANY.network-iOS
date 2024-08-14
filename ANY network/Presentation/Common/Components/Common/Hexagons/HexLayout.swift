@@ -2,11 +2,12 @@ import SwiftUI
 
 struct HexLayout: Layout {
     let fixedCellSize: CGSize?
+    let indentLine: HexGridIndentLine
 
     func makeCache(subviews: Subviews) -> CGRect {
         let coordinates = subviews.compactMap { $0[OffsetCoordinateLayoutValueKey.self] }
 
-        return hexLayoutNormalizedBounds(coordinates: coordinates)
+        return hexLayoutNormalizedBounds(coordinates: coordinates, indentLine: indentLine)
     }
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout CGRect) -> CGSize {
@@ -34,14 +35,14 @@ struct HexLayout: Layout {
         for subview in subviews {
             guard let coordinate = subview[OffsetCoordinateLayoutValueKey.self] else { continue }
 
-            let cellCenter = hexLayoutCellCenter(coordinate: coordinate, normalizedOrigin: cache.origin, cellStep: cellStep)
+            let cellCenter = hexLayoutCellCenter(coordinate: coordinate, normalizedOrigin: cache.origin, cellStep: cellStep, indentLine: indentLine)
             let point = CGPoint(x: bounds.minX + cellCenter.x, y: bounds.minY + cellCenter.y)
             subview.place(at: point, anchor: .center, proposal: subviewProposal)
         }
     }
 }
 
-func hexLayoutNormalizedBounds(coordinates: [OffsetCoordinate]) -> CGRect {
+func hexLayoutNormalizedBounds(coordinates: [OffsetCoordinate], indentLine: HexGridIndentLine) -> CGRect {
     if coordinates.isEmpty { return .zero }
 
     let normalizedX = coordinates.map { CGFloat($0.col) }
@@ -49,7 +50,8 @@ func hexLayoutNormalizedBounds(coordinates: [OffsetCoordinate]) -> CGRect {
 
     let minX: CGFloat = normalizedX.min()!
     let maxX: CGFloat = normalizedX.max()!
-    let width = maxX - minX + 1 / 2 //+ 4 / 3
+    let param: CGFloat = indentLine == .even ? 0 : 1//4 / 3
+    let width = maxX - minX + param //+ 1 / 2 //+ 4 / 3
 
     let minY: CGFloat = normalizedY.min()!
     let maxY: CGFloat = normalizedY.max()!
@@ -66,8 +68,9 @@ func hexLayoutCellSize(cellStep: CGSize) -> CGSize {
     return CGSize(width: cellStep.width, height: cellStep.height * 4 / 3)
 }
 
-func hexLayoutCellCenter(coordinate: OffsetCoordinate, normalizedOrigin: CGPoint, cellStep: CGSize) -> CGPoint {
-    let normalizedX = CGFloat(coordinate.col) - normalizedOrigin.x + 1 / 2 * CGFloat((coordinate.row + 1) % 2) //+ 1 / 2
+func hexLayoutCellCenter(coordinate: OffsetCoordinate, normalizedOrigin: CGPoint, cellStep: CGSize, indentLine: HexGridIndentLine) -> CGPoint {
+    let param = indentLine == .even ? 1 : 0
+    let normalizedX = CGFloat(coordinate.col) - normalizedOrigin.x + 1 / 2 * CGFloat((coordinate.row + param) % 2)
     let normalizedY = CGFloat(coordinate.row) - normalizedOrigin.y + 2 / 3
     return CGPoint(x: cellStep.width * normalizedX, y: cellStep.height * normalizedY)
 }

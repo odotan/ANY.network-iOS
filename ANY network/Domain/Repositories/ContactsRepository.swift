@@ -9,5 +9,6 @@ protocol ContactsRepository {
     
     // Favorites
     func getFavoriteContacts() async throws -> [Contact]
-    func toggleFavorite(contactId: String) async throws
+    func checkIfFavorite(contactId: String) async throws -> Bool
+    func toggleFavorite(contactId: String) async throws -> Bool
 }

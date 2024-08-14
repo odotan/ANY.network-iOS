@@ -2,28 +2,13 @@ import SwiftUI
 
 @main
 struct ANY_networkApp: App {
-    @Environment(\.scenePhase) var scenePhase
-    
     @State var animationFinished: Bool = false
     let appFactory = AppFactory()
-    
+
     var body: some Scene {
         WindowGroup {
             destination
-                .onChange(of: scenePhase) { _ , newPhase in
-                    switch newPhase {
-                    case .active:
-                        print("App is active")
-                        try? HepticService.shared.start()
-                    case .inactive:
-                        print("App is inactive")
-                    case .background:
-                        print("App is in background")
-                        HepticService.shared.stop()
-                    @unknown default:
-                        print("Unknown phase")
-                    }
-                }
+                .background(SceneHandlerView())
         }
     }
     
@@ -39,5 +24,31 @@ struct ANY_networkApp: App {
             )
             .transition(.opacity)
         }
+    }
+}
+
+struct SceneHandlerView: View {
+    @Environment(\.scenePhase) private var scenePhase
+
+    var body: some View {
+        EmptyView()
+            .onChange(of: scenePhase) { _ , newPhase in
+                switch newPhase {
+                case .active:
+                    print("App is active")
+                    do {
+                        try HepticService.shared.start()
+                    } catch {
+                        print("Error starting Heptic Service:", error.localizedDescription)
+                    }
+                case .inactive:
+                    print("App is inactive")
+                case .background:
+                    print("App is in background")
+                    HepticService.shared.stop()
+                @unknown default:
+                    print("Unknown phase")
+                }
+            }
     }
 }

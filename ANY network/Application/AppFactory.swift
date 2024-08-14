@@ -38,4 +38,8 @@ extension AppFactory {
     func makeGetFavoriteContacts() -> GetFavoriteContactsUseCase {
         GetFavoriteContactsUseCase(repository: contactsRepository)
     }
+    
+    func makeCheckIfFavorite() -> CheckIfFavoriteUseCase {
+        CheckIfFavoriteUseCase(repository: contactsRepository)
+    }
 }

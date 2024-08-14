@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SearchButton: View {
+struct RecenterButton: View {
     private let action: (() -> Void)
     
     init(action: @escaping () -> Void) {
@@ -9,9 +9,9 @@ struct SearchButton: View {
     
     var body: some View {
         Button(action: action) {
-            Image(.spyglass)
+            Image(.recenterIcon)
                 .resizable()
-                .frame(width: <->18.05, height: <->18.05)
+                .frame(width: <->24, height: <->24)
         }
         .frame(width: <->48, height: <->48)
         .background {
@@ -26,7 +26,7 @@ struct SearchButton: View {
 }
 
 #Preview {
-    SearchButton() { }
+    RecenterButton() { }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .edgesIgnoringSafeArea(.all)
         .background {

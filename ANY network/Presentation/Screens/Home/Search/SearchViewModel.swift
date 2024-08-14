@@ -23,6 +23,8 @@ final class SearchViewModel: ViewModel {
             coordinator.pop()
         case .goToDetails(let contact):
             coordinator.showDetails(for: contact)
+        case .addContact:
+            print("Add it with searched term:", state.searchTerm)
         }
     }
 }

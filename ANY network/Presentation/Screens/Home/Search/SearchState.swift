@@ -11,5 +11,6 @@ extension SearchViewModel {
         case updateSearchTerm(String)
         case goBack
         case goToDetails(contact: Contact)
+        case addContact
     }
 }

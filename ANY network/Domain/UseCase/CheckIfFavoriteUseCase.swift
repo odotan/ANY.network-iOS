@@ -1,6 +1,6 @@
 import Foundation
 
-final class ToggleFavoriteUseCase {
+final class CheckIfFavoriteUseCase {
     private let repository: ContactsRepository
     
     init(repository: ContactsRepository) {
@@ -8,6 +8,6 @@ final class ToggleFavoriteUseCase {
     }
     
     func execute(_ id: String) async throws -> Bool {
-        try await repository.toggleFavorite(contactId: id)
+        try await repository.checkIfFavorite(contactId: id)
     }
 }

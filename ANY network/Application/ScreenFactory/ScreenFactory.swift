@@ -73,7 +73,8 @@ extension ScreenFactory: DetailsFactory {
         let viewModel = DetailsViewModel(
             contact: contact,
             coordinator: coordinator,
-            toggleFavoriteUseCase: appFactory.makeToggleFavorite()
+            toggleFavoriteUseCase: appFactory.makeToggleFavorite(),
+            checkIfFavoriteUseCase: appFactory.makeCheckIfFavorite()
         )
         let view = DetailsView(viewModel: viewModel)
         

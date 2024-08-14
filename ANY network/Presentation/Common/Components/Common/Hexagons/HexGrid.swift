@@ -6,6 +6,7 @@ public struct HexGrid<Data, ID, Content>: View where Data: RandomAccessCollectio
     public let cornerRadius: CGFloat
     public let spacing: CGFloat
     public let fixedCellSize: CGSize?
+    public let indentLine: HexGridIndentLine
     public let content: (Data.Element) -> Content
 
     @inlinable public init(
@@ -14,6 +15,7 @@ public struct HexGrid<Data, ID, Content>: View where Data: RandomAccessCollectio
         spacing: CGFloat = .zero,
         cornerRadius: CGFloat,
         fixedCellSize: CGSize? = nil,
+        indentLine: HexGridIndentLine = .even,
         @ViewBuilder content: @escaping (Data.Element) -> Content
     ) {
         self.data = data
@@ -21,11 +23,12 @@ public struct HexGrid<Data, ID, Content>: View where Data: RandomAccessCollectio
         self.spacing = spacing / 2
         self.cornerRadius = cornerRadius
         self.fixedCellSize = fixedCellSize
+        self.indentLine = indentLine
         self.content = content
     }
 
     public var body: some View {
-        HexLayout(fixedCellSize: fixedCellSize) {
+        HexLayout(fixedCellSize: fixedCellSize, indentLine: indentLine) {
             ForEach(data, id: id) { element in
                 content(element)
                     .clipShape(HexagonShape(cornerRadius: cornerRadius))
@@ -43,8 +46,14 @@ public extension HexGrid where ID == Data.Element.ID, Data.Element: Identifiable
         spacing: CGFloat = .zero,
         cornerRadius: CGFloat = 0,
         fixedCellSize: CGSize? = nil,
+        indentLine: HexGridIndentLine = .even,
         @ViewBuilder content: @escaping (Data.Element) -> Content
     ) {
-        self.init(data, id: \.id, spacing: spacing, cornerRadius: cornerRadius, fixedCellSize: fixedCellSize , content: content)
+        self.init(data, id: \.id, spacing: spacing, cornerRadius: cornerRadius, fixedCellSize: fixedCellSize, indentLine: indentLine, content: content)
     }
+}
+
+public enum HexGridIndentLine {
+    case odd
+    case even
 }
