@@ -7,17 +7,6 @@ protocol IntroFactory {
     func makeIntro(coordinator: OnboardingCoordinatorProtocol) -> IntroView
 }
 
-@MainActor
-protocol ContactsPermissionFactory {
-    func makeContactsPermission(coordinator: OnboardingCoordinatorProtocol) -> ContactsPermissionView
-}
-
-@MainActor
-protocol ConnectFactory {
-    func makeConnect(coordinator: OnboardingCoordinatorProtocol) -> ConnectView
-}
-
-
 // MARK: Main
 @MainActor
 protocol HomeFactory {

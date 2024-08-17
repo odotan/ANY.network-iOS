@@ -1,8 +1,6 @@
 import Foundation
 
-protocol OnboardingCoordinatorFactory: IntroFactory,
-                                       ConnectFactory,
-                                       ContactsPermissionFactory { }
+protocol OnboardingCoordinatorFactory: IntroFactory { }
 
 protocol MainCoordinatorFactory: HomeFactory,
                                  MyProfileFactory,

@@ -1,10 +1,3 @@
-//
-//  SwitcherItemView.swift
-//  ANY network
-//
-//  Created by Danail Vrachev on 10.07.24.
-//
-
 import SwiftUI
 
 struct SwitcherItemView: View {

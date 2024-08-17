@@ -2,7 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject var viewModel: HomeViewModel
-    
+
     var body: some View {
         VStack(spacing: 0) {
             header
@@ -91,25 +91,27 @@ struct HomeView: View {
             contentSize: gridContentSize,
             size: gridContainerSize,
             zoomScale: gridZoomScale,
-            animationDuration: 0.35
+            animationDuration: 0.35,
+            contentId: viewModel.uiState.contentIdentifier
         ) {
             HexGrid(viewModel.state.gridItems, spacing: 8, cornerRadius: 6, fixedCellSize: cellSize, indentLine: .odd) { cell in
-//                if
-//                    let priority = cell.priority,
-//                    priority < (viewModel.state.favorites?.count ?? 0),
-//                    let contact = viewModel.state.favorites?[priority] {
-//                    AvatarHexCell(imageData: contact.imageData, color: .clear) {
-//                        viewModel.handle(.goToDetails(contact: contact))
-//                    }
-//                } else {
-                    Color.green
-                        .overlay {
-                            Text("\(cell.priority ?? -1)")
-                                .font(.title)
-                                .colorMultiply(.white)
-                        }
+                if
+                    let priority = cell.priority,
+                    priority < (viewModel.state.favorites?.count ?? 0),
+                    let contact = viewModel.state.favorites?[priority] {
+                    AvatarHexCell(imageData: contact.imageData, color: .clear) {
+                        viewModel.handle(.goToDetails(contact: contact))
+                    }
 //                    ColorHexCell(color: cell.color)
-//                }
+                } else {
+//                    Color.green
+//                        .overlay {
+//                            Text("\(cell.priority ?? -1)")
+//                                .font(.title)
+//                                .colorMultiply(.white)
+//                        }
+                    ColorHexCell(color: cell.color)
+                }
             }
             .background { Color.appBackground }
         }

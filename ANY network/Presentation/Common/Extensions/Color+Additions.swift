@@ -1,10 +1,3 @@
-//
-//  Color+Additions.swift
-//  ANY network
-//
-//  Created by Rumen Ganev on 1.08.24.
-//
-
 import SwiftUI
 
 extension Color {

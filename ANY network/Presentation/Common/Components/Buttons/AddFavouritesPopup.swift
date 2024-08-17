@@ -1,10 +1,3 @@
-//
-//  AddFavouritesPopup.swift
-//  ANY network
-//
-//  Created by Rumen Ganev on 30.07.24.
-//
-
 import SwiftUI
 
 struct AddFavouritesPopup: View {

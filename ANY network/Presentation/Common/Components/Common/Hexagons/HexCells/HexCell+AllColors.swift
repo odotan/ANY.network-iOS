@@ -19,15 +19,15 @@ extension HexCell {
         for idx in 0..<20 {
             let top = HexCell(
                 offsetCoordinate: .init(row: 0, col: idx),
-                color: .clear
+                color: .appRaisinBlack
             )
             let center = HexCell(
                 offsetCoordinate: .init(row: 1, col: idx),
-                color: .red
+                color: .appRaisinBlack
             )
             let bottom = HexCell(
                 offsetCoordinate: .init(row: 2, col: idx),
-                color: .clear
+                color: .appRaisinBlack
             )
             array.append(contentsOf: [top, center, bottom])
         }
@@ -40,7 +40,7 @@ extension HexCell {
         for idx in 0..<120 {
             let element = HexCell(
                 offsetCoordinate: .init(row: idx % 5 , col: idx / 5),
-                color: Color(hue: .random(in: 0..<1), saturation: 1, brightness: 1)
+                color: .appRaisinBlack
             )
             array.append(element)
         }

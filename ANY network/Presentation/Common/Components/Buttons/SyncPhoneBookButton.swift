@@ -1,10 +1,3 @@
-//
-//  SyncPhoneBookButton.swift
-//  ANY network
-//
-//  Created by Rumen Ganev on 29.07.24.
-//
-
 import SwiftUI
 
 struct SyncPhoneBookButton: View {

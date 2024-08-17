@@ -12,7 +12,7 @@ final class IntroViewModel: ViewModel {
     func handle(_ event: Event) {
         switch event {
         case .next:
-            coordinator.showConnect()
+            coordinator.showMainFlow()
         }
     }
 }

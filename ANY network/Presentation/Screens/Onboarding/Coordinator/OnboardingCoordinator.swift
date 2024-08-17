@@ -4,8 +4,6 @@ final class OnboardingCoordinator: Coordinator {
     
     enum Screen: Routable {
         case intro
-        case connect
-        case contactsPermission
     }
     
     private let showMainFlowHandler: () -> Void
@@ -27,13 +25,5 @@ extension OnboardingCoordinator: OnboardingCoordinatorProtocol {
 
     func showIntro() {
         navigationPath.append(.intro)
-    }
-    
-    func showConnect() {
-        navigationPath.append(.connect)
-    }
-
-    func showContactsPermission() {
-        navigationPath.append(.contactsPermission)
     }
 }

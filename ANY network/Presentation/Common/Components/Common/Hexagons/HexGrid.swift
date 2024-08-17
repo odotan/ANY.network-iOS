@@ -7,6 +7,7 @@ public struct HexGrid<Data, ID, Content>: View where Data: RandomAccessCollectio
     public let spacing: CGFloat
     public let fixedCellSize: CGSize?
     public let indentLine: HexGridIndentLine
+    public let shadow: (color: Color, radius: CGFloat, x: CGFloat, y: CGFloat)?
     public let content: (Data.Element) -> Content
 
     @inlinable public init(
@@ -16,6 +17,7 @@ public struct HexGrid<Data, ID, Content>: View where Data: RandomAccessCollectio
         cornerRadius: CGFloat,
         fixedCellSize: CGSize? = nil,
         indentLine: HexGridIndentLine = .even,
+        shadow: (color: Color, radius: CGFloat, x: CGFloat, y: CGFloat)? = nil,
         @ViewBuilder content: @escaping (Data.Element) -> Content
     ) {
         self.data = data
@@ -24,6 +26,7 @@ public struct HexGrid<Data, ID, Content>: View where Data: RandomAccessCollectio
         self.cornerRadius = cornerRadius
         self.fixedCellSize = fixedCellSize
         self.indentLine = indentLine
+        self.shadow = shadow
         self.content = content
     }
 
@@ -31,7 +34,15 @@ public struct HexGrid<Data, ID, Content>: View where Data: RandomAccessCollectio
         HexLayout(fixedCellSize: fixedCellSize, indentLine: indentLine) {
             ForEach(data, id: id) { element in
                 content(element)
-                    .clipShape(HexagonShape(cornerRadius: cornerRadius))
+                    .clipWithShadow(
+                        shape: HexagonShape(cornerRadius: cornerRadius),
+                        hasShadow: shadow != nil,
+                        color: shadow?.color ?? .clear,
+                        radius: shadow?.radius ?? 0,
+                        x: shadow?.x ?? 0,
+                        y: shadow?.y ?? 0
+                    )
+//                    .clipShape(HexagonShape(cornerRadius: cornerRadius))
                     .padding(.all, spacing)
                     .layoutValue(key: OffsetCoordinateLayoutValueKey.self,
                                  value: element.offsetCoordinate)
@@ -47,9 +58,10 @@ public extension HexGrid where ID == Data.Element.ID, Data.Element: Identifiable
         cornerRadius: CGFloat = 0,
         fixedCellSize: CGSize? = nil,
         indentLine: HexGridIndentLine = .even,
+        shadow: (color: Color, radius: CGFloat, x: CGFloat, y: CGFloat)? = nil,
         @ViewBuilder content: @escaping (Data.Element) -> Content
     ) {
-        self.init(data, id: \.id, spacing: spacing, cornerRadius: cornerRadius, fixedCellSize: fixedCellSize, indentLine: indentLine, content: content)
+        self.init(data, id: \.id, spacing: spacing, cornerRadius: cornerRadius, fixedCellSize: fixedCellSize, indentLine: indentLine, shadow: shadow, content: content)
     }
 }
 

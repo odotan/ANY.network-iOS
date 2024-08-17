@@ -8,6 +8,7 @@ final class HomeViewModel: ViewModel {
     private let getFavoriteContactsUseCase: GetFavoriteContactsUseCase
     private let getAllContactsUseCase: GetAllContactsUseCase
     private let searchUseCase: SearchNameUseCase
+    private let priorityManager = GridPriorityManager()
     
     init(
         coordinator: MainCoordinatorProtocol,
@@ -62,6 +63,8 @@ final class HomeViewModel: ViewModel {
         case .setDetent(let detent):
             state.detent = detent
             Task { await prepareFavoriteGrid() }
+        case .setContentIdentifier:
+            uiState.contentIdentifier = UUID()
         }
     }
 }
@@ -89,14 +92,18 @@ extension HomeViewModel {
 // MARK: -- Favorite Grid
 extension HomeViewModel {
     private func prepareFavoriteGrid() async {
+        defer {
+            handle(.setContentIdentifier)
+        }
+        
         guard let favorites = state.favorites else {
             emptyGrid()
             return
         }
-
+        
         switch state.detent {
         case .top:
-            inlineGrid(favorites: favorites)
+            topGrid(favorites: favorites)
         case .middle:
             middleGrid(favorites: favorites)
         case .bottom:
@@ -107,6 +114,10 @@ extension HomeViewModel {
     }
     
     private func emptyGrid() {
+        defer {
+            handle(.setContentIdentifier)
+        }
+        
         switch state.detent {
         case .top:
             state.gridItems = HexCell.inline
@@ -118,131 +129,46 @@ extension HomeViewModel {
             state.gridItems = []
         }
     }
-
-    private func inlineGrid(favorites: [Contact]) {
+    
+    private func topGrid(favorites: [Contact]) {
         let lineCount = favorites.count < 5 ? 5 : (favorites.count % 2 == 0 ? favorites.count + 1 : favorites.count)
+        let numberOfElements = lineCount * 3
         var array = [HexCell]()
-        var lastPriority: Int = lineCount % 2 == 0 ? lineCount / 2 + 1 : lineCount / 2
-        var priorityArray = [Int]()
         
-        for idx in 0..<lineCount {
-            let odd = idx % 2 == 1
-            let priority = lastPriority - (odd ? -idx : idx)
-            lastPriority = priority
-            priorityArray.append(priority)
+        var lastPriority = 0
+        for idx in 0..<numberOfElements {
+            let coords = priorityManager.positionTop(for: idx)
+            let priority: Int? = coords.row == 0 ? (lastPriority + 1) : nil
+            let cell = HexCell(offsetCoordinate: coords, color: .appRaisinBlack, priority: priority)
+            array.append(cell)
+
+            if let priority = priority {
+                lastPriority = priority
+            }
         }
 
-        for idx in 0..<lineCount {
-            let top = HexCell(
-                offsetCoordinate: .init(row: 0, col: idx),
-                color: .appRaisinBlack
-            )
-            let priority = priorityArray.firstIndex(where: { $0 == idx })
-            let center = HexCell(
-                offsetCoordinate: .init(row: 1, col: idx),
-                color: .appRaisinBlack,
-                priority: priority
-            )
-            let bottom = HexCell(
-                offsetCoordinate: .init(row: 2, col: idx),
-                color: .appRaisinBlack
-            )
-            array.append(contentsOf: [top, center, bottom])
-        }
-        let top = HexCell(
-            offsetCoordinate: .init(row: 0, col: lineCount),
-            color: .appRaisinBlack
-        )
-        let bottom = HexCell(
-            offsetCoordinate: .init(row: 2, col: lineCount),
-            color: .appRaisinBlack
-        )
-        array.append(contentsOf: [top, bottom])
         state.gridItems = array
     }
     
     private func middleGrid(favorites: [Contact]) {
-//        var array = [HexCell]()
-//        let count = favorites.count
-//
-//        var priorityArray = [OffsetCoordinate]()
-//        var lastPriority = OffsetCoordinate(row: 0, col: 0)
-//        
-//        for idx in 1..<count {
-//            let lastRow = lastPriority.row
-//            let lastCol = lastPriority.col
-//
-//            var priority = OffsetCoordinate(
-//                row: <#T##Int#>,
-//                col: <#T##Int#>
-//            )
-//        }
-    }
-    
-    private func bottomGrid(favorites: [Contact]) {
         var array = [HexCell]()
-        for idx in 0..<36 {
-            let coords = position(for: idx)
-            print("index:\(idx) coords:\(coords)")
-            let cell = HexCell(offsetCoordinate: .init(row: coords.row, col: coords.col), priority: idx)
+        for idx in 0..<100 {
+            let coords = priorityManager.positionMiddle(for: idx)
+//            print("index:\(idx) coords:\(coords)")
+            let cell = HexCell(offsetCoordinate: coords, color: .appRaisinBlack, priority: idx)
             array.append(cell)
         }
         state.gridItems = array
     }
     
-    func position(for index: Int) -> (row: Int, col: Int) {
-        if index == 0 {
-            return (0, 0)
+    private func bottomGrid(favorites: [Contact]) {
+        var array = [HexCell]()
+        for idx in 0..<200 {
+            let coords = priorityManager.positionBottom(for: idx)
+//            print("index:\(idx) coords:\(coords)")
+            let cell = HexCell(offsetCoordinate: coords, color: .appRaisinBlack, priority: idx)
+            array.append(cell)
         }
-        
-        var layer = 1
-        var count = 1
-        
-        while count + 6 * layer <= index {
-            count += 6 * layer
-            layer += 1
-        }
-        
-        let positionInLayer = index - count
-        let sideLength = layer
-        let side = positionInLayer / sideLength
-        let offset = positionInLayer % sideLength
-        
-        print("index:\(index); side:\(side); layer:\(layer); positionInLayer:\(positionInLayer); sideLenght:\(sideLength); offset:\(offset)")
-
-        switch side {
-        case 0: // 1
-            return (row: offset, col: layer - offset/* + (offset % 3 != 0 ? 1 : 0)*/)
-        case 1: // 2
-            return (row: layer, col: -offset + (/*layer % 2 == 0*/layer > 1 ? 1 : 0))
-        case 2: // 3
-            return (row: layer - offset, col: -layer - offset + (layer > 1 ? 1 : 0))
-        case 3: // 4
-            return (row: -offset, col: -layer + offset)
-        case 4: // 5
-            return (row: -layer, col: offset - (layer > 1 ? 1 : 0))
-        case 5: // 6
-            return (row: -layer + offset, col: layer + offset - (layer > 1 ? 1 : 0))
-        default:
-            return (0, 0)
-        }
+        state.gridItems = array
     }
-
 }
-
-//switch side {
-//case 0: // 1
-//    return (row: offset, col: layer - offset)
-//case 1: // 2
-//    return (row: layer, col: -offset + (layer % 2 == 0 ? 1 : 0))
-//case 2: // 3
-//    return (row: layer - offset, col: -layer - offset + (layer % 2 == 0 ? 1 : 0))
-//case 3: // 4
-//    return (row: -offset, col: -layer + offset)
-//case 4: // 5
-//    return (row: -layer, col: offset - (layer % 2 == 0 ? 1 : 0))
-//case 5: // 6
-//    return (row: -layer + offset, col: layer + offset - (layer % 2 == 0 ? 1 : 0))
-//default:
-//    return (0, 0)
-//}

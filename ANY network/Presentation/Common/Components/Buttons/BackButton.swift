@@ -1,10 +1,3 @@
-//
-//  BackButton.swift
-//  ANY network
-//
-//  Created by Danail Vrachev on 12.06.24.
-//
-
 import SwiftUI
 
 struct BackButton: View {

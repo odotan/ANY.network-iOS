@@ -23,10 +23,6 @@ struct OnboardingCoordinatorView: View {
         switch screen {
         case .intro:
             factory.makeIntro(coordinator: coordinator)
-        case .connect:
-            factory.makeConnect(coordinator: coordinator)
-        case .contactsPermission:
-            factory.makeContactsPermission(coordinator: coordinator)
         }
     }
 }

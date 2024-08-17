@@ -13,10 +13,8 @@ struct AvatarHexCell: View, HexCellProtocol {
     
     @ViewBuilder @MainActor
     var image: some View {
-        if let data = imageData, let uiImage = UIImage(data: data) {
-            Image(uiImage: uiImage)
-                .resizable()
-                .scaledToFill()
+        if let data = imageData {
+            AsyncImageWithCache(imageData: data, cacheKey: "\(data.hashValue)")
         } else {
             Image(.avatar)
                 .resizable()

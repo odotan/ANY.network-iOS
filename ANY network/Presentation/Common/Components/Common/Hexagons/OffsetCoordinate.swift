@@ -10,6 +10,6 @@ public struct OffsetCoordinate: Hashable, Equatable, Codable {
     }
 }
 
-public protocol OffsetCoordinateProviding {
+public protocol OffsetCoordinateProviding: Equatable {
     var offsetCoordinate: OffsetCoordinate { get }
 }

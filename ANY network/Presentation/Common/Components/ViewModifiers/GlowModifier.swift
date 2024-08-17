@@ -1,10 +1,3 @@
-//
-//  GlowModifier.swift
-//  ANY network
-//
-//  Created by Danail Vrachev on 27.06.24.
-//
-
 import SwiftUI
 
 struct GlowModifier: ViewModifier {

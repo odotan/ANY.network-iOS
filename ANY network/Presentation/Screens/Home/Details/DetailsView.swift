@@ -21,7 +21,8 @@ struct DetailsView: View {
             contentSize: $gridContentSize,
             size: $gridContainerSize,
             zoomScale: $gridZoomScale,
-            animationDuration: 0.35
+            animationDuration: 0.35,
+            contentId: UUID()
         ) {
             HexGrid(HexCell.all, spacing: 8, cornerRadius: 8, fixedCellSize: cellSize) { cell in
                 switch (cell.offsetCoordinate.row, cell.offsetCoordinate.col) {

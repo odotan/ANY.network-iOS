@@ -11,6 +11,8 @@ extension HomeViewModel {
         var gridZoomScale: CGFloat = 1
         var gridContentOffset: CGPoint = .zero
         var gridContentSize: CGSize = .zero
+        
+        var contentIdentifier = UUID()
     }
 
     struct State: Equatable {
@@ -48,5 +50,6 @@ extension HomeViewModel {
         case setGridContentOffset(CGPoint)
         case setGridContentSize(CGSize)
         case setDetent(PresentationDetent)
+        case setContentIdentifier
     }
 }

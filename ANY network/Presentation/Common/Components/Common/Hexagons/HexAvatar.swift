@@ -1,10 +1,3 @@
-//
-//  HexAvatar.swift
-//  ANY network
-//
-//  Created by Rumen Ganev on 31.07.24.
-//
-
 import SwiftUI
 
 struct HexAvatar: View {

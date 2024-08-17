@@ -20,29 +20,6 @@ extension ScreenFactory: IntroFactory {
     }
 }
 
-
-extension ScreenFactory: ContactsPermissionFactory {
-    func makeContactsPermission(coordinator: OnboardingCoordinatorProtocol) -> ContactsPermissionView {
-        let viewModel = ContactsPermissionViewModel(
-            coordinator: coordinator,
-            getRequestAccessUseCase: appFactory.makeRequestAccess()
-        )
-        let view = ContactsPermissionView(viewModel: viewModel)
-
-        return view
-    }
-}
-
-extension ScreenFactory: ConnectFactory {
-    func makeConnect(coordinator: any OnboardingCoordinatorProtocol) -> ConnectView {
-        let viewModel = ConnectViewModel(coordinator: coordinator)
-        let view = ConnectView(viewModel: viewModel)
-        
-        return view
-    }
-}
-
-
 // MARK: Main
 extension ScreenFactory: HomeFactory {
     func makeHome(coordinator: MainCoordinatorProtocol) -> HomeView {

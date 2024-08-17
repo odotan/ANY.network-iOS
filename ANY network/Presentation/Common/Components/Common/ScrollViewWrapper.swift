@@ -6,6 +6,8 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
     @Binding var size: CGSize
     @Binding var zoomScale: CGFloat
     
+    var contentIdentifier: UUID
+
     let animationDuration: CGFloat
     let maxZoomLevel: CGFloat
     let content: () -> Content
@@ -17,6 +19,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         zoomScale: Binding<CGFloat>,
         animationDuration: CGFloat = 0.35,
         maxZoomLevel: CGFloat = 2,
+        contentId: UUID,
         @ViewBuilder _ content: @escaping () -> Content) {
             self._contentOffset = contentOffset
             self._contentSize = contentSize
@@ -24,6 +27,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             self._zoomScale = zoomScale
             self.animationDuration = animationDuration
             self.maxZoomLevel = maxZoomLevel
+            self.contentIdentifier = contentId
             self.content = content
         }
     
@@ -48,31 +52,43 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
     }
     
     public func updateUIView(_ uiView: UIScrollView, context: UIViewRepresentableContext<ScrollViewWrapper>) {
-        DispatchQueue.main.async {
-            context.coordinator.hostingController.rootView = content()
-            context.coordinator.hostingController.view.sizeToFit()
-            uiView.contentSize = context.coordinator.hostingController.view.frame.size
-        }
+        let newContent = content()
 
-        UIView.animate(withDuration: animationDuration) {
-            uiView.contentOffset = self.contentOffset
-            uiView.zoomScale = self.zoomScale
+        if context.coordinator.contentIdentifier != contentIdentifier {
+//            print("Scroll Refresh")
+            DispatchQueue.main.async {
+                context.coordinator.hostingController.rootView = newContent
+                context.coordinator.hostingController.view.sizeToFit()
+                uiView.contentSize = context.coordinator.hostingController.view.frame.size
+                context.coordinator.contentIdentifier = contentIdentifier
+            }
         }
         
-        DispatchQueue.main.async {
-            self.contentSize = uiView.contentSize
-            self.size = uiView.frame.size
-            self.contentOffset = uiView.contentOffset
-
-            // Update the frame of the hosted view if necessary
-            if let hostedView = uiView.subviews.first {
-                hostedView.frame = CGRect(origin: .zero, size: uiView.contentSize)
+        if uiView.contentOffset != contentOffset {
+//            print("Animate Scroll View offset")
+            UIView.animate(withDuration: animationDuration) {
+                uiView.contentOffset = self.contentOffset
+                uiView.zoomScale = self.zoomScale
+            }
+        }
+        
+        if contentSize != uiView.contentSize || size != uiView.frame.size /*|| contentOffset != uiView.contentOffset*/ {
+//            print("User scrolls")
+            DispatchQueue.main.async {
+                self.contentSize = uiView.contentSize
+                self.size = uiView.frame.size
+                self.contentOffset = uiView.contentOffset
+                
+                // Update the frame of the hosted view if necessary
+                if let hostedView = uiView.subviews.first {
+                    hostedView.frame = CGRect(origin: .zero, size: uiView.contentSize)
+                }
             }
         }
     }
     
     public func makeCoordinator() -> Coordinator {
-        Coordinator(contentOffset: self._contentOffset, zoomScale: self._zoomScale)
+        Coordinator(contentOffset: self._contentOffset, zoomScale: self._zoomScale, contentIdentifier: contentIdentifier)
     }
     
     public class Coordinator: NSObject, UIScrollViewDelegate {
@@ -80,10 +96,12 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         let zoomScale: Binding<CGFloat>
         
         var hostingController: UIHostingController<Content>!
+        var contentIdentifier: UUID?
 
-        init(contentOffset: Binding<CGPoint>, zoomScale: Binding<CGFloat>) {
+        init(contentOffset: Binding<CGPoint>, zoomScale: Binding<CGFloat>, contentIdentifier: UUID?) {
             self.contentOffset = contentOffset
             self.zoomScale = zoomScale
+            self.contentIdentifier = contentIdentifier
         }
         
         public func scrollViewDidScroll(_ scrollView: UIScrollView) {
