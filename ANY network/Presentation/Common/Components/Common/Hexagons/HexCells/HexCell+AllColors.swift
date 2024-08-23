@@ -16,7 +16,7 @@ extension HexCell {
     
     static var inline: [HexCell] = {
         var array = [HexCell]()
-        for idx in 0..<20 {
+        for idx in 0..<7 {
             let top = HexCell(
                 offsetCoordinate: .init(row: 0, col: idx),
                 color: .appRaisinBlack
@@ -37,9 +37,11 @@ extension HexCell {
     
     static var middle: [HexCell] = {
         var array = [HexCell]()
-        for idx in 0..<120 {
+        let priorityManager = GridPriorityManager()
+        for idx in 0..<26 {
+            let position = priorityManager.positionMiddle(for: idx)
             let element = HexCell(
-                offsetCoordinate: .init(row: idx % 5 , col: idx / 5),
+                offsetCoordinate: position,
                 color: .appRaisinBlack
             )
             array.append(element)

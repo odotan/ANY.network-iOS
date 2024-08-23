@@ -27,7 +27,9 @@ extension ScreenFactory: HomeFactory {
             coordinator: coordinator,
             getFavoriteContactsUseCase: appFactory.makeGetFavoriteContacts(),
             getAllContactsUseCase: appFactory.makeGetAll(),
-            searchUseCase: appFactory.makeSearch()
+            searchUseCase: appFactory.makeSearch(),
+            getContactsStatusUseCase: appFactory.makeContactsStatus(),
+            getRequestAccessUseCase: appFactory.makeRequestAccess()
         )
 
         let view = HomeView(viewModel: viewModel)

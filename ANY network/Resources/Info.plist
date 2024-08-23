@@ -19,7 +19,9 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>NSContactsUsageDescription</key>
-	<string>Allow Contact Access</string>
+	<string>You can change this setting at any time
+
+Your contacts are stored locally and are not shared with ANY network without your consent.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Montserrat-Bold.ttf</string>

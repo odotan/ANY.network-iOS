@@ -31,7 +31,7 @@ struct DetailsView: View {
                 case (5, 2):
                     if !viewModel.state.contact.phoneNumbers.isEmpty {
                         IconHexCell(type: .phone) {
-                            print("Phone")
+                            viewModel.handle(.performAction(.phone))
                         }
                     } else { cell.color }
                 case (10, 1): // Plus icon
@@ -84,6 +84,21 @@ struct DetailsView: View {
         .backButton {
             viewModel.handle(.goBack)
         }
+        .alert(viewModel.state.actionPrompt?.title ?? "", isPresented: hasAlert, presenting: viewModel.state.actionPrompt) { action in
+            Button(action: action.action) {
+                Text("Call")
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { action in
+            Text(action.description)
+        }
+    }
+    
+    var hasAlert: Binding<Bool> {
+        .init(
+            get: { viewModel.state.actionPrompt != nil },
+            set: { if !$0 { viewModel.handle(.presentPrompt(nil)) }  }
+        )
     }
 }
 //

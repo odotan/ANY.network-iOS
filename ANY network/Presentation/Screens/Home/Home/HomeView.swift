@@ -6,56 +6,27 @@ struct HomeView: View {
     var body: some View {
         VStack(spacing: 0) {
             header
-                .overlay(alignment: .bottom) {
-                    LinearGradient(colors: [.white, .clear], startPoint: .init(x: 0, y: 0), endPoint: .init(x: 0, y: 1))
-                        .offset(y: 80)
-                        .frame(height: 30)
-                        .blur(radius: 5)
-                }
             
             favourites
-                .onChange(of: viewModel.uiState.gridContentSize) { old, new in
-                    guard old == .zero else { return }
-                    viewModel.handle(.recenter)
-                }
-                .overlay(alignment: .bottomLeading) {
-                    HStack {
-                        SearchButton {
-                            viewModel.handle(.goToSearch)
-                        }
-                        
-                        Spacer()
-                        
-                        RecenterButton {
-                            viewModel.handle(.recenter)
+                .bottomDrawerView(contentHeight: drawerContentHeight){
+                    VStack {
+                        if !viewModel.state.onboardingFinished {
+                            onboarding
+                            Spacer()
+                        } else if viewModel.state.showAll {
+                            allContacts
                         }
                     }
-                    .padding(.bottom, 20)
-                    .padding(.horizontal, <->18)
+                    .padding(.top)
                 }
-            
-            Spacer()
-                .frame(height: sheetSize.wrappedValue.height + 20) // 20 is the size of the corner radius of the sheet
-        }
-        .sheet(isPresented: isSheetPresented) {
-            VStack {
-                if viewModel.state.showAll {
-                    allContacts
+                .onAppear {
+                    let height = viewModel.state.onboardingFinished ? 180 : UIScreen.main.bounds.height - 250
+                    drawerContentHeight.wrappedValue = height
                 }
-            }
-            .padding(.top)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .presentationDetents([.bottom, .middle, .top], selection: detent)
-            .presentationCornerRadius(20)
-            .presentationBackground(Color.appBackground)
-            .presentationBackgroundInteraction(.enabled)
-            .presentationContentInteraction(.scrolls)
-            .ignoresSafeArea()
-            .sizeInfo(size: sheetSize)
         }
-//        .task {
-//            viewModel.handle(.getAllContacts)
-//        }
+        .task {
+            viewModel.handle(.getAllContacts)
+        }
         .task {
             viewModel.handle(.getFavoriteContacts)
         }
@@ -80,12 +51,19 @@ struct HomeView: View {
             Spacer()
         }
         .frame(height: |40)
+        .overlay(alignment: .bottom) {
+            LinearGradient(colors: [.white, .clear], startPoint: .init(x: 0, y: 0), endPoint: .init(x: 0, y: 1))
+                .frame(height: 30)
+                .offset(y: 70)
+                .blur(radius: 5)
+        }
+        .sizeInfo(size: headerSize)
     }
     
     @ViewBuilder
     var favourites: some View {
         let cellSize = CGSize(width: <->79.74, height: |90.46)
-        
+
         ScrollViewWrapper(
             contentOffset: gridContentOffset,
             contentSize: gridContentSize,
@@ -94,39 +72,58 @@ struct HomeView: View {
             animationDuration: 0.35,
             contentId: viewModel.uiState.contentIdentifier
         ) {
-            HexGrid(viewModel.state.gridItems, spacing: 8, cornerRadius: 6, fixedCellSize: cellSize, indentLine: .odd) { cell in
-                if
-                    let priority = cell.priority,
-                    priority < (viewModel.state.favorites?.count ?? 0),
-                    let contact = viewModel.state.favorites?[priority] {
-                    AvatarHexCell(imageData: contact.imageData, color: .clear) {
-                        viewModel.handle(.goToDetails(contact: contact))
-                    }
-//                    ColorHexCell(color: cell.color)
+            HexGrid(
+                viewModel.state.gridItemsToDisplay,
+                spacing: 8,
+                cornerRadius: 6,
+                fixedCellSize: cellSize,
+                indentLine: viewModel.state.onboardingFinished ? .odd : .even
+            ) { cell in
+                if viewModel.state.onboardingFinished {
+                    view(for: cell, cellSize: cellSize)
                 } else {
-//                    Color.green
-//                        .overlay {
-//                            Text("\(cell.priority ?? -1)")
-//                                .font(.title)
-//                                .colorMultiply(.white)
-//                        }
-                    ColorHexCell(color: cell.color)
+                    onboardingView(for: cell, cellSize: cellSize)
                 }
+//                testView(for: cell)
             }
             .background { Color.appBackground }
         }
+        .sizeInfo(size: gridContainerSize)
         .background { Color.appBackground }
         .overlay(alignment: .top) {
             LinearGradient(colors: [.appBackground, .clear], startPoint: .init(x: 0, y: 0), endPoint: .init(x: 0, y: 1))
                 .frame(height: 50)
                 .blur(radius: 1)
+                .offset(y: -10.0)
                 .allowsHitTesting(false)
         }
         .overlay(alignment: .bottom) {
             LinearGradient(colors: [.clear, .appBackground], startPoint: .init(x: 0, y: 0), endPoint: .init(x: 0, y: 1))
                 .frame(height: 50)
                 .blur(radius: 1)
+                .offset(y: 10.0)
                 .allowsHitTesting(false)
+        }
+        .onChange(of: viewModel.uiState.gridContentSize) { old, new in
+            guard old == .zero else { return }
+            viewModel.handle(.recenter(false))
+        }
+        .overlay(alignment: .bottomLeading) {
+            if viewModel.state.onboardingFinished {
+                HStack {
+                    SearchButton {
+                        viewModel.handle(.goToSearch)
+                    }
+                    
+                    Spacer()
+                    
+                    RecenterButton {
+                        viewModel.handle(.recenter(true))
+                    }
+                }
+                .padding(.bottom, 50)
+                .padding(.horizontal, <->18)
+            }
         }
     }
     
@@ -143,16 +140,80 @@ struct HomeView: View {
         }
         .listRowSpacing(-10)
         .listStyle(.plain)
-        .background(.appBackground)
+    }
+    
+    @ViewBuilder
+    var onboarding: some View {
+        VStack(spacing: 0) {
+            Image(.swipeUp)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: |57)
+                    .padding(.top, 27)
+                    .padding(.bottom, 30)
+
+            SyncContactsPopup(action: {
+                viewModel.handle(.requestAccess)
+            }, onDismiss: {
+                print("Start writing locally")
+            })
+            .frame(height: 200)
+        }
     }
 }
 
-extension PresentationDetent {
-    static var bottom: PresentationDetent { .height(60) }
-    static var middle: PresentationDetent { .height(482) }
-    static var top: PresentationDetent { .height(600) }
+// MARK: - View for Cells
+extension HomeView {
+    @ViewBuilder
+    private func view(for cell: HexCell, cellSize: CGSize) -> some View {
+        ZStack {
+            if
+                let priority = cell.priority,
+                priority < (viewModel.state.favorites?.count ?? 0),
+                let contact = viewModel.state.favorites?[priority] {
+                AvatarHexCell(imageData: contact.imageData, color: .clear) {
+                    viewModel.handle(.goToDetails(contact: contact))
+                }
+            } else {
+                ColorHexCell(color: cell.color)
+            }
+        }
+        .captureCenterPoint { point in
+            if cell.offsetCoordinate.row == 0 && cell.offsetCoordinate.col == 0 {
+                viewModel.handle(.setCenterPosition(.init(x: point.x, y: point.y - cellSize.height / 2)))
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func onboardingView(for cell: HexCell, cellSize: CGSize) -> some View {
+        ZStack {
+            if cell.offsetCoordinate.row == 4 && cell.offsetCoordinate.col == 2 {
+                AvatarHexCell(color: Color.appPurple)
+            } else {
+                ColorHexCell(color: cell.color)
+            }
+        }
+        .captureCenterPoint { point in
+            if cell.offsetCoordinate.row == 4 && cell.offsetCoordinate.col == 2 {
+                viewModel.handle(.setCenterPosition(.init(x: point.x, y: point.y - cellSize.height / 2)))
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func testView(for cell: HexCell) -> some View {
+        Color.green
+            .overlay {
+                Text("\(cell.priority ?? -1) \(cell.offsetCoordinate.row)/\(cell.offsetCoordinate.col)")
+                    .font(.subheadline)
+                    .colorMultiply(.white)
+            }
+    }
 }
 
+// MARK: - Bindings
 extension HomeView {
     private var isSheetPresented: Binding<Bool> {
         return Binding(
@@ -195,18 +256,31 @@ extension HomeView {
             set: { viewModel.handle(.setGridContentSize($0)) }
         )
     }
-         
-//    private var list: Binding<[HexCell]> {
-//        .init(
-//            get: { viewModel.state.gridItems },
-//            set: { viewModel.handle(.setGridItems($0)) }
-//        )
-//    }
-    
+
     private var detent: Binding<PresentationDetent> {
         .init(
             get: { viewModel.state.detent },
             set: { viewModel.handle(.setDetent($0)) }
         )
     }
+    
+    private var drawerContentHeight: Binding<CGFloat> {
+        .init(
+            get: { viewModel.uiState.drawerContentHeight },
+            set: { viewModel.handle(.setDrawerContentHeight($0)) }
+        )
+    }
+    
+    private var headerSize: Binding<CGSize> {
+        .init(
+            get: { viewModel.uiState.headerSize },
+            set: { viewModel.handle(.headerSize($0)) }
+        )
+    }
+}
+
+extension PresentationDetent {
+    static var bottom: PresentationDetent { .height(60) }
+    static var middle: PresentationDetent { .height(482) }
+    static var top: PresentationDetent { .height(600) }
 }

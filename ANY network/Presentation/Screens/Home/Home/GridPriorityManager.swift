@@ -76,41 +76,41 @@ struct GridPriorityManager {
         let positionInLayer = index - count
         let sideLength = layer
         let side = positionInLayer / sideLength
-        let offset = positionInLayer % sideLength
+        let offset = positionInLayer % sideLength + 1
         
         switch side {
-        case 0: // 1
-            return .init(row: offset, col: layer - (offset + 1) / 2)
-        case 1: // 2
-            if layer == 1 {
-                return .init(row: 1, col: 0)
-            }
-            
-            return .init(row: layer, col: layer / 2 - offset)
-        case 2: // 3
-            if layer == 1 {
-                return .init(row: 1, col: -1)
-            }
-            
-            return .init(row: layer - offset, col: -((layer + 1) / 2 + (offset + (layer % 2 == 0 ? 1 : 0)) / 2))
-        case 3: // 4
+        case 0: // 4
             if layer == 1 {
                 return .init(row: 0, col: -1)
             }
-            return .init(row: -offset, col: -(layer - offset + offset / 2))
-        case 4: // 5
+            return .init(row: layer - offset, col: -((layer + 1) / 2 + (offset + (layer % 2 == 0 ? 1 : 0)) / 2))
+        case 1: // 5
             if layer == 1 {
                 return .init(row: -1, col: 0)
             }
-            return .init(row: -layer, col: -(layer / 2) + offset)
-        case 5: // 6
+            return .init(row: -offset, col: -(layer - offset + offset / 2))
+        case 2: // 6
             if layer == 1 {
                 return .init(row: -1, col: 1)
             }
+            return .init(row: -layer, col: -(layer / 2) + offset)
+        case 3: // 1
+            if layer == 1 {
+                return .init(row: 0, col: 1)
+            }
             return .init(row: -layer + offset, col: (layer + 1) / 2 + (layer % 2 == 0 ? (offset + 1) / 2 : (offset / 2)))
+        case 4: // 2
+            if layer == 1 {
+                return .init(row: 1, col: 0)
+            }
+            return .init(row: offset, col: layer - (offset + 1) / 2)
+        case 5: // 3
+            if layer == 1 {
+                return .init(row: 1, col: -1)
+            }
+            return .init(row: layer, col: layer / 2 - offset)
         default:
             return .init(row: 0, col: 0)
         }
-        
     }
 }

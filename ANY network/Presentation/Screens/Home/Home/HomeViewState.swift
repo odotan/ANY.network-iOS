@@ -3,6 +3,9 @@ import SwiftUI
 
 extension HomeViewModel {
     struct UIState: Equatable {
+        // Header
+        var headerSize: CGSize = .zero
+        
         // Sizes
         var sheetSize: CGSize = .zero
         var gridContainerSize: CGSize = .zero
@@ -11,15 +14,20 @@ extension HomeViewModel {
         var gridZoomScale: CGFloat = 1
         var gridContentOffset: CGPoint = .zero
         var gridContentSize: CGSize = .zero
+        var gridCenterPosition: CGPoint = .zero
+        
+        // Drawer
+        var drawerContentHeight: CGFloat = 180
         
         var contentIdentifier = UUID()
     }
 
     struct State: Equatable {
+        var contactsStatus: ContactsServicesStatus = .notDetermined
         var isSheetPresented: Bool = false
         var list: [Contact]?
         var favorites: [Contact]?
-        var gridItems: [HexCell] = HexCell.inline
+        var gridItems: [HexCell] = HexCell.middle
         var usage: [Usage]?
         var detent: PresentationDetent = .top
 
@@ -32,15 +40,27 @@ extension HomeViewModel {
         var showAll: Bool {
             list != nil
         }
+        var onboardingFinished: Bool {
+            contactsStatus != .notDetermined
+        }
+        var gridItemsToDisplay: [HexCell] {
+            if onboardingFinished {
+                return gridItems
+            }
+            return HexCell.all
+        }
     }
     
     enum Event {
+        case checkContactsStatus
+        case requestAccess
         case goToProfile
         case getAllContacts
         case getFavoriteContacts
         case goToDetails(contact: Contact)
         case goToSearch
-        case recenter
+        case recenter(Bool)
+        case headerSize(CGSize)
         case filterPressed
         case addFavoritePressed
         case sheetPresentationUpdated(to: Bool)
@@ -51,5 +71,7 @@ extension HomeViewModel {
         case setGridContentSize(CGSize)
         case setDetent(PresentationDetent)
         case setContentIdentifier
+        case setCenterPosition(CGPoint)
+        case setDrawerContentHeight(CGFloat)
     }
 }

@@ -6,6 +6,8 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
     @Binding var size: CGSize
     @Binding var zoomScale: CGFloat
     
+    @State var userInteracting: Bool = false
+    
     var contentIdentifier: UUID
 
     let animationDuration: CGFloat
@@ -64,8 +66,8 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             }
         }
         
-        if uiView.contentOffset != contentOffset {
-//            print("Animate Scroll View offset")
+        if uiView.contentOffset != contentOffset && !userInteracting {
+//            print("Animate Scroll View offset", contentOffset)
             UIView.animate(withDuration: animationDuration) {
                 uiView.contentOffset = self.contentOffset
                 uiView.zoomScale = self.zoomScale
@@ -77,7 +79,6 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             DispatchQueue.main.async {
                 self.contentSize = uiView.contentSize
                 self.size = uiView.frame.size
-                self.contentOffset = uiView.contentOffset
                 
                 // Update the frame of the hosted view if necessary
                 if let hostedView = uiView.subviews.first {
@@ -88,7 +89,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
     }
     
     public func makeCoordinator() -> Coordinator {
-        Coordinator(contentOffset: self._contentOffset, zoomScale: self._zoomScale, contentIdentifier: contentIdentifier)
+        Coordinator(contentOffset: self._contentOffset, zoomScale: self._zoomScale, contentIdentifier: contentIdentifier, userInteracting: $userInteracting)
     }
     
     public class Coordinator: NSObject, UIScrollViewDelegate {
@@ -98,15 +99,39 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         var hostingController: UIHostingController<Content>!
         var contentIdentifier: UUID?
 
-        init(contentOffset: Binding<CGPoint>, zoomScale: Binding<CGFloat>, contentIdentifier: UUID?) {
+        var userInteracting: Binding<Bool>
+    
+        init(contentOffset: Binding<CGPoint>, zoomScale: Binding<CGFloat>, contentIdentifier: UUID?, userInteracting: Binding<Bool>) {
             self.contentOffset = contentOffset
             self.zoomScale = zoomScale
             self.contentIdentifier = contentIdentifier
+            self.userInteracting = userInteracting
         }
         
         public func scrollViewDidScroll(_ scrollView: UIScrollView) {
             DispatchQueue.main.async { [weak self] in
+//                print("didScroll", scrollView.contentOffset)
                 self?.contentOffset.wrappedValue = scrollView.contentOffset
+            }
+        }
+        
+        public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+//            print("scrollViewWillBeginDragging")
+            DispatchQueue.main.async { [weak self] in
+                self?.userInteracting.wrappedValue = true
+            }
+        }
+        public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+//             print("scrollViewWillEndDragging")
+        }
+        public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+//            print("scrollViewDidEndDragging")
+        }
+        
+        public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+//            print("scrollViewDidEndDecelerating")
+            DispatchQueue.main.async { [weak self] in
+                self?.userInteracting.wrappedValue = false
             }
         }
         

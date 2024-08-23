@@ -36,11 +36,10 @@ final class AppCoordinator: ObservableObject {
 
 extension AppCoordinator {
     func checkPermissions() {
-        guard case .authorized = getContactsStatusUseCase.status else {
+        if case .notDetermined = getContactsStatusUseCase.status {
             handle(.showOnboarding)
-            return
+        } else {
+            handle(.showMain)
         }
-
-        handle(.showMain)
     }
 }

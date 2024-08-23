@@ -1,4 +1,5 @@
 import Foundation
+import UIKit // Move UIApplication.shared.open in seperate struct
 
 final class DetailsViewModel: ViewModel {
     @Published private(set) var state: State
@@ -28,6 +29,10 @@ final class DetailsViewModel: ViewModel {
             Task { await toggleFavorite() }
         case .checkIfFavorite:
             Task { await checkIfFavorite() }
+        case .performAction(let action):
+            perform(action: action)
+        case .presentPrompt(let prompt):
+            state.actionPrompt = prompt
         }
     }
 }
@@ -46,6 +51,20 @@ extension DetailsViewModel {
             state.isFavorite = try await checkIfFavoriteUseCase.execute(state.contact.id)
         } catch {
             print("Error", error.localizedDescription)
+        }
+    }
+    
+    func perform(action: Action) {
+        switch action {
+        case .phone:
+            guard let phone = state.contact.phoneNumbers.first else { return }
+            
+            handle(.presentPrompt(.init(title: "Do you want to call?", description: "You are about to call \(state.contact.fullName)") {
+                let tel = "tel://"
+                let formattedString = tel + phone.value
+                guard let url = URL(string: formattedString) else { return }
+                UIApplication.shared.open(url)
+            }))
         }
     }
 }

@@ -26,7 +26,7 @@ extension ContactsRepositoryImplementation: ContactsRepository {
     
     @RealmActor
     func getAll() async throws -> [Contact] {
-        if let all = all {
+        if let all = all, !all.isEmpty {
             return all
         }
 
