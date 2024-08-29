@@ -23,7 +23,7 @@ extension HomeViewModel {
     }
 
     struct State: Equatable {
-        var contactsStatus: ContactsServicesStatus = .notDetermined
+        var contactsStatus: ContactServiceType = .notDetermined
         var isSheetPresented: Bool = false
         var list: [Contact]?
         var favorites: [Contact]?
@@ -54,6 +54,7 @@ extension HomeViewModel {
     enum Event {
         case checkContactsStatus
         case requestAccess
+        case continueRealm
         case goToProfile
         case getAllContacts
         case getFavoriteContacts

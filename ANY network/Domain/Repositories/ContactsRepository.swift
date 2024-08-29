@@ -1,7 +1,8 @@
 import Foundation
 
 protocol ContactsRepository {
-    var status: ContactsServicesStatus { get }
+    func getStatus() async throws -> ContactServiceType
+    func update(status: ContactServiceType) async throws
     func requestAccess() async throws
     func getAll() async throws -> [Contact]
     func getContact(withIdentifier identifier: String) async throws -> Contact?

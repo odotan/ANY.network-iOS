@@ -11,8 +11,8 @@ final class AppFactory {
 }
 
 extension AppFactory {
-    func makeContactsStatus() -> GetContactsStatusUseCase {
-        GetContactsStatusUseCase(repository: contactsRepository)
+    func makeContactsStatus() -> ContactsStatusUseCase {
+        ContactsStatusUseCase(repository: contactsRepository)
     }
 
     func makeRequestAccess() -> GetRequestAccessUseCase {

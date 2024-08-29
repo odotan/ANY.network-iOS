@@ -22,11 +22,14 @@ struct IconHexCell: View {
 
 extension IconHexCell {
     enum `Type` {
+        case edit // temp
         case plus
         case phone
         
         var image: ImageResource {
             switch self {
+            case .edit:
+                return .penEditIcon
             case .plus:
                 return .plusIcon
             case .phone:
@@ -36,10 +39,12 @@ extension IconHexCell {
         
         var color: Color {
             switch self {
+            case .edit:
+                return .appPurple
             case .plus:
                 return Color(hex: "302C3D") ?? .clear
             case .phone:
-                return Color(.appGreen)
+                return .appGreen
             }
         }
     }

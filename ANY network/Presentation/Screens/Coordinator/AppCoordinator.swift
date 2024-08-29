@@ -15,9 +15,9 @@ final class AppCoordinator: ObservableObject {
 
     
     @Published private(set) var state: State
-    private let getContactsStatusUseCase: GetContactsStatusUseCase
+    private let getContactsStatusUseCase: ContactsStatusUseCase
 
-    init(getContactsStatusUseCase: GetContactsStatusUseCase) {
+    init(getContactsStatusUseCase: ContactsStatusUseCase) {
         self.state = .idle
         self.getContactsStatusUseCase = getContactsStatusUseCase
     }
@@ -36,10 +36,10 @@ final class AppCoordinator: ObservableObject {
 
 extension AppCoordinator {
     func checkPermissions() {
-        if case .notDetermined = getContactsStatusUseCase.status {
-            handle(.showOnboarding)
-        } else {
+//        if case .notDetermined = getContactsStatusUseCase.status {
+//            handle(.showOnboarding)
+//        } else {
             handle(.showMain)
-        }
+//        }
     }
 }

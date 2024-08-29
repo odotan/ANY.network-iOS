@@ -16,7 +16,7 @@ struct SyncContactsPopup: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: <->56, height: |64)
-                    .padding(.trailing, 18)
+                    .padding(.horizontal, <->18)
                     .padding(.top, |10)
 
                 VStack(alignment: .leading, spacing: |8) {
@@ -31,6 +31,7 @@ struct SyncContactsPopup: View {
                         """
                     )
                     .font(Font.montserat(size: 13))
+                    .minimumScaleFactor(0.7)
                     .lineLimit(4)
                 }
                 .foregroundStyle(.white)

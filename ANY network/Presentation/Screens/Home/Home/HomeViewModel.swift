@@ -11,7 +11,7 @@ final class HomeViewModel: ViewModel {
     private let getFavoriteContactsUseCase: GetFavoriteContactsUseCase
     private let getAllContactsUseCase: GetAllContactsUseCase
     private let searchUseCase: SearchNameUseCase
-    private let getContactsStatusUseCase: GetContactsStatusUseCase
+    private let getContactsStatusUseCase: ContactsStatusUseCase
     private let getRequestAccessUseCase: GetRequestAccessUseCase
     private let priorityManager = GridPriorityManager()
     
@@ -20,7 +20,7 @@ final class HomeViewModel: ViewModel {
         getFavoriteContactsUseCase: GetFavoriteContactsUseCase,
         getAllContactsUseCase: GetAllContactsUseCase,
         searchUseCase: SearchNameUseCase,
-        getContactsStatusUseCase: GetContactsStatusUseCase,
+        getContactsStatusUseCase: ContactsStatusUseCase,
         getRequestAccessUseCase: GetRequestAccessUseCase
     ) {
         self.state = State()
@@ -38,12 +38,14 @@ final class HomeViewModel: ViewModel {
     func handle(_ event: Event) {
         switch event {
         case .checkContactsStatus:
-            state.contactsStatus = getContactsStatusUseCase.status
+            Task { await getStatus() }
             handle(.setDetent(.top))
             handle(.setDrawerContentHeight(180))
 //            uiState.drawerContentHeight = state.onboardingFinished ? contentHeight180 : UIScreen.main.bounds.height - 180
         case .requestAccess:
             Task { await requestAccess() }
+        case .continueRealm:
+            Task { await continueRealm() }
         case .goToProfile:
             coordinator.showMyProfile()
             handle(.sheetPresentationUpdated(to: false))
@@ -107,15 +109,38 @@ final class HomeViewModel: ViewModel {
 }
 
 extension HomeViewModel {
-    private func requestAccess() async {
+    private func getStatus() async {
         do {
-            try await getRequestAccessUseCase.requestAccess()
-            handle(.checkContactsStatus)
-            handle(.getAllContacts)
-            handle(.getFavoriteContacts)
+            state.contactsStatus = try await getContactsStatusUseCase.getStatus()
+            print(state.contactsStatus)
         } catch {
             print("Error", error.localizedDescription)
         }
+    }
+    
+    private func continueRealm() async {
+        do {
+            try await getContactsStatusUseCase.update(status: .realm)
+            refresh()
+        } catch {
+            print("Error", error.localizedDescription)
+        }
+    }
+
+    private func requestAccess() async {
+        do {
+            try await getRequestAccessUseCase.requestAccess()
+            refresh()
+        } catch {
+            refresh()
+            print("Error", error.localizedDescription)
+        }
+    }
+    
+    private func refresh() {
+        handle(.checkContactsStatus)
+        handle(.getAllContacts)
+        handle(.getFavoriteContacts)
     }
     
     private func getAll() async {

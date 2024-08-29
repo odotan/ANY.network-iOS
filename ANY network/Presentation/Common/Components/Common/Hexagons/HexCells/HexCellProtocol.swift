@@ -1,7 +1,7 @@
 import SwiftUI
 
 protocol HexCellProtocol {
-    var color: Color { get set }
+    var color: Color { get }
     var pressed: (() -> Void)? { get set }
 }
 

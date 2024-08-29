@@ -4,6 +4,31 @@ import RealmSwift
 final class RealmContactsDataSource {
 
     private let realmProvider = RealmProvider()
+    
+    @RealmActor
+    func getStatus() async throws -> StatusObject? {
+        guard let storage = await realmProvider.realm() else { throw RealmError.unknown }
+        return storage.object(ofType: StatusObject.self, forPrimaryKey: "StatusObjectID")
+    }
+    
+    @RealmActor @discardableResult
+    func update(status value: Bool) async throws -> StatusObject {
+        guard let storage = await realmProvider.realm() else { throw RealmError.unknown }
+        guard let status = storage.object(ofType: StatusObject.self, forPrimaryKey: "StatusObjectID") else {
+            let status = StatusObject(realmActivated: value)
+            try storage.write {
+                storage.add(status, update: .modified)
+            }
+            return status
+        }
+        
+        status.realmActivated = value
+        try storage.write {
+            storage.add(status, update: .modified)
+        }
+
+        return status
+    }
 
     @RealmActor
     func fetchContactList() async -> Results<ContactObject>? {

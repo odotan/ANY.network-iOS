@@ -6,14 +6,14 @@ final class NativeContactsDataSource {
 }
 
 extension NativeContactsDataSource {
-    var status: ContactsServicesStatus {
+    var status: NativeContactsServicesStatus {
         let status = CNContactStore.authorizationStatus(for: .contacts)
         
         switch status {
         case .notDetermined:
             return .notDetermined
         case .restricted:
-            return .restricted
+            return .denied
         case .denied:
             return .denied
         case .authorized:
@@ -37,8 +37,6 @@ extension NativeContactsDataSource {
             let contacts = try store.unifiedContacts(matching: predicate, keysToFetch: keysToFetch)
             all += contacts
         }
-
-        print("All", Thread.current, Task.currentPriority)
 
         return all.filter { $0.givenName != "" }.sorted(by: { $0.givenName < $1.givenName && !$1.givenName.isEmpty })
     }
@@ -90,9 +88,8 @@ fileprivate let keysToFetch = [
     CNContactInstantMessageAddressesKey as CNKeyDescriptor
 ]
 
-enum ContactsServicesStatus {
+enum NativeContactsServicesStatus {
     case notDetermined
-    case restricted
     case denied
     case authorized
 }

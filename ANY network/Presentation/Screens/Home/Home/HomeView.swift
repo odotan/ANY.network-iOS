@@ -156,7 +156,7 @@ struct HomeView: View {
             SyncContactsPopup(action: {
                 viewModel.handle(.requestAccess)
             }, onDismiss: {
-                print("Start writing locally")
+                viewModel.handle(.continueRealm)
             })
             .frame(height: 200)
         }

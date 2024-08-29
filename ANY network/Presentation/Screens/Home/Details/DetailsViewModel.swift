@@ -33,6 +33,11 @@ final class DetailsViewModel: ViewModel {
             perform(action: action)
         case .presentPrompt(let prompt):
             state.actionPrompt = prompt
+        case .setIsEditing(let isEditing):
+            state.isEditing = isEditing
+        case .save:
+            print("Save")
+            handle(.setIsEditing(false))
         }
     }
 }
@@ -56,15 +61,19 @@ extension DetailsViewModel {
     
     func perform(action: Action) {
         switch action {
+        case .edit:
+//            coordinator.showEdit(contact: state.contact)
+            state.isEditing.toggle()
         case .phone:
             guard let phone = state.contact.phoneNumbers.first else { return }
-            
-            handle(.presentPrompt(.init(title: "Do you want to call?", description: "You are about to call \(state.contact.fullName)") {
-                let tel = "tel://"
-                let formattedString = tel + phone.value
-                guard let url = URL(string: formattedString) else { return }
-                UIApplication.shared.open(url)
-            }))
+            let tel = "tel://"
+            let formattedString = tel + phone.value
+            guard let url = URL(string: formattedString) else { return }
+            UIApplication.shared.open(url)
+
+//            handle(.presentPrompt(.init(title: "Do you want to call?", description: "You are about to call \(state.contact.fullName)") {
+//                
+//            }))
         }
     }
 }

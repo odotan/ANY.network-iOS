@@ -16,8 +16,27 @@ final class ContactsRepositoryImplementation {
 }
 
 extension ContactsRepositoryImplementation: ContactsRepository {
-    var status: ContactsServicesStatus {
-        nativeDataSource.status
+    @RealmActor
+    func getStatus() async throws -> ContactServiceType {
+        if let realmStatus = try await realmDataSource.getStatus(), realmStatus.realmActivated {
+            return .realm
+        }
+
+        if nativeDataSource.status == .authorized {
+            return .native
+        }
+        
+        if nativeDataSource.status == .denied {
+            return .realm
+        }
+
+        return .notDetermined
+    }
+    
+    @RealmActor
+    func update(status: ContactServiceType) async throws {
+        guard status == .realm else { throw ContactRepositoryError.status }
+        try await realmDataSource.update(status: true)
     }
     
     func requestAccess() async throws {
@@ -26,11 +45,13 @@ extension ContactsRepositoryImplementation: ContactsRepository {
     
     @RealmActor
     func getAll() async throws -> [Contact] {
+        let status = try await getStatus()
+        
         if let all = all, !all.isEmpty {
             return all
         }
 
-        if status == .authorized {
+        if status == .native {
             all = try await nativeDataSource.getAll().asContacts()
         } else if let contacts = await realmDataSource.fetchContactList() {
             all = contacts.asContact()
@@ -41,7 +62,9 @@ extension ContactsRepositoryImplementation: ContactsRepository {
 
     @RealmActor
     func getContact(withIdentifier identifier: String) async throws -> Contact? {
-        if status == .authorized {
+        let status = try await getStatus()
+
+        if status == .native {
             return try nativeDataSource.getContact(withIdentifier: identifier)?.asContact()
         }
 
@@ -50,7 +73,9 @@ extension ContactsRepositoryImplementation: ContactsRepository {
     
     @RealmActor
     func search(name: String) async throws -> [Contact] {
-        if status == .authorized {
+        let status = try await getStatus()
+        
+        if status == .native {
             return try nativeDataSource.search(name: name).compactMap { $0.asContact() }
         }
         
@@ -59,7 +84,9 @@ extension ContactsRepositoryImplementation: ContactsRepository {
     
     @RealmActor
     func getFavoriteContacts() async throws -> [Contact] {
-        if status == .authorized {
+        let status = try await getStatus()
+
+        if status == .native {
             guard let favoriteIdsObjects = try await realmDataSource.getFavoritesForNative() else { return [] }
 
             var favoritesArray = [Contact]()
@@ -77,7 +104,9 @@ extension ContactsRepositoryImplementation: ContactsRepository {
     
     @RealmActor
     func checkIfFavorite(contactId: String) async throws -> Bool {
-        if status == .authorized {
+        let status = try await getStatus()
+
+        if status == .native {
             return try await realmDataSource.checkIfFavorite(forNativeId: contactId)
         } else {
             return try await realmDataSource.checkIfFavorite(forRealmId: contactId)
@@ -86,7 +115,9 @@ extension ContactsRepositoryImplementation: ContactsRepository {
     
     @RealmActor
     func toggleFavorite(contactId: String) async throws -> Bool {
-        if status == .authorized {
+        let status = try await getStatus()
+        
+        if status == .native {
             return try await realmDataSource.toggleFavorite(forNativeId: contactId)
         } else {
             return try await realmDataSource.toggleFavorite(forRealmId: contactId)
@@ -95,5 +126,12 @@ extension ContactsRepositoryImplementation: ContactsRepository {
 }
 
 enum ContactRepositoryError: Error {
+    case status
     case custom
+}
+
+enum ContactServiceType {
+    case notDetermined
+    case native
+    case realm
 }

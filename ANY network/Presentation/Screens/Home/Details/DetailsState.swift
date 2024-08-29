@@ -4,6 +4,7 @@ extension DetailsViewModel {
     struct State: Equatable {
         var contact: Contact
         var isFavorite: Bool = false
+        var isEditing: Bool = false
         var actionPrompt: ActionPrompt? = nil
         
         init(contact: Contact) {
@@ -17,10 +18,13 @@ extension DetailsViewModel {
         case starPressed
         case performAction(Action)
         case presentPrompt(ActionPrompt?)
+        case setIsEditing(Bool)
+        case save
     }
     
     enum Action {
         case phone
+        case edit
     }
     
     struct ActionPrompt: Equatable {
