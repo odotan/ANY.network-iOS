@@ -24,12 +24,11 @@ extension HomeViewModel {
 
     struct State: Equatable {
         var contactsStatus: ContactServiceType = .notDetermined
-        var isSheetPresented: Bool = false
         var list: [Contact]?
         var favorites: [Contact]?
         var gridItems: [HexCell] = HexCell.middle
         var usage: [Usage]?
-        var detent: PresentationDetent = .top
+        var detent: PresentationDetent = .middle
 
         var showFavorite: Bool {
             favorites != nil && !favorites!.isEmpty
@@ -64,7 +63,6 @@ extension HomeViewModel {
         case headerSize(CGSize)
         case filterPressed
         case addFavoritePressed
-        case sheetPresentationUpdated(to: Bool)
         case setSheetSize(CGSize)
         case setGridContainerSize(CGSize)
         case setGridZoomScale(CGFloat)

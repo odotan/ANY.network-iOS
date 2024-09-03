@@ -8,7 +8,9 @@ struct SearchView: View {
             if !viewModel.state.list.isEmpty {
                 searchedList
             } else if !viewModel.state.searchTerm.isEmpty {
-                addContanct
+                addContact
+            } else {
+                Spacer()
             }
         }
         .padding(.top, 40) // 
@@ -33,14 +35,14 @@ struct SearchView: View {
     }
     
     @ViewBuilder
-    var addContanct: some View {
+    var addContact: some View {
         VStack(spacing: 16) {
             Text("\"\(viewModel.state.searchTerm)\"")
-                .colorMultiply(.white)
+                .foregroundColor(.white)
                 .font(.montserat(size: 20, weight: .semibold))
             
             Text("There is nothing to show on your contact list")
-                .colorMultiply(.white.opacity(0.7))
+                .foregroundColor(.white.opacity(0.7))
                 .font(.montserat(size: 18))
             
             Button {
@@ -49,15 +51,15 @@ struct SearchView: View {
                 HStack(spacing: 8) {
                     Rectangle()
                         .frame(width: 15, height: 1.5)
-                        .colorMultiply(.appGreen)
+                        .foregroundColor(.appGreen)
                         .frame(height: 15)
                         .overlay {
                             Rectangle()
                                 .frame(width: 1.5, height: 15)
-                                .colorMultiply(.appGreen)
+                                .foregroundColor(.appGreen)
                         }
                     Text("Create New Contact")
-                        .colorMultiply(.appGreen)
+                        .foregroundColor(.appGreen)
                         .font(.montserat(size: 18))
                 }
             }.buttonStyle(.plain)

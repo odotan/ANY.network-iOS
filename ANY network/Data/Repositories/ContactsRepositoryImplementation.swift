@@ -43,7 +43,7 @@ extension ContactsRepositoryImplementation: ContactsRepository {
         try await nativeDataSource.requestAccess()
     }
     
-    @RealmActor
+    @RealmActor @discardableResult
     func getAll() async throws -> [Contact] {
         let status = try await getStatus()
         
@@ -123,6 +123,37 @@ extension ContactsRepositoryImplementation: ContactsRepository {
             return try await realmDataSource.toggleFavorite(forRealmId: contactId)
         }
     }
+    
+    @RealmActor
+    func createEdit(contact: Contact) async throws -> Contact {
+        var new: Contact!
+        let status = try await getStatus()
+        
+        // Create Contact
+        if contact.id.isEmpty {
+            if status == .native {
+                new = try await nativeDataSource.create(contact: contact).asContact()
+            } else {
+                new = try await realmDataSource.create(contact: contact).asContact()
+            }
+        } else { // Update Contact
+            if status == .native {
+                new = try await nativeDataSource.update(contact: contact).asContact()
+            } else {
+                new = try await realmDataSource.update(contact: contact).asContact()
+            }
+        }
+        
+        if let index = all?.firstIndex(where: { new.id == $0.id }) {
+            all?[index] = new
+        } else {
+            all = nil
+            try await getAll()
+        }
+        
+        return new
+    }
+
 }
 
 enum ContactRepositoryError: Error {

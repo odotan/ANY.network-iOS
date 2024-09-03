@@ -29,7 +29,13 @@ struct DetailsView: View {
         .ignoresSafeArea()
         .toolbar(.hidden)
         .backButton {
-            viewModel.handle(.goBack)
+            if isEditing.wrappedValue && viewModel.hasBeenModified {
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    discardChanges.wrappedValue = true
+                }
+            } else {
+                viewModel.handle(.goBack)
+            }
         }
         .overlay(alignment: .top) {
             Text(isEditing.wrappedValue ? "Edit" : viewModel.state.contact.fullName)
@@ -71,6 +77,12 @@ struct DetailsView: View {
         } message: { action in
             Text(action.description)
         }
+        .fullscreenHexagonPopup(
+            isPresented: discardChanges,
+            message: "Do you want to discard changes?",
+            acceptButton: .init(title: "Yes", subtitle: "Discard changes", action: { viewModel.handle(.goBack) }),
+            cancelButton: .init(title: "No", subtitle: "Keep Editing", action: { discardChanges.wrappedValue = false })
+        )
     }
     
     @ViewBuilder
@@ -151,7 +163,7 @@ struct DetailsView: View {
                         .frame(height: isEditing.wrappedValue ? size.height * 0.43 - 100 : size.height * 1)
                         .id("space")
                     
-                    EditContactView(contact: viewModel.state.contact)
+                    EditContactView(viewModel: viewModel.createEditVM)
                         .frame(width: size.width, height: size.height)
                         .id("edit")
                         .background(.appBackground)
@@ -235,6 +247,13 @@ struct DetailsView: View {
         .init(
             get: { viewModel.state.isEditing },
             set: { viewModel.handle(.setIsEditing($0)) }
+        )
+    }
+    
+    private var discardChanges: Binding<Bool> {
+        .init(
+            get: { viewModel.state.discardChanges },
+            set: { viewModel.handle(.discardChanges($0)) }
         )
     }
 }

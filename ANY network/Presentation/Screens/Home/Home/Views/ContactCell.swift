@@ -1,8 +1,12 @@
 import SwiftUI
+import Combine
 
 struct ContactCell: View {
     private let contact: Contact
-    
+
+    private let onDragEvent = PassthroughSubject<DragGesture.Value, Never>()
+    private let onDragEnd = PassthroughSubject<Void, Never>()
+
     init(contact: Contact) {
         self.contact = contact
     }
@@ -15,9 +19,9 @@ struct ContactCell: View {
                 } else {
                     Color.appRaisinBlack
                         .overlay {
-                            Image(.avatar)
-                                .resizable()
-                                .frame(width: <->26.37, height: |30.7)
+                            Text(contact.abbreviation)
+                                .font(Font.montserat(size: 20, weight: .bold))
+                                .foregroundStyle(.white)
                         }
                 }
             }
@@ -41,7 +45,17 @@ struct ContactCell: View {
             
             Spacer()
             
-            SwitcherView() 
+            SwitcherView(onContainingViewDragEvent: onDragEvent, onContainingViewDragEnd: onDragEnd)
         }
+        .contentShape(Rectangle())
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                .onChanged(onDragEvent.send)
+                .onEnded({ _ in onDragEnd.send() })
+        )
     }
+}
+
+#Preview {
+    ContactCell(contact: Contact(id: "asd", givenName: "Te", middleName: "Lee", familyName: "Ard", phoneNumbers: [], emailAddresses: [], postalAddresses: [], urlAddresses: [], socialProfiles: [], instantMessageAddresses: [], imageData: nil, imageDataAvailable: false, isFavorite: false))
 }

@@ -1,14 +1,22 @@
 import SwiftUI
 
+
 struct HomeView: View {
     @StateObject var viewModel: HomeViewModel
 
+    @State var drawerContentHeight: CGFloat = 180
+    
     var body: some View {
         VStack(spacing: 0) {
             header
             
             favourites
-                .bottomDrawerView(contentHeight: drawerContentHeight){
+                .bottomDrawerView(
+                    contentHeight: $drawerContentHeight,
+                    showButtons: viewModel.state.onboardingFinished,
+                    searchAction: { viewModel.handle(.goToSearch) },
+                    recenterAction: { viewModel.handle(.recenter(true)) }
+                ) {
                     VStack {
                         if !viewModel.state.onboardingFinished {
                             onboarding
@@ -21,7 +29,10 @@ struct HomeView: View {
                 }
                 .onAppear {
                     let height = viewModel.state.onboardingFinished ? 180 : UIScreen.main.bounds.height - 250
-                    drawerContentHeight.wrappedValue = height
+                    drawerContentHeight = height
+                }
+                .onChange(of: drawerContentHeight) { oldValue, newValue in
+                    viewModel.handle(.setDrawerContentHeight(newValue))
                 }
         }
         .task {
@@ -30,11 +41,6 @@ struct HomeView: View {
         .task {
             viewModel.handle(.getFavoriteContacts)
         }
-        .onChange(of: viewModel.state.gridItems) { oldValue, newValue in
-            isSheetPresented.wrappedValue = newValue != nil && !newValue!.isEmpty
-        }
-        .onAppear { viewModel.handle(.sheetPresentationUpdated(to: true)) }
-        .onDisappear { viewModel.handle(.sheetPresentationUpdated(to: false)) }
         .ignoresSafeArea(.all, edges: .bottom)
         .background(Color.appBackground)
     }
@@ -104,42 +110,36 @@ struct HomeView: View {
                 .offset(y: 10.0)
                 .allowsHitTesting(false)
         }
-        .onChange(of: viewModel.uiState.gridContentSize) { old, new in
-            guard old == .zero else { return }
-            viewModel.handle(.recenter(false))
-        }
-        .overlay(alignment: .bottomLeading) {
-            if viewModel.state.onboardingFinished {
-                HStack {
-                    SearchButton {
-                        viewModel.handle(.goToSearch)
-                    }
-                    
-                    Spacer()
-                    
-                    RecenterButton {
-                        viewModel.handle(.recenter(true))
-                    }
-                }
-                .padding(.bottom, 50)
-                .padding(.horizontal, <->18)
-            }
-        }
     }
     
     @ViewBuilder
     var allContacts: some View {
-        List(viewModel.state.list!) { contact in
-            Button {
-                viewModel.handle(.goToDetails(contact: contact))
-            } label: {
-                ContactCell(contact: contact)
+        ScrollView {
+            LazyVStack(spacing: 24) {
+                ForEach(viewModel.state.list!) { contact in
+                    Button {
+                        viewModel.handle(.goToDetails(contact: contact))
+                    } label: {
+                        ContactCell(contact: contact)
+                            .id(contact.id)
+                    }
+                    .padding(.horizontal, 16)
+                }
             }
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
+            .padding(.top)
         }
-        .listRowSpacing(-10)
-        .listStyle(.plain)
+//        List(viewModel.state.list!) { contact in
+//            Button {
+//                viewModel.handle(.goToDetails(contact: contact))
+//            } label: {
+//                ContactCell(contact: contact)
+//                    .id(contact.id)
+//            }
+//            .listRowSeparator(.hidden)
+//            .listRowBackground(Color.clear)
+//        }
+//        .listRowSpacing(-10)
+//        .listStyle(.plain)
     }
     
     @ViewBuilder
@@ -176,7 +176,9 @@ extension HomeView {
                     viewModel.handle(.goToDetails(contact: contact))
                 }
             } else {
-                ColorHexCell(color: cell.color)
+//                ColorHexCell(color: cell.color)
+                let color = HexCell.all.randomElement()?.color ?? Color(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), opacity: .random(in: 0.05...0.7))
+                ColorHexCell(color: color)
             }
         }
         .captureCenterPoint { point in
@@ -215,13 +217,6 @@ extension HomeView {
 
 // MARK: - Bindings
 extension HomeView {
-    private var isSheetPresented: Binding<Bool> {
-        return Binding(
-            get: { viewModel.state.isSheetPresented },
-            set: { viewModel.handle(.sheetPresentationUpdated(to: $0)) }
-        )
-    }
-
     private var sheetSize: Binding<CGSize> {
         .init(
             get: { viewModel.uiState.sheetSize },
@@ -264,12 +259,12 @@ extension HomeView {
         )
     }
     
-    private var drawerContentHeight: Binding<CGFloat> {
-        .init(
-            get: { viewModel.uiState.drawerContentHeight },
-            set: { viewModel.handle(.setDrawerContentHeight($0)) }
-        )
-    }
+//    private var drawerContentHeight: Binding<CGFloat> {
+//        .init(
+//            get: { viewModel.uiState.drawerContentHeight },
+//            set: { viewModel.handle(.setDrawerContentHeight($0)) }
+//        )
+//    }
     
     private var headerSize: Binding<CGSize> {
         .init(

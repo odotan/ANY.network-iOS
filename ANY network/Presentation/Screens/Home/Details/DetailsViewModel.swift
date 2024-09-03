@@ -6,18 +6,20 @@ final class DetailsViewModel: ViewModel {
     private let coordinator: MainCoordinatorProtocol
     private let toggleFavoriteUseCase: ToggleFavoriteUseCase
     private let checkIfFavoriteUseCase: CheckIfFavoriteUseCase
+    private let createEditContactUseCase: CreateEditContactUseCase
     
     init(
         contact: Contact,
         coordinator: MainCoordinatorProtocol,
         toggleFavoriteUseCase: ToggleFavoriteUseCase,
-        checkIfFavoriteUseCase: CheckIfFavoriteUseCase
+        checkIfFavoriteUseCase: CheckIfFavoriteUseCase,
+        createEditContactUseCase: CreateEditContactUseCase
     ) {
         self.state = State(contact: contact)
         self.coordinator = coordinator
         self.toggleFavoriteUseCase = toggleFavoriteUseCase
         self.checkIfFavoriteUseCase = checkIfFavoriteUseCase
-        
+        self.createEditContactUseCase = createEditContactUseCase
         handle(.checkIfFavorite)
     }
     
@@ -38,11 +40,30 @@ final class DetailsViewModel: ViewModel {
         case .save:
             print("Save")
             handle(.setIsEditing(false))
+            Task { await save() }
+        case .discardChanges(let shouldDiscard):
+            state.discardChanges = shouldDiscard
         }
     }
 }
 
 extension DetailsViewModel {
+    var createEditVM: EditContactViewModel {
+        .init(state: .init(get: { self.state }, set: { self.state = $0 }))
+    }
+    
+    var hasBeenModified: Bool {
+        !state.initialContact.isLike(state.contact)
+    }
+    
+    func save() async {
+        do {
+            state.contact = try await createEditContactUseCase.execute(contact: state.contact)
+        } catch {
+            print("Error", error.localizedDescription)
+        }
+    }
+    
     func toggleFavorite() async {
         do {
             state.isFavorite = try await toggleFavoriteUseCase.execute(state.contact.id)

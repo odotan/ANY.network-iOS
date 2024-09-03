@@ -15,8 +15,6 @@ struct SwitcherItemView: View {
                 .resizable()
                 .scaledToFit()
                 .padding(3)
-                .background(Color.appBackground)
-
         } else {
             EmptyView()
         }

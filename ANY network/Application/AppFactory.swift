@@ -42,4 +42,8 @@ extension AppFactory {
     func makeCheckIfFavorite() -> CheckIfFavoriteUseCase {
         CheckIfFavoriteUseCase(repository: contactsRepository)
     }
+    
+    func makeCreateEditContactUseCase() -> CreateEditContactUseCase {
+        CreateEditContactUseCase(repository: contactsRepository)
+    }
 }

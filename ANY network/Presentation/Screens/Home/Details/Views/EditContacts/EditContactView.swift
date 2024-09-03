@@ -1,13 +1,12 @@
 import SwiftUI
 
 struct EditContactView: View {
-    @StateObject var viewModel: EditContactViewModel
+    @ObservedObject var viewModel: EditContactViewModel
 
-    init(contact: Contact) {
-        let model = EditContactViewModel(contact: contact)
-        _viewModel = StateObject(wrappedValue: model)
-    }
-
+//    init(viewModel: EditContactViewModel) {
+//        _viewModel = StateObject(wrappedValue: viewModel)
+//    }
+    
     // MARK: - Main View
     var body: some View {
         GeometryReader { reader in
@@ -97,7 +96,7 @@ struct EditContactView: View {
             )
 
             VStack(spacing: 14) {
-                ForEach(viewModel.state.postalAddresses) { address in
+                ForEach(viewModel.state.contact.postalAddresses) { address in
                     let text = Binding(
                         get: { address.value },
                         set: { viewModel.handle(.editPostalAddress(id: address.id, newValue: .init(id: address.id, label: address.label, value: $0))) }
@@ -151,7 +150,7 @@ struct EditContactView: View {
     // MARK: - Bindings
     private var firstName: Binding<String> {
         Binding(
-            get: { viewModel.state.givenName ?? "" },
+            get: { viewModel.state.contact.givenName ?? "" },
             set: { viewModel.handle(.editGivenName($0))
             }
         )
@@ -159,7 +158,7 @@ struct EditContactView: View {
 
     private var lastName: Binding<String> {
         Binding(
-            get: { viewModel.state.familyName ?? "" },
+            get: { viewModel.state.contact.familyName ?? "" },
             set: { viewModel.handle(.editFamilyname($0))
             }
         )
@@ -167,17 +166,10 @@ struct EditContactView: View {
 
     private var company: Binding<String> {
         Binding(
-            get: { viewModel.state.organizationName ?? "" },
+            get: { viewModel.state.contact.organizationName ?? "" },
             set: { viewModel.handle(.editOrganizationName($0))
             }
         )
-    }
-}
-
-#Preview {
-    NavigationStack {
-        EditContactView(contact: Contact.testContact)
-            .background(Color.appBackground)
     }
 }
 

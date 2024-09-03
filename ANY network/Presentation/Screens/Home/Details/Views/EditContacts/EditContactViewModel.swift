@@ -1,83 +1,69 @@
 import Foundation
+import SwiftUI
 
-final class EditContactViewModel: ViewModel {
-    @Published private(set) var state: State
-    private var contact: Contact
+final class EditContactViewModel: ObservableObject {
+    @Binding var state: DetailsViewModel.State
 
-    init(contact: Contact) {
-        self.state = State(
-            id: contact.id,
-            givenName: contact.givenName,
-            middleName: contact.middleName,
-            familyName: contact.familyName,
-            organizationName: contact.organizationName,
-            phoneNumbers: contact.phoneNumbers,
-            emailAddresses: contact.emailAddresses,
-            postalAddresses: contact.postalAddresses,
-            urlAddresses: contact.urlAddresses,
-            socialProfiles: contact.socialProfiles,
-            instantMessageAddresses: contact.instantMessageAddresses,
-            birthday: contact.birthday,
-            imageData: contact.imageData,
-            isFavorite: contact.isFavorite
-        )
-        self.contact = contact
+    init(state: Binding<DetailsViewModel.State>) {
+        self._state = state
     }
 
-    func handle(_ event: Event) {
+    func handle(_ event: EditContactViewModel.Event) {
         switch event {
+        case .update(let contact):
+            state.contact = contact
         case .changeImageData(let data):
-            state.imageData = data
+            state.contact.imageData = data
         case .editGivenName(let string):
-            state.givenName = string
+            state.contact.givenName = string
         case .editFamilyname(let string):
-            state.familyName = string
+            state.contact.familyName = string
         case .editOrganizationName(let string):
-            state.organizationName = string
+            state.contact.organizationName = string
         case .editContactMetod(let id, let newValue):
             editContactMethod(id: id, value: newValue)
         case .deleteContactMetod(let id, let type):
             deleteContactMethod(id: id, type: type)
         case .addPhoneNumber(let labeledValue):
-            state.phoneNumbers.append(labeledValue)
+            state.contact.phoneNumbers.append(labeledValue)
         case .addEmailAddress(let labeledValue):
-            state.emailAddresses.append(labeledValue)
+            state.contact.emailAddresses.append(labeledValue)
         case .addPostalAddress(let labeledValue):
-            state.postalAddresses.append(labeledValue)
+            state.contact.postalAddresses.append(labeledValue)
         case .addURLAddress(let labeledValue):
-            state.urlAddresses.append(labeledValue)
+            state.contact.urlAddresses.append(labeledValue)
         case .addSocialProfile(let labeledValue):
-            state.socialProfiles.append(labeledValue)
+            state.contact.socialProfiles.append(labeledValue)
         case .addInstantMessageAddress(let labeledValue):
-            state.instantMessageAddresses.append(labeledValue)
+            state.contact.instantMessageAddresses.append(labeledValue)
         case .editPhoneNumber(let id, let newValue):
-            replace(elementAtId: id, with: newValue, in: &state.phoneNumbers)
+            replace(elementAtId: id, with: newValue, in: &state.contact.phoneNumbers)
         case .editEmailAddress(let id, let newValue):
-            replace(elementAtId: id, with: newValue, in: &state.emailAddresses)
+            replace(elementAtId: id, with: newValue, in: &state.contact.emailAddresses)
         case .editPostalAddress(let id, let newValue):
-            replace(elementAtId: id, with: newValue, in: &state.postalAddresses)
+            replace(elementAtId: id, with: newValue, in: &state.contact.postalAddresses)
         case .editURLAddress(let id, let newValue):
-            replace(elementAtId: id, with: newValue, in: &state.urlAddresses)
+            replace(elementAtId: id, with: newValue, in: &state.contact.urlAddresses)
         case .editSocialProfile(let id, let newValue):
-            replace(elementAtId: id, with: newValue, in: &state.socialProfiles)
+            replace(elementAtId: id, with: newValue, in: &state.contact.socialProfiles)
         case .editInstantMessageAddress(let id, let newValue):
-            replace(elementAtId: id, with: newValue, in: &state.instantMessageAddresses)
+            replace(elementAtId: id, with: newValue, in: &state.contact.instantMessageAddresses)
         case .deletePhoneNumber(let id):
-            removeElement(withId: id, from: &state.phoneNumbers)
+            removeElement(withId: id, from: &state.contact.phoneNumbers)
         case .deleteEmailAddress(let id):
-            removeElement(withId: id, from: &state.emailAddresses)
+            removeElement(withId: id, from: &state.contact.emailAddresses)
         case .deletePostalAddress(let id):
-            removeElement(withId: id, from: &state.postalAddresses)
+            removeElement(withId: id, from: &state.contact.postalAddresses)
         case .deleteURLAddress(let id):
-            removeElement(withId: id, from: &state.urlAddresses)
+            removeElement(withId: id, from: &state.contact.urlAddresses)
         case .deleteSocialProfile(let id):
-            removeElement(withId: id, from: &state.socialProfiles)
+            removeElement(withId: id, from: &state.contact.socialProfiles)
         case .deleteInstantMessageAddress(let id):
-            removeElement(withId: id, from: &state.instantMessageAddresses)
+            removeElement(withId: id, from: &state.contact.instantMessageAddresses)
         case .setBirthday(let date):
-            state.birthday = date
-        case .saveChanges:
-            Task { await saveContact(contact) }
+            state.contact.birthday = date
+        case .checkIfIsModified:
+            state.initialContact
         }
     }
 }
@@ -120,15 +106,6 @@ extension EditContactViewModel {
             handle(.deleteURLAddress(id: id))
         default:
             return
-        }
-    }
-
-    private func saveContact(_ contact: Contact) async {
-        do {
-//            try await saveContactUseCase.execute(contact)
-            print("Saving contact changes")
-        } catch {
-            print("Error:", error.localizedDescription)
         }
     }
 }

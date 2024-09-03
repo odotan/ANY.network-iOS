@@ -165,6 +165,36 @@ extension RealmContactsDataSource {
             return true
         }
     }
+    
+    @RealmActor
+    func create(contact contactT: Contact) async throws -> ContactObject {
+        guard let storage = await realmProvider.realm() else {
+            throw RealmError.unknown }
+
+        let contact = ContactObject(contactT)
+        
+        storage.writeAsync {
+            storage.add(contact)
+        }
+        
+        return contact
+    }
+    
+    @RealmActor
+    func update(contact contactT: Contact) async throws -> ContactObject {
+        guard
+            let storage = await realmProvider.realm(),
+            let contact = storage.object(ofType: ContactObject.self, forPrimaryKey: contactT.id) else
+        { throw RealmError.unknown }
+        
+        let temp = ContactObject(contactT)
+        temp.id = contact.id
+        
+        storage.writeAsync {
+            storage.add(temp, update: .modified)
+        }
+        return contact
+    }
 }
 
 enum RealmError: Error {

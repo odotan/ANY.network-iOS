@@ -5,7 +5,6 @@ final class HomeViewModel: ViewModel {
     @Published private(set) var uiState: UIState
     
     var initialContentOffset: CGPoint? = nil
-
     
     private let coordinator: MainCoordinatorProtocol
     private let getFavoriteContactsUseCase: GetFavoriteContactsUseCase
@@ -41,20 +40,16 @@ final class HomeViewModel: ViewModel {
             Task { await getStatus() }
             handle(.setDetent(.top))
             handle(.setDrawerContentHeight(180))
-//            uiState.drawerContentHeight = state.onboardingFinished ? contentHeight180 : UIScreen.main.bounds.height - 180
         case .requestAccess:
             Task { await requestAccess() }
         case .continueRealm:
             Task { await continueRealm() }
         case .goToProfile:
             coordinator.showMyProfile()
-            handle(.sheetPresentationUpdated(to: false))
         case .goToDetails(let contact):
             coordinator.showDetails(for: contact)
-            handle(.sheetPresentationUpdated(to: false))
         case .goToSearch:
             coordinator.showSearch()
-            handle(.sheetPresentationUpdated(to: false))
         case .recenter(let userInitiated):
             recenter(userInitiated: userInitiated)
         case .headerSize(let size):
@@ -68,18 +63,16 @@ final class HomeViewModel: ViewModel {
             print("Add to favorite pressed")
         case .filterPressed:
             print("Filter Pressed")
-        case .sheetPresentationUpdated(let value):
-            state.isSheetPresented = value
         case .setSheetSize(let size):
             uiState.sheetSize = size
         case .setGridContainerSize(let size):
             uiState.gridContainerSize = size
-            handle(.recenter(false))
-            if size.height > 350 {
-                handle(.setDetent(.bottom))
-            } else if size.height < 340 {
-                handle(.setDetent(.top))
-            }
+//            handle(.recenter(false))
+//            if size.height > 350 {
+//                handle(.setDetent(.bottom))
+//            } else if size.height < 340 {
+//                handle(.setDetent(.top))
+//            }
         case .setGridZoomScale(let scale):
             uiState.gridZoomScale = scale
         case .setGridContentOffset(let offset):
@@ -90,20 +83,29 @@ final class HomeViewModel: ViewModel {
             guard detent != state.detent else { return }
             
             state.detent = detent
-            print(detent, uiState.gridContainerSize)
             Task {
-                await prepareFavoriteGrid()
-                try? await Task.sleep(nanoseconds: 1000)
                 initialContentOffset = nil
                 handle(.setCenterPosition(.zero))
-                handle(.recenter(false))
+                await prepareFavoriteGrid()
+                try? await Task.sleep(nanoseconds: 1000)
             }
         case .setContentIdentifier:
             uiState.contentIdentifier = UUID()
         case .setCenterPosition(let point):
-            uiState.gridCenterPosition = point
+            if uiState.gridCenterPosition == .zero {
+                uiState.gridCenterPosition = point
+                handle(.recenter(false))
+            } else {
+                uiState.gridCenterPosition = point
+            }
         case .setDrawerContentHeight(let height):
             uiState.drawerContentHeight = height
+            
+            if height > 350 {
+                handle(.setDetent(.bottom))
+            } else if height < 340 {
+                handle(.setDetent(.top))
+            }
         }
     }
 }
@@ -146,7 +148,6 @@ extension HomeViewModel {
     private func getAll() async {
         do {
             state.list = try await getAllContactsUseCase.execute()
-//            print("All VM", Thread.current, Task.currentPriority)
         } catch let error {
             print("Error", error.localizedDescription)
         }
@@ -155,7 +156,7 @@ extension HomeViewModel {
     private func getFavorite() async {
         do {
             state.favorites = try await getFavoriteContactsUseCase.execute()
-            await prepareFavoriteGrid()
+            handle(.setDetent(.top))
         } catch let error {
             print("Error", error.localizedDescription)
         }

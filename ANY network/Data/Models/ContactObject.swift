@@ -21,6 +21,7 @@ class ContactObject: Object {
     convenience init(_ contact: Contact) {
         self.init()
         
+        id = UUID().uuidString
         isFavorite = contact.isFavorite
         givenName = contact.givenName
         middleName = contact.middleName

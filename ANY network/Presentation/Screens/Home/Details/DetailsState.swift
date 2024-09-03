@@ -3,12 +3,21 @@ import Foundation
 extension DetailsViewModel {
     struct State: Equatable {
         var contact: Contact
+        var initialContact: Contact
+        var isModified: Bool = false
         var isFavorite: Bool = false
         var isEditing: Bool = false
+        var hasBeenModified: Bool = false
         var actionPrompt: ActionPrompt? = nil
+        var discardChanges: Bool = false
         
         init(contact: Contact) {
             self.contact = contact
+            self.initialContact = contact
+        }
+
+        var contactInfo: [LabeledValue] {
+            contact.phoneNumbers + contact.emailAddresses + contact.urlAddresses
         }
     }
     
@@ -20,6 +29,7 @@ extension DetailsViewModel {
         case presentPrompt(ActionPrompt?)
         case setIsEditing(Bool)
         case save
+        case discardChanges(Bool)
     }
     
     enum Action {

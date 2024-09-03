@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreHaptics
+import Combine
 
 // MARK: Custom View
 struct Carousel3D<Content: View, Item>: View where Item: RandomAccessCollection, Item.Element: Identifiable, Item.Element: Equatable {
@@ -19,11 +20,23 @@ struct Carousel3D<Content: View, Item>: View where Item: RandomAccessCollection,
     @State var lastStoredOffset: CGFloat = 0
     @State var animationDuration: CGFloat = 0
     @State var engine: CHHapticEngine?
-    
-    init(cardSize: CGSize, numberForItems: Int, items: Item, @ViewBuilder content: @escaping (Item.Element) -> Content) {
+
+    private let onContainingViewDragEvent: PassthroughSubject<DragGesture.Value, Never>
+    private let onContainingViewDragEnd: PassthroughSubject<Void, Never>
+
+    init(
+        cardSize: CGSize,
+        numberForItems: Int,
+        items: Item,
+        onContainingViewDragEvent: PassthroughSubject<DragGesture.Value, Never> = .init(),
+        onContainingViewDragEnd: PassthroughSubject<Void, Never> = .init(),
+        @ViewBuilder content: @escaping (Item.Element) -> Content
+    ) {
         self.cardSize = cardSize
         self.numberOfItems = numberForItems
         self.items = items
+        self.onContainingViewDragEvent = onContainingViewDragEvent
+        self.onContainingViewDragEnd = onContainingViewDragEnd
         self.content = content
 
         for item in items {
@@ -69,9 +82,14 @@ struct Carousel3D<Content: View, Item>: View where Item: RandomAccessCollection,
                     try? HepticService.shared.perform()
                 }
             })
+            .onReceive(onContainingViewDragEvent, perform: { onDrag(value: $0) })
+            .onReceive(onContainingViewDragEnd, perform: {
+                lastReleasedWidth = .zero
+                snapToPosition()
+            })
     }
-    
-    // MARK: Converting SwiftUI View Into UIKit View
+
+    // MARK: - Converting SwiftUI View Into UIKit View
     func convertToUIView(item: Item.Element) -> UIHostingController<Content> {
         let hostingView = UIHostingController(rootView: content(item))
         hostingView.view.frame.origin = .init(x: cardSize.width / 2, y: cardSize.height / 2)

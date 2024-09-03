@@ -13,7 +13,7 @@ private struct SearchTextField: View {
     init(text: Binding<String>, action: @escaping () -> Void) {
         self._text = text
         self.action = action
-        self.focusField = .search
+        self.focusField = nil
     }
 
     var body: some View {
@@ -58,9 +58,9 @@ private struct SearchTextField: View {
             )
             .frame(height: 400)
         }
-//        .onAppear {
-//            focusField = .search
-//        }
+        .onAppear {
+            self.focusField = .search
+        }
     }
 }
 

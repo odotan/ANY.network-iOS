@@ -5,7 +5,7 @@ final class SearchViewModel: ViewModel {
     private let coordinator: MainCoordinatorProtocol
     private let getAllContactsUseCase: GetAllContactsUseCase
     private let searchUseCase: SearchNameUseCase
-
+    
     init(coordinator: MainCoordinatorProtocol, getAllContactsUseCase: GetAllContactsUseCase, searchUseCase: SearchNameUseCase) {
         self.state = State()
         self.coordinator = coordinator
@@ -25,6 +25,16 @@ final class SearchViewModel: ViewModel {
             coordinator.showDetails(for: contact)
         case .addContact:
             print("Add it with searched term:", state.searchTerm)
+            var contact = Contact(id: "")
+            if state.searchTerm.isEmail {
+                contact.emailAddresses.append(LabeledValue(id: "", label: "home", value: state.searchTerm))
+            } else if state.searchTerm.isPhoneNumber {
+                contact.phoneNumbers.append(LabeledValue(id: "", label: "home", value: state.searchTerm))
+            } else {
+                contact.givenName = state.searchTerm
+            }
+
+            coordinator.showDetails(for: contact)
         }
     }
 }

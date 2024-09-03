@@ -57,7 +57,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         let newContent = content()
 
         if context.coordinator.contentIdentifier != contentIdentifier {
-//            print("Scroll Refresh")
+            print("Scroll Refresh")
             DispatchQueue.main.async {
                 context.coordinator.hostingController.rootView = newContent
                 context.coordinator.hostingController.view.sizeToFit()
@@ -67,7 +67,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         }
         
         if uiView.contentOffset != contentOffset && !userInteracting {
-//            print("Animate Scroll View offset", contentOffset)
+            print("Animate Scroll View offset", contentOffset)
             UIView.animate(withDuration: animationDuration) {
                 uiView.contentOffset = self.contentOffset
                 uiView.zoomScale = self.zoomScale
@@ -75,7 +75,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         }
         
         if contentSize != uiView.contentSize || size != uiView.frame.size /*|| contentOffset != uiView.contentOffset*/ {
-//            print("User scrolls")
+            print("User scrolls")
             DispatchQueue.main.async {
                 self.contentSize = uiView.contentSize
                 self.size = uiView.frame.size

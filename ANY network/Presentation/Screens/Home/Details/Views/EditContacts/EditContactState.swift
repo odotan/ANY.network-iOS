@@ -3,28 +3,8 @@ import Contacts
 import SwiftUI
 
 extension EditContactViewModel {
-    struct State: Equatable {
-        let id: String
-        var givenName: String?
-        var middleName: String?
-        var familyName: String?
-        var organizationName: String?
-        var phoneNumbers: [LabeledValue]
-        var emailAddresses: [LabeledValue]
-        var postalAddresses: [LabeledValue]
-        var urlAddresses: [LabeledValue]
-        var socialProfiles: [LabeledValue]
-        var instantMessageAddresses: [LabeledValue]
-        var birthday: Date?
-        var imageData: Data?
-        var isFavorite: Bool
-
-        var contactInfo: [LabeledValue] {
-            phoneNumbers + emailAddresses + urlAddresses
-        }
-    }
-
     enum Event {
+        case update(Contact)
         case changeImageData(Data)
 
         case editGivenName(String)
@@ -56,8 +36,8 @@ extension EditContactViewModel {
         case deleteInstantMessageAddress(id: String)
 
         case setBirthday(Date)
-
-        case saveChanges
+        
+        case checkIfIsModified
     }
 }
 
