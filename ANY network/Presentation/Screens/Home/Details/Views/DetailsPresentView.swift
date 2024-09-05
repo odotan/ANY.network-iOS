@@ -18,6 +18,7 @@ struct DetailsPresentView: View {
     @State private var editSize: CGSize = .zero
     
     @Binding private var isEditing: Bool
+    @State private var shakeAnimation: Bool = false
     private let contactDatasource: () -> Contact
     private let performAction: (DetailsViewModel.Action) -> Void
     private let cellDatasource: CellDatasource
@@ -53,7 +54,9 @@ struct DetailsPresentView: View {
                 cellDatasource(
                     cell,
 
-                    AnyView(cellView(for: cell))
+                    AnyView(
+                        cellView(for: cell)
+                    )
                 )
             }
             .background { Color.appBackground }
@@ -79,6 +82,11 @@ struct DetailsPresentView: View {
             .clipShape(HexagonShape(cornerRadius: 8))
             .position(editPosition)
         }
+        .onChange(of: isEditing, { oldValue, newValue in
+            if oldValue != newValue && newValue {
+                gridZoomScale = 1
+            }
+        })
         .ignoresSafeArea()
     }
     
@@ -92,6 +100,16 @@ struct DetailsPresentView: View {
                 if !contact.phoneNumbers.isEmpty {
                     IconHexCell(type: .phone) {
                         performAction(.phone)
+                    }
+                } else {
+                    ColorHexCell(color: cell.color)
+                }
+            }
+        case (5, 3):
+            Group {
+                if !contact.phoneNumbers.isEmpty {
+                    IconHexCell(type: .email) {
+                        performAction(.email)
                     }
                 } else {
                     ColorHexCell(color: cell.color)

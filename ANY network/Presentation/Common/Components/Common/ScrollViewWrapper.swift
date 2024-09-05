@@ -66,7 +66,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             }
         }
         
-        if uiView.contentOffset != contentOffset && !userInteracting {
+        if (uiView.contentOffset != contentOffset/* || uiView.zoomScale != self.zoomScale*/) && !userInteracting {
             print("Animate Scroll View offset", contentOffset)
             UIView.animate(withDuration: animationDuration) {
                 uiView.contentOffset = self.contentOffset
@@ -121,9 +121,11 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
                 self?.userInteracting.wrappedValue = true
             }
         }
+
         public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
 //             print("scrollViewWillEndDragging")
         }
+
         public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
 //            print("scrollViewDidEndDragging")
         }
@@ -135,6 +137,18 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             }
         }
         
+//        public func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
+//            DispatchQueue.main.async { [weak self] in
+//                self?.userInteracting.wrappedValue = true
+//            }
+//        }
+//
+//        public func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+//            DispatchQueue.main.async { [weak self] in
+//                self?.userInteracting.wrappedValue = false
+//            }
+//        }
+
         public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
             scrollView.subviews.first
         }

@@ -25,7 +25,8 @@ extension IconHexCell {
         case edit // temp
         case plus
         case phone
-        
+        case email
+
         var image: ImageResource {
             switch self {
             case .edit:
@@ -34,6 +35,8 @@ extension IconHexCell {
                 return .plusIcon
             case .phone:
                 return .phoneGreenIcon
+            case .email:
+                return .emailWhiteIcon
             }
         }
         
@@ -45,6 +48,8 @@ extension IconHexCell {
                 return Color(hex: "302C3D") ?? .clear
             case .phone:
                 return .appGreen
+            case .email:
+                return .appYellow
             }
         }
     }

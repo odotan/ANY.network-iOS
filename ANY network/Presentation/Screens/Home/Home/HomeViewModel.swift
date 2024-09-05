@@ -157,6 +157,9 @@ extension HomeViewModel {
         do {
             state.favorites = try await getFavoriteContactsUseCase.execute()
             handle(.setDetent(.top))
+            initialContentOffset = nil
+            handle(.setCenterPosition(.zero))
+            await prepareFavoriteGrid()
         } catch let error {
             print("Error", error.localizedDescription)
         }

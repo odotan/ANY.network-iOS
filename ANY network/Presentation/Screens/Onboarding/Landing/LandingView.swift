@@ -45,41 +45,67 @@ struct LandingView: View {
             self.animationFinished = true
         }
         .onAppear {
-            withAnimation(
-                .easeIn(duration: Constants.Duration.showLogo)
-                .delay(Constants.Delay.initial)
-            ) {
-                showLogo = true
-            }
-            withAnimation(
-                .easeIn(duration: Constants.Duration.showLabel)
-                .delay(Constants.Delay.showLabel)
-            ) {
-                showLabel = true
-            }
-            withAnimation(
-                .easeIn(duration: Constants.Duration.purpleHexagon)
-                .delay(Constants.Delay.purpleHexagon)
-            ) {
-                showLabel = false
-                changeImages = true
-            }
-            withAnimation(
-                .easeIn(duration: Constants.Duration.purpleHexagonScale)
-                .delay(Constants.Delay.purpleHexagonScale)
-            ) {
-                scale = 30
-            } completion: {
-                withAnimation(
-                    .easeIn(duration: Constants.Duration.switchScreens)
-                    .delay(Constants.Delay.switchScreens)
-                ) {
-                    self.animationFinished = true
-                }
+            let launchAnimationPlayed = UserDefaults.standard.bool(forKey: "launch-animation-played")
+            if !launchAnimationPlayed {
+                firstLaunchAnimation()
+            } else {
+                subsequentLaunchesAnimation()
             }
         }
     }
-    
+
+    func firstLaunchAnimation() {
+        withAnimation(
+            .easeIn(duration: Constants.Duration.showLogo)
+            .delay(Constants.Delay.initial)
+        ) {
+            showLogo = true
+        }
+        withAnimation(
+            .easeIn(duration: Constants.Duration.showLabel)
+            .delay(Constants.Delay.showLabel)
+        ) {
+            showLabel = true
+        }
+        withAnimation(
+            .easeIn(duration: Constants.Duration.purpleHexagon)
+            .delay(Constants.Delay.purpleHexagon)
+        ) {
+            showLabel = false
+            changeImages = true
+        }
+        withAnimation(
+            .easeIn(duration: Constants.Duration.purpleHexagonScale)
+            .delay(Constants.Delay.purpleHexagonScale)
+        ) {
+            scale = 30
+        } completion: {
+            withAnimation(
+                .easeIn(duration: Constants.Duration.switchScreens)
+                .delay(Constants.Delay.switchScreens)
+            ) {
+                UserDefaults.standard.setValue(true, forKey: "launch-animation-played")
+                self.animationFinished = true
+            }
+        }
+    }
+
+    func subsequentLaunchesAnimation() {
+        withAnimation(
+            .easeIn(duration: Constants.Duration.showLogo)
+        ) {
+            showLogo = true
+            showLabel = true
+        } completion: {
+            withAnimation(
+                .easeIn(duration: Constants.Duration.switchScreensOnSubsequentLaunches)
+                .delay(Constants.Delay.switchScreensOnSubsequentLaunches)
+            ) {
+                self.animationFinished = true
+            }
+        }
+    }
+
     // MARK: -- OFIR
     private enum Constants {
         enum Delay {
@@ -88,6 +114,10 @@ struct LandingView: View {
             static let purpleHexagon: CGFloat = 3.4 // 2.6 + 0.8
             static let purpleHexagonScale: CGFloat = 4.7 // 4.6 + 0.1
             static let switchScreens: CGFloat = 0.4
+
+//            static let hideLabelOnSubsequentLaunches: CGFloat = 0.7
+//            static let hexagonScaleOnSubsequentLaunches: CGFloat = 0.3
+            static let switchScreensOnSubsequentLaunches: CGFloat = 1
         }
 
         enum Duration {
@@ -96,6 +126,11 @@ struct LandingView: View {
             static let purpleHexagon: CGFloat = 1
             static let purpleHexagonScale: CGFloat = 1
             static let switchScreens: CGFloat = 1.5
+
+            static let showLogoOnSubsequentLaunches: CGFloat = 0.3
+//            static let hideLabelOnSubsequentLaunches: CGFloat = 0.4
+//            static let hexagonScaleOnSubsequentLaunches: CGFloat = 0.7
+            static let switchScreensOnSubsequentLaunches: CGFloat = 0.4
         }
     }
 }

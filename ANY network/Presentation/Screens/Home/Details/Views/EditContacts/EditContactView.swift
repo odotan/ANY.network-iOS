@@ -19,6 +19,7 @@ struct EditContactView: View {
                 contactInfoSection()
 
                 addressSection()
+                    .padding(.bottom, 30)
             }
             .frame(height: reader.size.height)
         }

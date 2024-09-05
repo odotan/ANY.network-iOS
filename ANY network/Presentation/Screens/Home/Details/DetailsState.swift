@@ -35,6 +35,7 @@ extension DetailsViewModel {
     enum Action {
         case phone
         case edit
+        case email
     }
     
     struct ActionPrompt: Equatable {

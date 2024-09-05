@@ -38,7 +38,7 @@ extension NativeContactsDataSource {
             all += contacts
         }
 
-        return all.filter { $0.givenName != "" }.sorted(by: { $0.givenName < $1.givenName && !$1.givenName.isEmpty })
+        return all.filter { $0.givenName != "" }/*.sorted(by: { $0.givenName < $1.givenName && !$1.givenName.isEmpty })*/
     }
     
     func getContact(withIdentifier identifier: String) throws -> CNContact? {

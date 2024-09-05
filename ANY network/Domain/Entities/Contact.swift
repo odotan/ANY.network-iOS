@@ -61,10 +61,7 @@ extension Contact {
 extension Array where Element == Contact {
     func sort() -> [Contact] {
         self.sorted {
-            if $0.familyName == nil { return true }
-            if $1.familyName == nil { return true }
-
-            return $0.familyName! < $1.familyName!
+            return $0.fullName < $1.fullName
         }
     }
 }

@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct ANY_networkApp: App {
     @State var animationFinished: Bool = false
+    
     let appFactory = AppFactory()
 
     var body: some Scene {

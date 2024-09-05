@@ -83,18 +83,20 @@ extension DetailsViewModel {
     func perform(action: Action) {
         switch action {
         case .edit:
-//            coordinator.showEdit(contact: state.contact)
             state.isEditing.toggle()
         case .phone:
             guard let phone = state.contact.phoneNumbers.first else { return }
             let tel = "tel://"
             let formattedString = tel + phone.value
             guard let url = URL(string: formattedString) else { return }
-            UIApplication.shared.open(url)
-
-//            handle(.presentPrompt(.init(title: "Do you want to call?", description: "You are about to call \(state.contact.fullName)") {
-//                
-//            }))
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url)
+            }
+        case .email:
+            guard let email = state.contact.emailAddresses.first?.value, let url = URL(string: "mailto:\(email)") else { return }
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url)
+            }
         }
     }
 }

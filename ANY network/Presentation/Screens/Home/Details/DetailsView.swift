@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct DetailsView: View {
     typealias CellView = View
@@ -7,6 +8,8 @@ struct DetailsView: View {
     @State private var avatarPossition: CGPoint = .zero
     @State private var avatarSize: CGSize = .zero
     @State private var scrollOffset: CGFloat = .zero
+    @State private var keyboardHeight: CGFloat = .zero
+    @State private var cancellable: AnyCancellable?
 
     var body: some View {
         VStack {
@@ -22,11 +25,11 @@ struct DetailsView: View {
                 }
             }
         }
-        .onChange(of: avatarPossition) { oldValue, newValue in
+        .onChange(of: avatarSize) { oldValue, newValue in
             print("Avatar", newValue)
         }
         .background { Color.appBackground }
-        .ignoresSafeArea()
+        .ignoresSafeArea(.container)
         .toolbar(.hidden)
         .backButton {
             if isEditing.wrappedValue && viewModel.hasBeenModified {
@@ -83,6 +86,20 @@ struct DetailsView: View {
             acceptButton: .init(title: "Yes", subtitle: "Discard changes", action: { viewModel.handle(.goBack) }),
             cancelButton: .init(title: "No", subtitle: "Keep Editing", action: { discardChanges.wrappedValue = false })
         )
+        .onAppear {
+            self.cancellable = Publishers.Merge(
+                NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+                    .map { notification in
+                        (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect)?.height ?? 0
+                    },
+                NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+                    .map { _ in CGFloat(0) }
+            )
+            .assign(to: \.keyboardHeight, on: self)
+        }
+        .onDisappear {
+            self.cancellable?.cancel()
+        }
     }
     
     @ViewBuilder
@@ -128,7 +145,7 @@ struct DetailsView: View {
         let screenCenterHeight = size.height / 2
         let scaleFactor = isEditing.wrappedValue ? mapCGFloat(
             value: scrollOffset,
-            inputMin: -screenCenterHeight / 2.3,
+            inputMin: -screenCenterHeight / 2.0 + keyboardHeight / 2,
             inputMax: -screenCenterHeight / 1.5,
             outputMin: 1,
             outputMax: 119 / avatarSize.height
@@ -142,7 +159,7 @@ struct DetailsView: View {
             .offset(y: 
                 isEditing.wrappedValue ? (mapCGFloat(
                     value: scrollOffset,
-                    inputMin: -screenCenterHeight / 2.3,
+                    inputMin: -screenCenterHeight / 2.0 + keyboardHeight / 2,
                     inputMax: -screenCenterHeight / 1.5,
                     outputMin: 0,
                     outputMax: 1
@@ -196,7 +213,7 @@ struct DetailsView: View {
             .scrollTargetBehavior(.viewAligned)
             .scrollIndicators(.hidden)
             .scrollDisabled(!isEditing.wrappedValue)
-            .frame(width: size.width, height: size.height / 1.4)
+            .frame(width: size.width, height: UIScreen.main.bounds.height / 1.4 - keyboardHeight)
             .coordinateSpace(name: "scroll")
         }
         .frame(width: size.width, height: size.height)
