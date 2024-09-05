@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import PhotosUI
 
 struct DetailsView: View {
     typealias CellView = View
@@ -100,6 +101,12 @@ struct DetailsView: View {
         .onDisappear {
             self.cancellable?.cancel()
         }
+        .onChange(of: viewModel.state.selectedPhoto) { _, newItem in
+            Task {
+                let newImageData = try await newItem?.loadTransferable(type: Data.self)
+                viewModel.handle(.profileImageDataChanged(newImageData))
+            }
+        }
     }
     
     @ViewBuilder
@@ -151,20 +158,23 @@ struct DetailsView: View {
             outputMax: 119 / avatarSize.height
         ) : 1
         
-        AvatarHexCell(imageData: viewModel.state.contact.imageData, color: .appPurple)
-            .frame(width: avatarSize.width, height: avatarSize.height)
-            .clipShape(HexagonShape(cornerRadius: 6))
-            .scaleEffect(scaleFactor, anchor: .center)
-            .position(avatarPossition)
-            .offset(y: 
-                isEditing.wrappedValue ? (mapCGFloat(
-                    value: scrollOffset,
-                    inputMin: -screenCenterHeight / 2.0 + keyboardHeight / 2,
-                    inputMax: -screenCenterHeight / 1.5,
-                    outputMin: 0,
-                    outputMax: 1
-                ) * (avatarPossition.y - |173) * (-1)) : 0
-            )
+        PhotosPicker(selection: selectedPhoto, matching: .any(of: [.images, .screenshots])) {
+            AvatarHexCell(imageData: viewModel.state.contact.imageData, color: .appPurple)
+                .frame(width: avatarSize.width, height: avatarSize.height)
+                .clipShape(HexagonShape(cornerRadius: 6))
+                .scaleEffect(scaleFactor, anchor: .center)
+                .position(avatarPossition)
+                .offset(y:
+                    isEditing.wrappedValue ? (mapCGFloat(
+                        value: scrollOffset,
+                        inputMin: -screenCenterHeight / 2.0 + keyboardHeight / 2,
+                        inputMax: -screenCenterHeight / 1.5,
+                        outputMin: 0,
+                        outputMax: 1
+                    ) * (avatarPossition.y - |173) * (-1)) : 0
+                )
+                .disabled(true)
+        }
     }
     
     @ViewBuilder
@@ -271,6 +281,13 @@ struct DetailsView: View {
         .init(
             get: { viewModel.state.discardChanges },
             set: { viewModel.handle(.discardChanges($0)) }
+        )
+    }
+    
+    private var selectedPhoto: Binding<PhotosPickerItem?> {
+        .init(
+            get: { viewModel.state.selectedPhoto },
+            set: { viewModel.handle(.selectedPickerPhotoChanged($0)) }
         )
     }
 }

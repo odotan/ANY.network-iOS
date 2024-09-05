@@ -43,6 +43,12 @@ final class DetailsViewModel: ViewModel {
             Task { await save() }
         case .discardChanges(let shouldDiscard):
             state.discardChanges = shouldDiscard
+        case .selectedPickerPhotoChanged(let newSelection):
+            state.selectedPhoto = newSelection
+        case .profileImageDataChanged(let newData):
+            state.contactImageData = newData
+            state.contact.imageData = newData
+            state.contact.imageDataAvailable = true
         }
     }
 }

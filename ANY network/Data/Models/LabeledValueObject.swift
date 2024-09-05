@@ -9,6 +9,7 @@ class LabeledValueObject: Object {
     convenience init(_ labeledValue: LabeledValue) {
         self.init()
         
+        self.id = UUID().uuidString
         self.value = labeledValue.value
         self.label = labeledValue.label
     }

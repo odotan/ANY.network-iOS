@@ -1,10 +1,3 @@
-//
-//  VisualEffectView.swift
-//  ANY network
-//
-//  Created by Rumen Ganev on 29.08.24.
-//
-
 import Foundation
 import SwiftUI
 

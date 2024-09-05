@@ -38,7 +38,7 @@ extension Contact {
     var topNumber: String? {
         return phoneNumbers.first?.value
     }
-    
+
     func isLike(_ contact: Contact) -> Bool {
         id == contact.id &&
         givenName == contact.givenName &&
@@ -55,6 +55,17 @@ extension Contact {
         imageData == contact.imageData &&
         imageDataAvailable == contact.imageDataAvailable &&
         isFavorite == contact.isFavorite
+    }
+
+    var allContactMethods: [ContactMethodType: [LabeledValue]] {
+        return [
+            .phoneNumbers: phoneNumbers,
+            .emailAddresses: emailAddresses,
+            .postalAddresses: postalAddresses,
+            .urlAddresses: urlAddresses,
+            .socialProfiles: socialProfiles,
+            .instantMessageAddresses: instantMessageAddresses
+        ]
     }
 }
 

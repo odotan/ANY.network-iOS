@@ -44,6 +44,7 @@ struct SearchView: View {
             Text("There is nothing to show on your contact list")
                 .foregroundColor(.white.opacity(0.7))
                 .font(.montserat(size: 18))
+                .multilineTextAlignment(.center)
             
             Button {
                 viewModel.handle(.addContact)

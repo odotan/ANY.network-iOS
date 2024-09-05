@@ -112,6 +112,10 @@ extension NativeContactsDataSource {
         mutableContact.emailAddresses = contactT.emailAddresses.compactMap { CNLabeledValue(label: $0.label, value: NSString(string: $0.value)) }
         mutableContact.urlAddresses = contactT.urlAddresses.compactMap { CNLabeledValue(label: $0.label, value: NSString(string: $0.value)) }
         
+        if let imageData = contactT.imageData {
+            mutableContact.imageData = imageData
+        }
+        
         let saveRequest = CNSaveRequest()
         saveRequest.update(mutableContact)
 

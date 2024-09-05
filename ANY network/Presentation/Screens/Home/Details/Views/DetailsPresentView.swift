@@ -107,7 +107,7 @@ struct DetailsPresentView: View {
             }
         case (5, 3):
             Group {
-                if !contact.phoneNumbers.isEmpty {
+                if !contact.emailAddresses.isEmpty {
                     IconHexCell(type: .email) {
                         performAction(.email)
                     }

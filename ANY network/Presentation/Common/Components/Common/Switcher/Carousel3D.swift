@@ -3,11 +3,11 @@ import CoreHaptics
 import Combine
 
 // MARK: Custom View
-struct Carousel3D<Content: View, Item>: View where Item: RandomAccessCollection, Item.Element: Identifiable, Item.Element: Equatable {
+struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollection, Items.Indices.Element == Int, Items.Element: Identifiable, Items.Element: Equatable {
     var cardSize: CGSize
     var numberOfItems: Int
-    var items: Item
-    var content: (Item.Element) -> Content
+    var items: Items
+    var content: (Items.Element) -> Content
 
     var hostingViews: [UIView] = []
     
@@ -21,20 +21,26 @@ struct Carousel3D<Content: View, Item>: View where Item: RandomAccessCollection,
     @State var animationDuration: CGFloat = 0
     @State var engine: CHHapticEngine?
 
+    // MARK: Item Selection
+    @StateObject private var indexObserver = IndexChangeObserver()
+    @Binding private var selectedItem: Items.Element?
+
     private let onContainingViewDragEvent: PassthroughSubject<DragGesture.Value, Never>
     private let onContainingViewDragEnd: PassthroughSubject<Void, Never>
 
     init(
         cardSize: CGSize,
         numberForItems: Int,
-        items: Item,
+        items: Items,
+        selectedItem: Binding<Items.Element?>,
         onContainingViewDragEvent: PassthroughSubject<DragGesture.Value, Never> = .init(),
         onContainingViewDragEnd: PassthroughSubject<Void, Never> = .init(),
-        @ViewBuilder content: @escaping (Item.Element) -> Content
+        @ViewBuilder content: @escaping (Items.Element) -> Content
     ) {
         self.cardSize = cardSize
         self.numberOfItems = numberForItems
         self.items = items
+        self._selectedItem = selectedItem
         self.onContainingViewDragEvent = onContainingViewDragEvent
         self.onContainingViewDragEnd = onContainingViewDragEnd
         self.content = content
@@ -81,16 +87,24 @@ struct Carousel3D<Content: View, Item>: View where Item: RandomAccessCollection,
                 if delta > circleAngle / 2 {
                     try? HepticService.shared.perform()
                 }
+
+                let draggingItemOffset = (-Int(offset / circleAngle) % hostingViews.count)
+
+                indexObserver.changingIndex = draggingItemOffset < 0 ? numberOfItems + draggingItemOffset : draggingItemOffset % numberOfItems
+
+//                print("DeltaOffset:", Int(offset / circleAngle), "MoveBy:", (Int(offset / circleAngle) % hostingViews.count), "withCurrent:", indexObserver.currentIndex.description, "To new index:", draggingItemOffset < 0 ? numberOfItems + draggingItemOffset : draggingItemOffset % numberOfItems)
             })
+            .onReceive(indexObserver.$currentIndex) {
+                self.selectedItem = items[$0]
+            }
             .onReceive(onContainingViewDragEvent, perform: { onDrag(value: $0) })
             .onReceive(onContainingViewDragEnd, perform: {
                 lastReleasedWidth = .zero
                 snapToPosition()
             })
     }
-
     // MARK: - Converting SwiftUI View Into UIKit View
-    func convertToUIView(item: Item.Element) -> UIHostingController<Content> {
+    func convertToUIView(item: Items.Element) -> UIHostingController<Content> {
         let hostingView = UIHostingController(rootView: content(item))
         hostingView.view.frame.origin = .init(x: cardSize.width / 2, y: cardSize.height / 2)
         hostingView.view.backgroundColor = .clear
@@ -146,14 +160,20 @@ struct Carousel3D<Content: View, Item>: View where Item: RandomAccessCollection,
     }
 }
 #Preview {
-    VStack(alignment: .leading) {
-        HStack {
-            SwitcherView()
-            Spacer()
-        }
-        Spacer()
+    @State var methods: [any ContactMethod] = [
+        Facebook(value: "@LeeAsd"),
+        Blackbery(value: "@LeeAsdBla"),
+        PhoneNumber(value: "01851923616"),
+        Twitter(value: "@LeeAasdTwi")
+    ]
+
+    @State var selected: (any ContactMethod)?
+
+    return VStack {
+        SwitcherView(contactMethods: methods, selectedItem: $selected)
+            .background(.appBackground)
+            .onAppear { selected = methods.first }
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
 }
 
 
@@ -246,4 +266,18 @@ struct CarouselHelper: UIViewRepresentable {
 
 func degToRad(deg: CGFloat) -> CGFloat {
     return (deg * .pi) / 180
+}
+
+fileprivate class IndexChangeObserver: ObservableObject {
+    @Published var changingIndex: Int = 0
+    @Published var currentIndex: Int = 0
+
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        $changingIndex
+            .debounce(for: 0.7, scheduler: RunLoop.main)
+            .sink { [weak self] in self?.currentIndex = $0 }
+            .store(in: &cancellables)
+    }
 }

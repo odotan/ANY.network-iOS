@@ -1,9 +1,13 @@
 import Foundation
+import SwiftUI
+import PhotosUI
 
 extension DetailsViewModel {
     struct State: Equatable {
         var contact: Contact
         var initialContact: Contact
+        var contactImageData: Data?
+        var selectedPhoto: PhotosPickerItem?
         var isModified: Bool = false
         var isFavorite: Bool = false
         var isEditing: Bool = false
@@ -14,6 +18,7 @@ extension DetailsViewModel {
         init(contact: Contact) {
             self.contact = contact
             self.initialContact = contact
+            self.contactImageData = contact.imageData
         }
 
         var contactInfo: [LabeledValue] {
@@ -25,6 +30,8 @@ extension DetailsViewModel {
         case goBack
         case checkIfFavorite
         case starPressed
+        case selectedPickerPhotoChanged(PhotosPickerItem?)
+        case profileImageDataChanged(Data?)
         case performAction(Action)
         case presentPrompt(ActionPrompt?)
         case setIsEditing(Bool)
