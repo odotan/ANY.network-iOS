@@ -35,6 +35,7 @@ final class HomeViewModel: ViewModel {
     }
     
     func handle(_ event: Event) {
+        print(event)
         switch event {
         case .checkContactsStatus:
             Task { await getStatus() }
@@ -81,14 +82,13 @@ final class HomeViewModel: ViewModel {
             uiState.gridContentSize = size
         case .setDetent(let detent):
             guard detent != state.detent else { return }
-            
-            state.detent = detent
-            Task {
-                initialContentOffset = nil
-                handle(.setCenterPosition(.zero))
-                await prepareFavoriteGrid()
-                try? await Task.sleep(nanoseconds: 1000)
-            }
+//            
+//            state.detent = detent
+//            Task {
+//                initialContentOffset = nil
+//                handle(.setCenterPosition(.zero))
+////                await prepareFavoriteGrid()
+//            }
         case .setContentIdentifier:
             uiState.contentIdentifier = UUID()
         case .setCenterPosition(let point):
@@ -101,11 +101,11 @@ final class HomeViewModel: ViewModel {
         case .setDrawerContentHeight(let height):
             uiState.drawerContentHeight = height
             
-            if height > 350 {
-                handle(.setDetent(.bottom))
-            } else if height < 340 {
-                handle(.setDetent(.top))
-            }
+//            if height > 350 {
+//                handle(.setDetent(.bottom))
+//            } else if height < 340 {
+//                handle(.setDetent(.top))
+//            }
         }
     }
 }
@@ -195,36 +195,6 @@ extension HomeViewModel {
 
         handle(.setGridContentOffset(location))
     }
-    
-//    private func recenter(userInitiated: Bool) {
-//        if initialContentOffset == nil {
-//            initialContentOffset = uiState.gridContentOffset
-//        }
-//
-//        // It depends if the user has pressed the button or have moved the drawer
-//        var cOffset = userInitiated ? uiState.gridContentOffset : initialContentOffset
-//        var location = uiState.gridCenterPosition
-//        if uiState.gridContainerSize.height >= uiState.gridContentSize.height {
-//            location.y = uiState.gridContentOffset.y
-//        } else {
-//            location.y -= uiState.gridContainerSize.height / 2 //- uiState.gridContentOffset.y
-//            location.y += cOffset!.y
-//            location.y -= uiState.headerSize.height
-//        }
-//        location.y = location.y < 0 ? uiState.gridContentOffset.y : location.y
-//        
-//        print(location.y, uiState.gridCenterPosition.y, cOffset!.y, uiState.gridContainerSize)
-//        
-//        if uiState.gridContainerSize.width >= uiState.gridContentSize.width {
-//            location.x = uiState.gridContentOffset.x
-//        } else {
-//            location.x -= uiState.gridContainerSize.width / 2// - uiState.gridContentOffset.x
-//            location.x += uiState.gridContentOffset.x
-//        }
-//        location.x = location.x < 0 ? uiState.gridContentOffset.x : location.x
-//
-//        handle(.setGridContentOffset(location))
-//    }
 }
 
 
@@ -241,16 +211,17 @@ extension HomeViewModel {
             return
         }
         
-        switch state.detent {
-        case .top:
-            topGrid(favorites: favorites)
-        case .middle:
-            middleGrid(favorites: favorites)
-        case .bottom:
-            bottomGrid(favorites: favorites)
-        default:
-            emptyGrid()
-        }
+        bottomGrid(favorites: favorites)
+//        switch state.detent {
+//        case .top:
+//            topGrid(favorites: favorites)
+//        case .middle:
+//            middleGrid(favorites: favorites)
+//        case .bottom:
+//            bottomGrid(favorites: favorites)
+//        default:
+//            emptyGrid()
+//        }
     }
     
     private func emptyGrid() {
@@ -259,49 +230,50 @@ extension HomeViewModel {
             handle(.recenter(false))
         }
         
-        switch state.detent {
-        case .top:
-            state.gridItems = HexCell.inline
-        case .middle:
-            state.gridItems = HexCell.middle
-        case .bottom:
-            state.gridItems = HexCell.all
-        default:
-            state.gridItems = []
-        }
+        state.gridItems = HexCell.all
+//        switch state.detent {
+//        case .top:
+//            state.gridItems = HexCell.inline
+//        case .middle:
+//            state.gridItems = HexCell.middle
+//        case .bottom:
+//            state.gridItems = HexCell.all
+//        default:
+//            state.gridItems = []
+//        }
     }
     
-    private func topGrid(favorites: [Contact]) {
-        let lineCount = favorites.count < 7 ? 7 : (favorites.count % 2 == 0 ? favorites.count + 1 : favorites.count)
-        let numberOfElements = lineCount * 3
-        var array = [HexCell]()
-        
-        var lastPriority: Int?
-        for idx in 0..<numberOfElements {
-            let coords = priorityManager.positionTop(for: idx)
-            let priority: Int? = coords.row == 0 ? (lastPriority == nil ? 0 : (lastPriority! + 1)) : nil
-            let cell = HexCell(offsetCoordinate: coords, color: .appRaisinBlack, priority: priority)
-            array.append(cell)
-
-            if let priority = priority {
-                lastPriority = priority
-            }
-        }
-
-        state.gridItems = array
-    }
-    
-    private func middleGrid(favorites: [Contact]) {
-        let count = favorites.count <= 19 ? 19 : favorites.count
-        var array = [HexCell]()
-        for idx in 0..<count {
-            let coords = priorityManager.positionMiddle(for: idx)
-//            print("index:\(idx) coords:\(coords)")
-            let cell = HexCell(offsetCoordinate: coords, color: .appRaisinBlack, priority: idx)
-            array.append(cell)
-        }
-        state.gridItems = array
-    }
+//    private func topGrid(favorites: [Contact]) {
+//        let lineCount = favorites.count < 7 ? 7 : (favorites.count % 2 == 0 ? favorites.count + 1 : favorites.count)
+//        let numberOfElements = lineCount * 3
+//        var array = [HexCell]()
+//        
+//        var lastPriority: Int?
+//        for idx in 0..<numberOfElements {
+//            let coords = priorityManager.positionTop(for: idx)
+//            let priority: Int? = coords.row == 0 ? (lastPriority == nil ? 0 : (lastPriority! + 1)) : nil
+//            let cell = HexCell(offsetCoordinate: coords, color: .appRaisinBlack, priority: priority)
+//            array.append(cell)
+//
+//            if let priority = priority {
+//                lastPriority = priority
+//            }
+//        }
+//
+//        state.gridItems = array
+//    }
+//    
+//    private func middleGrid(favorites: [Contact]) {
+//        let count = favorites.count <= 19 ? 19 : favorites.count
+//        var array = [HexCell]()
+//        for idx in 0..<count {
+//            let coords = priorityManager.positionMiddle(for: idx)
+////            print("index:\(idx) coords:\(coords)")
+//            let cell = HexCell(offsetCoordinate: coords, color: .appRaisinBlack, priority: idx)
+//            array.append(cell)
+//        }
+//        state.gridItems = array
+//    }
     
     private func bottomGrid(favorites: [Contact]) {
         var array = [HexCell]()

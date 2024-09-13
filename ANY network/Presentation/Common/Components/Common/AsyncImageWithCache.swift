@@ -26,10 +26,8 @@ struct AsyncImageWithCache: View {
             .scaledToFill()
             .onAppear {
                 loadImage()
-                print("onAppear")
             }
             .onDisappear {
-                print("onDisappear")
                 cancellable?.cancel()
             }
     }

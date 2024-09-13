@@ -31,9 +31,9 @@ struct HomeView: View {
                     let height = viewModel.state.onboardingFinished ? 210 : UIScreen.main.bounds.height - 250
                     drawerContentHeight = height
                 }
-                .onChange(of: drawerContentHeight) { _, newValue in
-                    viewModel.handle(.setDrawerContentHeight(newValue))
-                }
+//                .onChange(of: drawerContentHeight) { _, newValue in
+//                    viewModel.handle(.setDrawerContentHeight(newValue))
+//                }
                 .onChange(of: viewModel.state.contactsStatus) { _, newValue in
                     let height = viewModel.state.onboardingFinished ? 210 : UIScreen.main.bounds.height - 250
                     drawerContentHeight = height
