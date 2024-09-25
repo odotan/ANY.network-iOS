@@ -4,7 +4,7 @@ import Foundation
 protocol MainCoordinatorProtocol {
     func showHome()
     func showMyProfile()
-    func showDetails(for contact: Contact)
+    func showDetails(for contact: Contact, isNew: Bool)
     func showSearch()
     func pop()
 }

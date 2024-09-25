@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SearchView: View {
     @StateObject var viewModel: SearchViewModel
+    @Environment(\.dismiss) var dismiss
         
     var body: some View {
         VStack {
@@ -17,8 +18,16 @@ struct SearchView: View {
         .searchTextField(text: searchTerm) {
             viewModel.handle(.addContact)
         }
-        .backButton {
-            viewModel.handle(.goBack)
+        .overlay(alignment: .topLeading) {
+            Button(action: {
+                dismiss()
+            }, label: {
+                Image(.backBtn)
+                    .rotationEffect(.degrees(-90))
+                    .padding(.top, |8)
+                    .padding(.bottom, |5)
+                    .padding(.horizontal)
+            })
         }
         .overlay(alignment: .top) {
             Text("Search")

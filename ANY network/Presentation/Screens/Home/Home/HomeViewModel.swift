@@ -9,7 +9,7 @@ final class HomeViewModel: ViewModel {
     private let coordinator: MainCoordinatorProtocol
     private let getFavoriteContactsUseCase: GetFavoriteContactsUseCase
     private let getAllContactsUseCase: GetAllContactsUseCase
-    private let searchUseCase: SearchNameUseCase
+    private let searchUseCase: SearchInContactUseCase
     private let getContactsStatusUseCase: ContactsStatusUseCase
     private let getRequestAccessUseCase: GetRequestAccessUseCase
     private let priorityManager = GridPriorityManager()
@@ -18,7 +18,7 @@ final class HomeViewModel: ViewModel {
         coordinator: MainCoordinatorProtocol,
         getFavoriteContactsUseCase: GetFavoriteContactsUseCase,
         getAllContactsUseCase: GetAllContactsUseCase,
-        searchUseCase: SearchNameUseCase,
+        searchUseCase: SearchInContactUseCase,
         getContactsStatusUseCase: ContactsStatusUseCase,
         getRequestAccessUseCase: GetRequestAccessUseCase
     ) {
@@ -35,12 +35,10 @@ final class HomeViewModel: ViewModel {
     }
     
     func handle(_ event: Event) {
-        print(event)
         switch event {
         case .checkContactsStatus:
             Task { await getStatus() }
-            handle(.setDetent(.top))
-            handle(.setDrawerContentHeight(180))
+            handle(.setDetent(.fraction(state.contactsStatus == .notDetermined ? 0.2 : 0.5)))
         case .requestAccess:
             Task { await requestAccess() }
         case .continueRealm:
@@ -48,9 +46,15 @@ final class HomeViewModel: ViewModel {
         case .goToProfile:
             coordinator.showMyProfile()
         case .goToDetails(let contact):
-            coordinator.showDetails(for: contact)
+            handle(.setDrawerOpen(false))
+            coordinator.showDetails(for: contact, isNew: false)
         case .goToSearch:
+            handle(.setDrawerOpen(false))
             coordinator.showSearch()
+        case .searchTerm(let term):
+            Task { await search(term: term) }
+        case .isSearching(let isSearching):
+            state.isSearching = isSearching
         case .recenter(let userInitiated):
             recenter(userInitiated: userInitiated)
         case .headerSize(let size):
@@ -81,13 +85,15 @@ final class HomeViewModel: ViewModel {
         case .setGridContentSize(let size):
             uiState.gridContentSize = size
         case .setDetent(let detent):
-            guard detent != state.detent else { return }
-//            
-//            state.detent = detent
+//            guard detent != state.detent else { return }
+
+            state.detent = detent
+            state.isSearching = false
 //            Task {
 //                initialContentOffset = nil
 //                handle(.setCenterPosition(.zero))
-////                await prepareFavoriteGrid()
+//                await prepareFavoriteGrid()
+//                try? await Task.sleep(nanoseconds: 1000)
 //            }
         case .setContentIdentifier:
             uiState.contentIdentifier = UUID()
@@ -98,14 +104,21 @@ final class HomeViewModel: ViewModel {
             } else {
                 uiState.gridCenterPosition = point
             }
-        case .setDrawerContentHeight(let height):
-            uiState.drawerContentHeight = height
-            
-//            if height > 350 {
-//                handle(.setDetent(.bottom))
-//            } else if height < 340 {
-//                handle(.setDetent(.top))
-//            }
+        case .setDrawerOpen(let isOpen):
+            uiState.drawerIsOpen = isOpen
+        case .addContact:
+            print("Add it with searched term:", state.searchedTerm)
+            handle(.setDrawerOpen(false))
+            var contact = Contact(id: "")
+            if state.searchedTerm.isEmail {
+                contact.emailAddresses.append(LabeledValue(id: "", label: "home", value: state.searchedTerm))
+            } else if state.searchedTerm.isPhoneNumber {
+                contact.phoneNumbers.append(LabeledValue(id: "", label: "home", value: state.searchedTerm))
+            } else {
+                contact.givenName = state.searchedTerm
+            }
+
+            coordinator.showDetails(for: contact, isNew: true)
         }
     }
 }
@@ -114,7 +127,6 @@ extension HomeViewModel {
     private func getStatus() async {
         do {
             state.contactsStatus = try await getContactsStatusUseCase.getStatus()
-            print(state.contactsStatus)
         } catch {
             print("Error", error.localizedDescription)
         }
@@ -143,6 +155,7 @@ extension HomeViewModel {
         handle(.checkContactsStatus)
         handle(.getAllContacts)
         handle(.getFavoriteContacts)
+        handle(.setDrawerOpen(true))
     }
     
     private func getAll() async {
@@ -156,7 +169,6 @@ extension HomeViewModel {
     private func getFavorite() async {
         do {
             state.favorites = try await getFavoriteContactsUseCase.execute()
-            handle(.setDetent(.top))
             initialContentOffset = nil
             handle(.setCenterPosition(.zero))
             await prepareFavoriteGrid()
@@ -165,34 +177,28 @@ extension HomeViewModel {
         }
     }
     
+    private func search(term: String) async {
+        defer {
+            state.searchedTerm = term
+        }
+
+        do {
+            if !term.isEmpty {
+                state.searchResults = try await searchUseCase.execute(term: term)
+            } else {
+                await getAll()
+            }
+        } catch let error {
+            print("Error", error.localizedDescription)
+        }
+    }
+    
     private func recenter(userInitiated: Bool) {
-        guard uiState.gridCenterPosition != .zero else { return }
-        if initialContentOffset == nil {
-            initialContentOffset = uiState.gridContentOffset
-        }
-
-        // It depends if the user has pressed the button or have moved the drawer
-        let cOffset = userInitiated ? uiState.gridContentOffset : initialContentOffset!
-        var location = uiState.gridCenterPosition
+        var location: CGPoint = .zero
         
+        location.x = uiState.gridContentSize.width / 2 - uiState.gridContainerSize.width / 2 - 40
+        location.y = uiState.gridContentSize.height / 2 - uiState.gridContainerSize.height / 2 + 80 // keep the center over the sheet
         
-        if uiState.gridContainerSize.height >= uiState.gridContentSize.height {
-            location.y = 0
-        } else {
-            location.y -= uiState.gridContainerSize.height / 2 //- uiState.gridContentOffset.y
-            location.y += cOffset.y
-            location.y -= uiState.headerSize.height
-        }
-        location.y = location.y < 0 ? uiState.gridContentOffset.y : location.y
-        
-        if uiState.gridContainerSize.width >= uiState.gridContentSize.width {
-            location.x = 0
-        } else {
-            location.x -= uiState.gridContainerSize.width / 2// - uiState.gridContentOffset.x
-            location.x += uiState.gridContentOffset.x
-        }
-        location.x = location.x < 0 ? uiState.gridContentOffset.x : location.x
-
         handle(.setGridContentOffset(location))
     }
 }
@@ -201,27 +207,16 @@ extension HomeViewModel {
 // MARK: -- Favorite Grid
 extension HomeViewModel {
     private func prepareFavoriteGrid() async {
-        defer {
-            handle(.setContentIdentifier)
-            handle(.recenter(false))
-        }
-        
-        guard let favorites = state.favorites else {
+        if let favorites = state.favorites {
+            generateGrid(favorites: favorites)
+        } else {
             emptyGrid()
-            return
         }
-        
-        bottomGrid(favorites: favorites)
-//        switch state.detent {
-//        case .top:
-//            topGrid(favorites: favorites)
-//        case .middle:
-//            middleGrid(favorites: favorites)
-//        case .bottom:
-//            bottomGrid(favorites: favorites)
-//        default:
-//            emptyGrid()
-//        }
+
+        handle(.setContentIdentifier)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            self?.handle(.recenter(false))
+        }
     }
     
     private func emptyGrid() {
@@ -231,54 +226,13 @@ extension HomeViewModel {
         }
         
         state.gridItems = HexCell.all
-//        switch state.detent {
-//        case .top:
-//            state.gridItems = HexCell.inline
-//        case .middle:
-//            state.gridItems = HexCell.middle
-//        case .bottom:
-//            state.gridItems = HexCell.all
-//        default:
-//            state.gridItems = []
-//        }
     }
     
-//    private func topGrid(favorites: [Contact]) {
-//        let lineCount = favorites.count < 7 ? 7 : (favorites.count % 2 == 0 ? favorites.count + 1 : favorites.count)
-//        let numberOfElements = lineCount * 3
-//        var array = [HexCell]()
-//        
-//        var lastPriority: Int?
-//        for idx in 0..<numberOfElements {
-//            let coords = priorityManager.positionTop(for: idx)
-//            let priority: Int? = coords.row == 0 ? (lastPriority == nil ? 0 : (lastPriority! + 1)) : nil
-//            let cell = HexCell(offsetCoordinate: coords, color: .appRaisinBlack, priority: priority)
-//            array.append(cell)
-//
-//            if let priority = priority {
-//                lastPriority = priority
-//            }
-//        }
-//
-//        state.gridItems = array
-//    }
-//    
-//    private func middleGrid(favorites: [Contact]) {
-//        let count = favorites.count <= 19 ? 19 : favorites.count
-//        var array = [HexCell]()
-//        for idx in 0..<count {
-//            let coords = priorityManager.positionMiddle(for: idx)
-////            print("index:\(idx) coords:\(coords)")
-//            let cell = HexCell(offsetCoordinate: coords, color: .appRaisinBlack, priority: idx)
-//            array.append(cell)
-//        }
-//        state.gridItems = array
-//    }
-    
-    private func bottomGrid(favorites: [Contact]) {
+    private func generateGrid(favorites: [Contact]) {
         var array = [HexCell]()
         var count = 1
-        for idx in 1..<5 {
+        let circles = 10
+        for idx in 1..<circles {
             count += idx * 6
         }
 

@@ -100,7 +100,28 @@ final class RealmContactsDataSource {
             return false
         }
     }
-    
+
+    @RealmActor
+    func search(term: String) async throws -> [ContactObject] {
+        guard let storage = await realmProvider.realm() else { return [] }
+
+        return storage.objects(ContactObject.self).filter { contact in
+            var contactItems = """
+\(contact.givenName ?? "")
+\(contact.middleName ?? "")
+\(contact.familyName ?? "")
+\(contact.organizationName ?? "")
+\(contact.phoneNumbers.map { $0.value })
+\(contact.emailAddresses.map { $0.value })
+\(contact.postalAddresses.map { $0.value })
+\(contact.urlAddresses.map { $0.value })
+\(contact.socialProfiles.map { $0.value })
+\(contact.instantMessageAddresses.map { $0.value })
+""".lowercased()
+            return contactItems.contains(term.lowercased())
+        }
+    }
+
     @RealmActor
     func getFavorite() async throws -> Results<ContactObject>? {
         guard let storage = await realmProvider.realm() else { return nil }

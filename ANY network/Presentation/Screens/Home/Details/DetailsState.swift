@@ -5,6 +5,7 @@ import PhotosUI
 extension DetailsViewModel {
     struct State: Equatable {
         var contact: Contact
+        var isNew: Bool
         var initialContact: Contact
         var contactImageData: Data?
         var selectedPhoto: PhotosPickerItem?
@@ -15,8 +16,10 @@ extension DetailsViewModel {
         var actionPrompt: ActionPrompt? = nil
         var discardChanges: Bool = false
         
-        init(contact: Contact) {
+        init(contact: Contact, isNew: Bool) {
             self.contact = contact
+            self.isNew = isNew
+            self.isEditing = isNew
             self.initialContact = contact
             self.contactImageData = contact.imageData
         }
@@ -43,6 +46,7 @@ extension DetailsViewModel {
         case phone
         case edit
         case email
+        case favoriteToggle
     }
     
     struct ActionPrompt: Equatable {

@@ -71,6 +71,7 @@ extension ContactsRepositoryImplementation: ContactsRepository {
         return await realmDataSource.fetchContact(id: identifier)?.asContact()
     }
     
+    /// Searches for `Contact` objects whose name contain the specified string
     @RealmActor
     func search(name: String) async throws -> [Contact] {
         let status = try await getStatus()
@@ -78,10 +79,22 @@ extension ContactsRepositoryImplementation: ContactsRepository {
         if status == .native {
             return try nativeDataSource.search(name: name).compactMap { $0.asContact() }
         }
-        
+
         return try await realmDataSource.search(name: name).compactMap { $0.asContact() }
     }
-    
+
+    /// Searches for `Contact` objects whose properties contain the specified string
+    @RealmActor
+    func search(term: String) async throws -> [Contact] {
+        let status = try await getStatus()
+        
+        if status == .native {
+            return try nativeDataSource.search(term: term).compactMap { $0.asContact() }
+        }
+
+        return try await realmDataSource.search(term: term).compactMap { $0.asContact() }
+    }
+
     @RealmActor
     func getFavoriteContacts() async throws -> [Contact] {
         let status = try await getStatus()

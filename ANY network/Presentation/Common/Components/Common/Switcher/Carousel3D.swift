@@ -94,8 +94,10 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
 
 //                print("DeltaOffset:", Int(offset / circleAngle), "MoveBy:", (Int(offset / circleAngle) % hostingViews.count), "withCurrent:", indexObserver.currentIndex.description, "To new index:", draggingItemOffset < 0 ? numberOfItems + draggingItemOffset : draggingItemOffset % numberOfItems)
             })
-            .onReceive(indexObserver.$currentIndex) {
-                self.selectedItem = items[$0]
+            .onReceive(indexObserver.$currentIndex) { index in
+                withAnimation {
+                    self.selectedItem = items[index]
+                }
             }
             .onReceive(onContainingViewDragEvent, perform: { onDrag(value: $0) })
             .onReceive(onContainingViewDragEnd, perform: {
@@ -164,7 +166,9 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
         Facebook(value: "@LeeAsd"),
         Blackbery(value: "@LeeAsdBla"),
         PhoneNumber(value: "01851923616"),
-        Twitter(value: "@LeeAasdTwi")
+        Twitter(value: "@LeeAasdTwi"),
+        Instagram(value: "@LeeAasdTwi"),
+        EmailAddress(value: "email")
     ]
 
     @State var selected: (any ContactMethod)?
@@ -276,8 +280,7 @@ fileprivate class IndexChangeObserver: ObservableObject {
 
     init() {
         $changingIndex
-            .debounce(for: 0.7, scheduler: RunLoop.main)
-            .sink { [weak self] in self?.currentIndex = $0 }
-            .store(in: &cancellables)
+            .removeDuplicates()
+            .assign(to: &$currentIndex)
     }
 }

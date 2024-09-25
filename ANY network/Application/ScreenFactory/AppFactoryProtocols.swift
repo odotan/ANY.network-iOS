@@ -20,7 +20,7 @@ protocol MyProfileFactory {
 
 @MainActor
 protocol DetailsFactory {
-    func makeDetails(contact: Contact, coordinator: MainCoordinatorProtocol) -> DetailsView
+    func makeDetails(contact: Contact, isNew: Bool, coordinator: MainCoordinatorProtocol) -> DetailsView
 }
 
 @MainActor

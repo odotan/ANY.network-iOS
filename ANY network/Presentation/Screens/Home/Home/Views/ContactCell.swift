@@ -51,10 +51,14 @@ struct ContactCell: View {
                     Text(selectedSwitcherItem.value)
                         .font(.montserat(size: |14))
                         .opacity(0.7)
+                        .transition(.push(from: .top))
+                        .id(UUID().uuidString)
                 } else if let topNumber = contact.topNumber {
                     Text(topNumber)
                         .font(.montserat(size: |14))
                         .opacity(0.7)
+                        .transition(.push(from: .top))
+                        .id(topNumber)
                 }
             }
             .padding(.horizontal, <->16)
@@ -71,7 +75,7 @@ struct ContactCell: View {
         }
         .contentShape(Rectangle())
         .gesture(
-            DragGesture()
+            DragGesture(minimumDistance: 30)
                 .onChanged(onDragEvent.send)
                 .onEnded({ _ in onDragEnd.send() })
         )

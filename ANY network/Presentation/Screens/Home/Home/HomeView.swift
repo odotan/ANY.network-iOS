@@ -1,42 +1,78 @@
 import SwiftUI
 
-
 struct HomeView: View {
     @StateObject var viewModel: HomeViewModel
 
-    @State var drawerContentHeight: CGFloat = 180
-    
+    private var detents: Set<PresentationDetent> {
+        var detents: Set<PresentationDetent> = .init([.fraction(0.1)])
+        for i in 11..<80 {
+            let fraction = CGFloat(i) / 100
+            detents.insert(.fraction(fraction))
+        }
+        return detents
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             header
             
             favourites
-                .bottomDrawerView(
-                    contentHeight: $drawerContentHeight,
-                    showButtons: viewModel.state.onboardingFinished,
-                    searchAction: { viewModel.handle(.goToSearch) },
-                    recenterAction: { viewModel.handle(.recenter(true)) }
-                ) {
+                .sheet(isPresented: drawerIsOpen) {
                     VStack {
                         if !viewModel.state.onboardingFinished {
                             onboarding
-                            Spacer()
+                        } else if viewModel.state.isSearching {
+                            allContacts
+                                .searchTextField(text: searchTerm) {
+                                    viewModel.handle(.addContact)
+                                }
                         } else if viewModel.state.showAll {
                             allContacts
                         }
                     }
                     .padding(.top)
+                    .background(
+                        VisualEffectView(effect: UIBlurEffect(style: .dark))
+                            .presentationBackground(.clear)
+                            .background(Color.appBackground.opacity(0.1))
+                            .ignoresSafeArea()
+                    )
+                    .overlay {
+                        if !isSearching.wrappedValue {
+                            VStack {
+                                Spacer()
+                                HStack {
+                                    SearchButton(action: { /*viewModel.handle(.goToSearch)*/ isSearching.wrappedValue = true })
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    
+                                    RecenterButton(action: { viewModel.handle(.recenter(true)) })
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                }
+                                .padding(.horizontal, 18)
+                            }
+                        }
+                    }
+                    .overlay(alignment: .top) {
+                        VisualEffectView(effect: UIBlurEffect(style: .dark))
+                            .presentationBackground(.clear)
+                            .background(Color.appBackground)
+                            .ignoresSafeArea()
+                            .frame(height: 50)
+                            .mask { LinearGradient(gradient: Gradient(colors: [.black, .black, .clear]), startPoint: .top, endPoint: .bottom) }
+                    }
+                    .presentationDetents(detents, selection: detent)
+                    .presentationBackgroundInteraction(.enabled)
+                    .presentationContentInteraction(.scrolls)
+                    .interactiveDismissDisabled()
+                }
+                .onDisappear {
+                    drawerIsOpen.wrappedValue = false
                 }
                 .onAppear {
-                    let height = viewModel.state.onboardingFinished ? 210 : UIScreen.main.bounds.height - 250
-                    drawerContentHeight = height
+                    drawerIsOpen.wrappedValue = true
                 }
-//                .onChange(of: drawerContentHeight) { _, newValue in
-//                    viewModel.handle(.setDrawerContentHeight(newValue))
-//                }
                 .onChange(of: viewModel.state.contactsStatus) { _, newValue in
-                    let height = viewModel.state.onboardingFinished ? 210 : UIScreen.main.bounds.height - 250
-                    drawerContentHeight = height
+                    detent.wrappedValue = viewModel.state.onboardingFinished ? .fraction(0.5) : .fraction(0.2)
                 }
         }
         .task {
@@ -47,6 +83,7 @@ struct HomeView: View {
         }
         .ignoresSafeArea(.all, edges: .bottom)
         .background(Color.appBackground)
+    
     }
     
     @ViewBuilder
@@ -87,14 +124,13 @@ struct HomeView: View {
                 spacing: 8,
                 cornerRadius: 6,
                 fixedCellSize: cellSize,
-                indentLine: viewModel.state.onboardingFinished ? .odd : .even
+                indentLine: .odd//viewModel.state.onboardingFinished ? .odd : .even
             ) { cell in
                 if viewModel.state.onboardingFinished {
                     view(for: cell, cellSize: cellSize)
                 } else {
                     onboardingView(for: cell, cellSize: cellSize)
                 }
-//                testView(for: cell)
             }
             .background { Color.appBackground }
         }
@@ -118,44 +154,53 @@ struct HomeView: View {
     
     @ViewBuilder
     var allContacts: some View {
-        ScrollView {
-            LazyVStack(spacing: 24) {
-                ForEach(viewModel.state.list!) { contact in
-                    Button {
-                        viewModel.handle(.goToDetails(contact: contact))
-                    } label: {
-                        ContactCell(contact: contact)
-                            .id(contact.id)
-                    }
-                    .padding(.horizontal, 16)
+//        ScrollView {
+//            LazyVStack(spacing: 24) {
+//                ForEach(viewModel.state.list!) { contact in
+//                    Button {
+//                        viewModel.handle(.goToDetails(contact: contact))
+//                    } label: {
+//                        ContactCell(contact: contact)
+//                            .id(contact.id)
+//                    }
+//                    .padding(.horizontal, 16)
+//                }
+//            }
+//            .padding(.top)
+//        }
+//        if !viewModel.state.listToDisplay.isEmpty {
+            List(viewModel.state.listToDisplay) { contact in
+                Button {
+                    viewModel.handle(.goToDetails(contact: contact))
+                } label: {
+                    ContactCell(contact: contact)
+                        .id(contact.id)
+                }
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+            }
+            .overlay {
+                if viewModel.state.listToDisplay.isEmpty {
+                    addContact
                 }
             }
-            .padding(.top)
-        }
-//        List(viewModel.state.list!) { contact in
-//            Button {
-//                viewModel.handle(.goToDetails(contact: contact))
-//            } label: {
-//                ContactCell(contact: contact)
-//                    .id(contact.id)
-//            }
-//            .listRowSeparator(.hidden)
-//            .listRowBackground(Color.clear)
+            .listRowSpacing(-10)
+            .listStyle(.plain)
+//        } else {
+//            addContact
 //        }
-//        .listRowSpacing(-10)
-//        .listStyle(.plain)
     }
     
     @ViewBuilder
     var onboarding: some View {
-        VStack(spacing: 0) {
+        ScrollView {
             Image(.swipeUp)
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
                     .frame(height: |57)
                     .padding(.top, 27)
-                    .padding(.bottom, 30)
+//                    .padding(.bottom, 20)
 
             SyncContactsPopup(action: {
                 viewModel.handle(.requestAccess)
@@ -217,6 +262,45 @@ extension HomeView {
                     .colorMultiply(.white)
             }
     }
+    
+    @ViewBuilder
+    var addContact: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                Text("\"\(viewModel.state.searchedTerm)\"")
+                    .foregroundColor(.white)
+                    .font(.montserat(size: 20, weight: .semibold))
+                
+                Text("There is nothing to show on your contact list")
+                    .foregroundColor(.white.opacity(0.7))
+                    .font(.montserat(size: 18))
+                    .multilineTextAlignment(.center)
+                
+                Button {
+                    viewModel.handle(.addContact)
+                } label: {
+                    HStack(spacing: 8) {
+                        Rectangle()
+                            .frame(width: 15, height: 1.5)
+                            .foregroundColor(.appGreen)
+                            .frame(height: 15)
+                            .overlay {
+                                Rectangle()
+                                    .frame(width: 1.5, height: 15)
+                                    .foregroundColor(.appGreen)
+                            }
+                        Text("Create New Contact")
+                            .foregroundColor(.appGreen)
+                            .font(.montserat(size: 18))
+                    }
+                }.buttonStyle(.plain)
+                
+                Spacer()
+            }
+            .padding(.top, 30)
+            .frame(maxHeight: .infinity)
+        }
+    }
 }
 
 // MARK: - Bindings
@@ -262,24 +346,32 @@ extension HomeView {
             set: { viewModel.handle(.setDetent($0)) }
         )
     }
-    
-//    private var drawerContentHeight: Binding<CGFloat> {
-//        .init(
-//            get: { viewModel.uiState.drawerContentHeight },
-//            set: { viewModel.handle(.setDrawerContentHeight($0)) }
-//        )
-//    }
-    
+
     private var headerSize: Binding<CGSize> {
         .init(
             get: { viewModel.uiState.headerSize },
             set: { viewModel.handle(.headerSize($0)) }
         )
     }
-}
-
-extension PresentationDetent {
-    static var bottom: PresentationDetent { .height(60) }
-    static var middle: PresentationDetent { .height(482) }
-    static var top: PresentationDetent { .height(600) }
+    
+    private var drawerIsOpen: Binding<Bool> {
+        .init(
+            get: { viewModel.uiState.drawerIsOpen },
+            set: { viewModel.handle(.setDrawerOpen($0)) }
+        )
+    }
+    
+    private var isSearching: Binding<Bool> {
+        .init(
+            get: { viewModel.state.isSearching },
+            set: { viewModel.handle(.isSearching($0)) }
+        )
+    }
+    
+    private var searchTerm: Binding<String> {
+        .init(
+            get: { viewModel.state.searchedTerm },
+            set: { viewModel.handle(.searchTerm($0)) }
+        )
+    }
 }

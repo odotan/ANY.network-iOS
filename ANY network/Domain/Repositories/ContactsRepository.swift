@@ -7,6 +7,7 @@ protocol ContactsRepository {
     func getAll() async throws -> [Contact]
     func getContact(withIdentifier identifier: String) async throws -> Contact?
     func search(name: String) async throws -> [Contact]
+    func search(term: String) async throws -> [Contact]
     func createEdit(contact: Contact) async throws -> Contact
 
     // Favorites

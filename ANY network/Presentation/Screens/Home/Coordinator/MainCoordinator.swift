@@ -5,11 +5,12 @@ final class MainCoordinator: Coordinator {
     enum Screen: Routable {
         case home
         case myProfile
-        case details(contact: Contact)
+        case details(contact: Contact, isNew: Bool)
         case search
     }
     
     @Published var navigationPath = [Screen]()
+    @Published var isSearchPresented: Bool = false
 }
 
 extension MainCoordinator: MainCoordinatorProtocol {
@@ -21,12 +22,13 @@ extension MainCoordinator: MainCoordinatorProtocol {
         navigationPath.append(.myProfile)
     }
     
-    func showDetails(for contact: Contact) {
-        navigationPath.append(.details(contact: contact))
+    func showDetails(for contact: Contact, isNew: Bool) {
+        navigationPath.append(.details(contact: contact, isNew: isNew))
     }
     
     func showSearch() {
-        navigationPath.append(.search)
+//        navigationPath.append(.search)
+        isSearchPresented = true
     }
     
     func pop() {

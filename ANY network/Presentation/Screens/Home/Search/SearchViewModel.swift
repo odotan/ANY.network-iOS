@@ -4,9 +4,9 @@ final class SearchViewModel: ViewModel {
     @Published private(set) var state: State
     private let coordinator: MainCoordinatorProtocol
     private let getAllContactsUseCase: GetAllContactsUseCase
-    private let searchUseCase: SearchNameUseCase
-    
-    init(coordinator: MainCoordinatorProtocol, getAllContactsUseCase: GetAllContactsUseCase, searchUseCase: SearchNameUseCase) {
+    private let searchUseCase: SearchInContactUseCase
+
+    init(coordinator: MainCoordinatorProtocol, getAllContactsUseCase: GetAllContactsUseCase, searchUseCase: SearchInContactUseCase) {
         self.state = State()
         self.coordinator = coordinator
         self.getAllContactsUseCase = getAllContactsUseCase
@@ -18,11 +18,11 @@ final class SearchViewModel: ViewModel {
         case .getAll:
             Task { await getAll() }
         case .updateSearchTerm(let term):
-            Task { await search(name: term) }
+            Task { await search(term: term) }
         case .goBack:
             coordinator.pop()
         case .goToDetails(let contact):
-            coordinator.showDetails(for: contact)
+            coordinator.showDetails(for: contact, isNew: false)
         case .addContact:
             print("Add it with searched term:", state.searchTerm)
             var contact = Contact(id: "")
@@ -34,7 +34,7 @@ final class SearchViewModel: ViewModel {
                 contact.givenName = state.searchTerm
             }
 
-            coordinator.showDetails(for: contact)
+            coordinator.showDetails(for: contact, isNew: true)
         }
     }
 }
@@ -48,16 +48,14 @@ extension SearchViewModel {
         }
     }
     
-    private func search(name: String) async {
+    private func search(term: String) async {
         defer {
-            state.searchTerm = name
+            state.searchTerm = term
         }
-        
-        guard name.count > 2 || name.count < state.searchTerm.count else { return }
 
         do {
-            if !name.isEmpty {
-                state.list = try await searchUseCase.execute(name: name)
+            if !term.isEmpty {
+                state.list = try await searchUseCase.execute(term: term)
             } else {
                 await getAll()
             }

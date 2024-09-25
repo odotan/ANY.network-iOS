@@ -48,9 +48,10 @@ extension ScreenFactory: MyProfileFactory {
 }
 
 extension ScreenFactory: DetailsFactory {
-    func makeDetails(contact: Contact, coordinator: MainCoordinatorProtocol) -> DetailsView {
+    func makeDetails(contact: Contact, isNew: Bool, coordinator: MainCoordinatorProtocol) -> DetailsView {
         let viewModel = DetailsViewModel(
             contact: contact,
+            isNew: isNew,
             coordinator: coordinator,
             toggleFavoriteUseCase: appFactory.makeToggleFavorite(),
             checkIfFavoriteUseCase: appFactory.makeCheckIfFavorite(),

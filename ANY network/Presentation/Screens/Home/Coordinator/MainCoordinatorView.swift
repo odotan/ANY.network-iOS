@@ -15,6 +15,7 @@ struct MainCoordinatorView: View {
                 .navigationDestination(for: MainCoordinator.Screen.self) {
                     destination($0)
                 }
+                .fullScreenCover(isPresented: $coordinator.isSearchPresented, content: { destination(.search) })
         }
     }
 
@@ -25,8 +26,8 @@ struct MainCoordinatorView: View {
             factory.makeHome(coordinator: coordinator)
         case .myProfile:
             factory.makeMyProfile(coordinator: coordinator)
-        case .details(let contact):
-            factory.makeDetails(contact: contact, coordinator: coordinator)
+        case .details(let contact, let isNew):
+            factory.makeDetails(contact: contact, isNew: isNew, coordinator: coordinator)
         case .search:
             factory.makeSearch(coordinator: coordinator)
         }

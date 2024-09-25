@@ -46,11 +46,34 @@ extension NativeContactsDataSource {
 
         return contact
     }
-    
+
+    /// Searches for `CNContact` objects whose name matches the specified string
     func search(name: String) throws -> [CNContact] {
         let predicate = CNContact.predicateForContacts(matchingName: name)
         let contacts = try store.unifiedContacts(matching: predicate, keysToFetch: keysToFetch)
-        
+
+        return contacts
+    }
+
+    /// Searches for `CNContact` objects whose properties contain the specified string
+    func search(term: String) throws -> [CNContact] {
+        var contacts = [CNContact]()
+        try store.enumerateContacts(with: .init(keysToFetch: keysToFetch)) { contact, _ in
+            var contactItems = """
+\(contact.givenName)
+\(contact.middleName)
+\(contact.familyName)
+\(contact.organizationName)
+\(contact.phoneNumbers.map { $0.value.stringValue })
+\(contact.emailAddresses.map { $0.value as String })
+\(contact.postalAddresses.map { $0.value.street })
+\(contact.urlAddresses.map { $0.value as String })
+\(contact.socialProfiles.map { $0.value.username })
+\(contact.instantMessageAddresses.map { $0.value.username })
+""".lowercased()
+            if contactItems.contains(term.lowercased()) { contacts.append(contact) }
+        }
+
         return contacts
     }
     

@@ -27,8 +27,8 @@ extension AppFactory {
         GetAllContactsUseCase(repository: contactsRepository)
     }
     
-    func makeSearch() -> SearchNameUseCase {
-        SearchNameUseCase(repository: contactsRepository)
+    func makeSearch() -> SearchInContactUseCase {
+        SearchInContactUseCase(repository: contactsRepository)
     }
     
     func makeToggleFavorite() -> ToggleFavoriteUseCase {

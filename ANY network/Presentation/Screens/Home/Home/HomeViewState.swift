@@ -16,20 +16,22 @@ extension HomeViewModel {
         var gridContentSize: CGSize = .zero
         var gridCenterPosition: CGPoint = .zero
         
-        // Drawer
-        var drawerContentHeight: CGFloat = 180
-        
         var contentIdentifier = UUID()
+        
+        // Drawer
+        var drawerIsOpen: Bool = false
     }
 
     struct State: Equatable {
         var contactsStatus: ContactServiceType = .notDetermined
+        var isSearching: Bool = false
         var list: [Contact]?
+        var searchResults: [Contact]?
         var favorites: [Contact]?
+        var searchedTerm: String = ""
         var gridItems: [HexCell] = HexCell.middle
         var usage: [Usage]?
-        var detent: PresentationDetent = .middle
-
+        var detent: PresentationDetent = .fraction(0.5)
         var showFavorite: Bool {
             favorites != nil && !favorites!.isEmpty
         }
@@ -48,6 +50,12 @@ extension HomeViewModel {
             }
             return HexCell.all
         }
+        var listToDisplay: [Contact] {
+            if isSearching && searchResults != nil {
+                return searchResults ?? [Contact]()
+            }
+            return list ?? [Contact]()
+        }
     }
     
     enum Event {
@@ -59,6 +67,8 @@ extension HomeViewModel {
         case getFavoriteContacts
         case goToDetails(contact: Contact)
         case goToSearch
+        case searchTerm(String)
+        case isSearching(Bool)
         case recenter(Bool)
         case headerSize(CGSize)
         case filterPressed
@@ -71,6 +81,7 @@ extension HomeViewModel {
         case setDetent(PresentationDetent)
         case setContentIdentifier
         case setCenterPosition(CGPoint)
-        case setDrawerContentHeight(CGFloat)
+        case setDrawerOpen(Bool)
+        case addContact
     }
 }

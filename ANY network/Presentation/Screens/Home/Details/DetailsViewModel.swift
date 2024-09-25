@@ -10,12 +10,13 @@ final class DetailsViewModel: ViewModel {
     
     init(
         contact: Contact,
+        isNew: Bool,
         coordinator: MainCoordinatorProtocol,
         toggleFavoriteUseCase: ToggleFavoriteUseCase,
         checkIfFavoriteUseCase: CheckIfFavoriteUseCase,
         createEditContactUseCase: CreateEditContactUseCase
     ) {
-        self.state = State(contact: contact)
+        self.state = State(contact: contact, isNew: isNew)
         self.coordinator = coordinator
         self.toggleFavoriteUseCase = toggleFavoriteUseCase
         self.checkIfFavoriteUseCase = checkIfFavoriteUseCase
@@ -38,7 +39,6 @@ final class DetailsViewModel: ViewModel {
         case .setIsEditing(let isEditing):
             state.isEditing = isEditing
         case .save:
-            print("Save")
             handle(.setIsEditing(false))
             Task { await save() }
         case .discardChanges(let shouldDiscard):
@@ -73,6 +73,7 @@ extension DetailsViewModel {
     func toggleFavorite() async {
         do {
             state.isFavorite = try await toggleFavoriteUseCase.execute(state.contact.id)
+            state.contact.isFavorite = state.isFavorite
         } catch {
             print("Error", error.localizedDescription)
         }
@@ -81,6 +82,7 @@ extension DetailsViewModel {
     func checkIfFavorite() async {
         do {
             state.isFavorite = try await checkIfFavoriteUseCase.execute(state.contact.id)
+            state.contact.isFavorite = state.isFavorite
         } catch {
             print("Error", error.localizedDescription)
         }
@@ -103,6 +105,8 @@ extension DetailsViewModel {
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url)
             }
+        case .favoriteToggle:
+            Task { await toggleFavorite() }
         }
     }
 }

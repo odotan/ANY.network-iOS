@@ -5,6 +5,9 @@ import PhotosUI
 struct DetailsView: View {
     typealias CellView = View
 
+    @Environment(\.dismiss) private var dismiss
+    private let shouldDismiss = PassthroughSubject<Void, Never>()
+
     @StateObject var viewModel: DetailsViewModel
     @State private var avatarPossition: CGPoint = .zero
     @State private var avatarSize: CGSize = .zero
@@ -18,16 +21,18 @@ struct DetailsView: View {
                 let size = reader.size
 
                 grid(size: size)
+                
 
-                if isEditing.wrappedValue {
-                    scrollView(size: size)
-                    
-                    myAvatar(size: size)
+                ZStack {
+                    if isEditing.wrappedValue {
+                        scrollView(size: size)
+                            .transition(.move(edge: .bottom))
+                        
+                        myAvatar(size: size)
+                            .transition(.opacity)
+                    }
                 }
             }
-        }
-        .onChange(of: avatarSize) { oldValue, newValue in
-            print("Avatar", newValue)
         }
         .background { Color.appBackground }
         .ignoresSafeArea(.container)
@@ -56,7 +61,7 @@ struct DetailsView: View {
                     if isEditing.wrappedValue {
                         viewModel.handle(.save)
                     } else {
-                        viewModel.handle(.starPressed)
+                        viewModel.handle(.setIsEditing(true))
                     }
                 }
             } label: {
@@ -65,9 +70,10 @@ struct DetailsView: View {
                         .foregroundColor(.appGreen)
                         .font(.montserat(size: 16, weight: .semibold))
                 } else {
-                    Image(viewModel.state.isFavorite ? .startFillIcon : .starIcon)
+                    Image(.penEditIcon)
                         .resizable()
                         .frame(width: 24, height: 24)
+                        .scaledToFit()
                         .padding(.horizontal, 8)
                 }
             }
@@ -107,6 +113,9 @@ struct DetailsView: View {
                 viewModel.handle(.profileImageDataChanged(newImageData))
             }
         }
+        .onReceive(shouldDismiss) { _ in
+            dismiss()
+        }
     }
     
     @ViewBuilder
@@ -115,6 +124,7 @@ struct DetailsView: View {
 
         DetailsPresentView(
             isEditing: isEditing,
+            shouldDismissParentView: shouldDismiss,
             contact: {
                 viewModel.state.contact
             },
@@ -132,7 +142,6 @@ struct DetailsView: View {
                             .captureCenterPoint { point in
                                 avatarPossition = point
                             }
-                            .opacity(isEditing.wrappedValue ? 0 : 1)
                     )
                 default:
                     cellView
@@ -160,21 +169,21 @@ struct DetailsView: View {
         
         PhotosPicker(selection: selectedPhoto, matching: .any(of: [.images, .screenshots])) {
             AvatarHexCell(imageData: viewModel.state.contact.imageData, color: .appPurple)
-                .frame(width: avatarSize.width, height: avatarSize.height)
-                .clipShape(HexagonShape(cornerRadius: 6))
-                .scaleEffect(scaleFactor, anchor: .center)
-                .position(avatarPossition)
-                .offset(y:
-                    isEditing.wrappedValue ? (mapCGFloat(
-                        value: scrollOffset,
-                        inputMin: -screenCenterHeight / 2.0 + keyboardHeight / 2,
-                        inputMax: -screenCenterHeight / 1.5,
-                        outputMin: 0,
-                        outputMax: 1
-                    ) * (avatarPossition.y - |173) * (-1)) : 0
-                )
                 .disabled(true)
         }
+        .frame(width: avatarSize.width, height: avatarSize.height)
+        .clipShape(HexagonShape(cornerRadius: 6))
+        .scaleEffect(scaleFactor, anchor: .center)
+        .position(avatarPossition)
+        .offset(y:
+            isEditing.wrappedValue ? (mapCGFloat(
+                value: scrollOffset,
+                inputMin: -screenCenterHeight / 2.0 + keyboardHeight / 2,
+                inputMax: -screenCenterHeight / 1.5,
+                outputMin: 0,
+                outputMax: 1
+            ) * (avatarPossition.y - |173) * (-1)) : 0
+        )
     }
     
     @ViewBuilder

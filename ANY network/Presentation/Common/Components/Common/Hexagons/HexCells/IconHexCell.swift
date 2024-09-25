@@ -2,6 +2,7 @@ import SwiftUI
 
 struct IconHexCell: View {
     var type: `Type`
+    var imageSize: CGSize = CGSize(width: 28, height: 28)
     var pressed: (() -> Void)
 
     var body: some View {
@@ -9,8 +10,11 @@ struct IconHexCell: View {
             type.color
                 .overlay(
                     Image(type.image)
+                        .resizable()
                         .renderingMode(.template)
                         .colorMultiply(.white)
+                        .frame(width: imageSize.width, height: imageSize.height)
+                        .scaledToFit()
                 )
         }.buttonStyle(.plain)
     }
@@ -26,6 +30,7 @@ extension IconHexCell {
         case plus
         case phone
         case email
+        case favorite(filled: Bool)
 
         var image: ImageResource {
             switch self {
@@ -37,6 +42,8 @@ extension IconHexCell {
                 return .phoneGreenIcon
             case .email:
                 return .emailWhiteIcon
+            case .favorite(let filled):
+                return filled ? .startFillIcon : .starIcon
             }
         }
         
@@ -49,6 +56,8 @@ extension IconHexCell {
             case .phone:
                 return .appGreen
             case .email:
+                return .appYellow
+            case .favorite(_):
                 return .appYellow
             }
         }

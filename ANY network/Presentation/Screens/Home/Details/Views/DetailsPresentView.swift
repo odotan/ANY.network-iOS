@@ -1,9 +1,12 @@
 import SwiftUI
+import Combine
 
 struct DetailsPresentView: View {
     typealias CellView = View
     typealias CellDatasource = ((HexCell, AnyView) -> AnyView)
-    
+
+    private let shouldDismissParentView: PassthroughSubject<Void, Never>?
+
     // Grid
     @State private var gridSize: CGSize = .zero
     @State private var gridZoomScale: CGFloat = 1
@@ -14,8 +17,8 @@ struct DetailsPresentView: View {
     // Sticky buttons' properties
     @State private var plusPosition: CGPoint = .zero
     @State private var plusSize: CGSize = .zero
-    @State private var editPosition: CGPoint = .zero
-    @State private var editSize: CGSize = .zero
+    @State private var favoritePosition: CGPoint = .zero
+    @State private var favoriteSize: CGSize = .zero
     
     @Binding private var isEditing: Bool
     @State private var shakeAnimation: Bool = false
@@ -29,11 +32,13 @@ struct DetailsPresentView: View {
     
     init(
         isEditing: Binding<Bool>,
+        shouldDismissParentView: PassthroughSubject<Void, Never>? = nil,
         contact contactDatasource: @escaping () -> Contact,
         performAction: @escaping (DetailsViewModel.Action) -> Void,
         cellDatasource: @escaping CellDatasource
     ) {
         self._isEditing = isEditing
+        self.shouldDismissParentView = shouldDismissParentView
         self.contactDatasource = contactDatasource
         self.performAction = performAction
         self.cellDatasource = cellDatasource
@@ -75,13 +80,16 @@ struct DetailsPresentView: View {
             .position(plusPosition)
         }
         .overlay {
-            IconHexCell(type: .edit) {
-                performAction(.edit)
+            IconHexCell(type: .favorite(filled: contact.isFavorite), imageSize: CGSize(width: 32, height: 32)) {
+                performAction(.favoriteToggle)
             }
-            .frame(width: editSize.width, height: editSize.height)
+            .frame(width: favoriteSize.width, height: favoriteSize.height)
             .clipShape(HexagonShape(cornerRadius: 8))
-            .position(editPosition)
+            .position(favoritePosition)
         }
+        .onChange(of: gridZoomScale, { _, newValue in
+            if newValue < 0.6 { shouldDismissParentView?.send() }
+        })
         .onChange(of: isEditing, { oldValue, newValue in
             if oldValue != newValue && newValue {
                 gridZoomScale = 1
@@ -119,15 +127,15 @@ struct DetailsPresentView: View {
             ColorHexCell(color: cell.color)
                 .sizeInfo(size: $plusSize)
                 .captureCenterPoint {
-                    guard plusPosition == .zero else { return }
+//                    guard plusPosition == .zero else { return }
                     plusPosition = $0
                 }
-        case (10, 3): // Temp edit button
+        case (10, 3): // Favorite
             ColorHexCell(color: cell.color)
-                .sizeInfo(size: $editSize)
+                .sizeInfo(size: $favoriteSize)
                 .captureCenterPoint {
-                    guard editPosition == .zero else { return }
-                    editPosition = $0
+//                    guard favoritePosition == .zero else { return }
+                    favoritePosition = $0
                 }
         default:
             ColorHexCell(color: cell.color)
