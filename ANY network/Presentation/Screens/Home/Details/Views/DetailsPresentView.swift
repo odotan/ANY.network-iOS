@@ -8,11 +8,13 @@ struct DetailsPresentView: View {
     private let shouldDismissParentView: PassthroughSubject<Void, Never>?
 
     // Grid
+    private let ratio: CGFloat = 1.31 / (<->1)
     @State private var gridSize: CGSize = .zero
-    @State private var gridZoomScale: CGFloat = 1
+    @State private var gridZoomScale: CGFloat = 1.31 / (<->1)
     @State private var gridContentOffset: CGPoint = .zero
     @State private var gridContainerSize: CGSize = .zero
     @State private var gridContentSize: CGSize = .zero
+    @State private var gridUserInteracting: Bool = false
     
     // Sticky buttons' properties
     @State private var plusPosition: CGPoint = .zero
@@ -22,6 +24,7 @@ struct DetailsPresentView: View {
     
     @Binding private var isEditing: Bool
     @State private var shakeAnimation: Bool = false
+    @State private var didLoad: Bool = false
     private let contactDatasource: () -> Contact
     private let performAction: (DetailsViewModel.Action) -> Void
     private let cellDatasource: CellDatasource
@@ -45,26 +48,29 @@ struct DetailsPresentView: View {
     }
 
     var body: some View {
-        let cellSize = CGSize(width: <->79.93, height: |89.99)
+        let cellSize = CGSize(width: 79.93, height: 89.99)
         
-        ScrollViewWrapper(
-            contentOffset: $gridContentOffset,
-            contentSize: $gridContentSize,
-            size: $gridContainerSize,
-            zoomScale: $gridZoomScale,
-            animationDuration: 0.35,
-            contentId: UUID()
-        ) {
-            HexGrid(HexCell.all, spacing: 8, cornerRadius: 8, fixedCellSize: cellSize) { cell in
-                cellDatasource(
-                    cell,
-
-                    AnyView(
-                        cellView(for: cell)
+        GeometryReader { reader in
+            ScrollViewWrapper(
+                contentOffset: $gridContentOffset,
+                contentSize: $gridContentSize,
+                size: $gridContainerSize,
+                zoomScale: $gridZoomScale,
+                userInteracting: $gridUserInteracting,
+                animationDuration: 0.35,
+                contentId: UUID()
+            ) {
+                HexGrid(HexCell.all, spacing: 8, cornerRadius: 8, fixedCellSize: cellSize) { cell in
+                    cellDatasource(
+                        cell,
+                        
+                        AnyView(
+                            cellView(for: cell)
+                        )
                     )
-                )
+                }
+                .background { Color.appBackground }
             }
-            .background { Color.appBackground }
         }
         .overlay(alignment: .bottom) {
             LinearGradient(colors: [.clear, Color(hex: "120E1E")!], startPoint: .init(x: 0, y: 0), endPoint: .init(x: 0, y: 1))
@@ -75,24 +81,38 @@ struct DetailsPresentView: View {
             IconHexCell(type: .plus) {
                 
             }
-            .frame(width: plusSize.width, height: plusSize.height)
+            .frame(width: plusSize.width * ratio, height: plusSize.height * ratio)
             .clipShape(HexagonShape(cornerRadius: 8))
             .position(plusPosition)
+            .opacity(didLoad ? 1 : 0)
         }
         .overlay {
             IconHexCell(type: .favorite(filled: contact.isFavorite), imageSize: CGSize(width: 32, height: 32)) {
                 performAction(.favoriteToggle)
             }
-            .frame(width: favoriteSize.width, height: favoriteSize.height)
+            .frame(width: plusSize.width * ratio, height: plusSize.height * ratio)
+//            .scaleEffect(ratio)
             .clipShape(HexagonShape(cornerRadius: 8))
             .position(favoritePosition)
+            .opacity(didLoad ? 1 : 0)
+        }
+        .onChange(of: gridContentSize) { _, newValue in
+            // Center the grid
+            let contentOffset = CGPoint(x: (newValue.width - gridContainerSize.width) / 2  , y: (newValue.height - gridContainerSize.height) / 2)
+            gridContentOffset = contentOffset
         }
         .onChange(of: gridZoomScale, { _, newValue in
             if newValue < 0.6 { shouldDismissParentView?.send() }
         })
         .onChange(of: isEditing, { oldValue, newValue in
             if oldValue != newValue && newValue {
-                gridZoomScale = 1
+                gridZoomScale = 1.31 / (<->1)
+                gridContentOffset = .zero
+            }
+        })
+        .onAppear(perform: {
+            withAnimation {
+                didLoad = true
             }
         })
         .ignoresSafeArea()
@@ -127,15 +147,17 @@ struct DetailsPresentView: View {
             ColorHexCell(color: cell.color)
                 .sizeInfo(size: $plusSize)
                 .captureCenterPoint {
-//                    guard plusPosition == .zero else { return }
-                    plusPosition = $0
+                    if didLoad {
+                        plusPosition = $0
+                    }
                 }
         case (10, 3): // Favorite
             ColorHexCell(color: cell.color)
                 .sizeInfo(size: $favoriteSize)
                 .captureCenterPoint {
-//                    guard favoritePosition == .zero else { return }
-                    favoritePosition = $0
+                    if didLoad {
+                        favoritePosition = $0
+                    }
                 }
         default:
             ColorHexCell(color: cell.color)

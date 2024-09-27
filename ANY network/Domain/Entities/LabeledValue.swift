@@ -8,6 +8,16 @@ struct LabeledValue: Identifiable, Hashable, Equatable {
 
 extension LabeledValue {
     var labelType: LabeledValueLabelType {
-        return LabeledValueLabelType.allCases.first(where: { $0.value == self.label }) ?? .unknown
+        guard self.label == LabeledValueLabelType.address.value else { // If label is _$!<Home>!$_
+            return LabeledValueLabelType.allCases.first(where: { $0.value == self.label }) ?? .unknown
+        }
+
+        if self.value.isPhoneNumber {
+            return .phone
+        } else if self.value.isEmail {
+            return .email
+        } else {
+            return .address
+        }
     }
 }

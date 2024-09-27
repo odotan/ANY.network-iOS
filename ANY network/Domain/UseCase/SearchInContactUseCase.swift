@@ -1,10 +1,3 @@
-//
-//  SearchInContactUseCase.swift
-//  ANY network
-//
-//  Created by Rumen Ganev on 9.09.24.
-//
-
 import Foundation
 
 final class SearchInContactUseCase {

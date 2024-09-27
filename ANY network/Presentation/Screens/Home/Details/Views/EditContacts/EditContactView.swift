@@ -3,10 +3,10 @@ import SwiftUI
 struct EditContactView: View {
     @ObservedObject var viewModel: EditContactViewModel
 
-//    init(viewModel: EditContactViewModel) {
-//        _viewModel = StateObject(wrappedValue: viewModel)
-//    }
-    
+    //    init(viewModel: EditContactViewModel) {
+    //        _viewModel = StateObject(wrappedValue: viewModel)
+    //    }
+
     // MARK: - Main View
     var body: some View {
         GeometryReader { reader in
@@ -19,8 +19,12 @@ struct EditContactView: View {
                 contactInfoSection()
 
                 addressSection()
-                    .padding(.bottom, 30)
+//                    .padding(.bottom, 30)
+
+                addSectionMenu()
+                    .padding(.vertical, 20)
             }
+            .scrollIndicators(.never)
             .frame(height: reader.size.height)
         }
     }
@@ -33,24 +37,73 @@ struct EditContactView: View {
                 HexagonTextField(text: firstName, promt: "First Name")
                 HexagonTextField(text: lastName, promt: "Last Name")
             }
-            HexagonTextField(text: company, promt: "Company")
+
+            if viewModel.state.presentedSections.contains(.company) {
+                HexagonTextField(text: company, promt: "Company") {
+                    withAnimation {
+                        viewModel.handle(.showSection(.company, false))
+                    }
+                }
+                    .id("company")
+            }
         }
     }
 
     @ViewBuilder
-    private func sectionHeader(text: String, action: (() -> Void)? = nil) -> some View {
+    private func addSectionMenu() -> some View {
+        let avaliableFieldsToAdd = DetailsViewModel.EditSection.allCases.filter {
+            !(viewModel.state.presentedSections.contains(.company) && $0 == .company) && $0 != .socialMedia
+        }
+
+        Menu {
+            VStack {
+                ForEach(avaliableFieldsToAdd, id: \.hashValue) { section in
+                    Button(action: {
+                        withAnimation {
+                            switch section {
+                            case .contactInfo:
+                                viewModel.handle(.addPhoneNumber(.init(id: UUID().uuidString, label: LabeledValueLabelType.mobile.value, value: "")))
+                            case .address:
+                                viewModel.handle(.addPostalAddress(.init(id: UUID().uuidString, label: "", value: "")))
+                            case .company:
+                                viewModel.handle(.showSection(section, true))
+                            default:
+                                return
+                            }
+                            viewModel.handle(.showSection(section, true))
+                        }
+                    }) {
+                        Text(section.title)
+                            .font(Font.montserat(size: 14, weight: .medium))
+                            .foregroundStyle(.appGreen)
+                            .minimumScaleFactor(0.7)
+                    }
+                }
+            }
+        } label: {
+            Text("Add")
+                .font(Font.montserat(size: 14, weight: .medium))
+                .foregroundStyle(.appGreen)
+                .frame(width: <->80, height: 40)
+        }
+    }
+
+    @ViewBuilder
+    private func addButton(action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text("Add")
+                .font(Font.montserat(size: 14, weight: .medium))
+                .foregroundStyle(.appGreen)
+        }
+    }
+
+    @ViewBuilder
+    private func sectionHeader(text: String) -> some View {
         HStack {
             Text(text)
                 .font(Font.montserat(size: 18, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            if let action {
-                Button(action: action) {
-                    Text("Add")
-                        .font(Font.montserat(size: 14, weight: .medium))
-                        .foregroundStyle(.appGreen)
-                }
-            }
         }
         .padding(.horizontal, <->16)
         .padding(.top, 32)
@@ -59,28 +112,36 @@ struct EditContactView: View {
 
     @ViewBuilder
     private func contactInfoSection() -> some View {
-        VStack(spacing: 0) {
-            sectionHeader(
-                text: "Contact Info",
-                action: {
-                    viewModel.handle(.addPhoneNumber(.init(id: UUID().uuidString, label: LabeledValueLabelType.mobile.value, value: "")))
+        if viewModel.state.presentedSections.contains(.contactInfo) {
+            VStack(spacing: 0) {
+                sectionHeader(text: "Contact Info")
+
+                VStack(spacing: 14) {
+                    ForEach(viewModel.state.contactInfo) { info in
+                        let text = Binding(
+                            get: { info.value },
+                            set: { viewModel.handle(.editContactMetod(id: info.id, newValue: .init(id: info.id, label: info.label, value: $0))) }
+                        )
+
+                        ContactInfoTextField(
+                            text: text,
+                            promt: "",
+                            fieldType: info.labelType,
+                            deleteAction: {
+                                withAnimation {
+                                    viewModel.handle(.deleteContactMetod(id: info.id, type: info.labelType))
+                                }
+                            },
+                            onTypeChange: { viewModel.handle(.editContactMetod(id: info.id, newValue: .init(id: info.id, label: $0.value, value: info.value))) }
+                        )
+                    }
                 }
-            )
-
-            VStack(spacing: 14) {
-                ForEach(viewModel.state.contactInfo) { info in
-                    let text = Binding(
-                        get: { info.value },
-                        set: { viewModel.handle(.editContactMetod(id: info.id, newValue: .init(id: info.id, label: info.label, value: $0))) }
-                    )
-
-                    ContactInfoTextField(
-                        text: text,
-                        promt: "",
-                        fieldType: info.labelType,
-                        deleteAction: { viewModel.handle(.deleteContactMetod(id: info.id, type: info.labelType)) },
-                        onTypeChange: { viewModel.handle(.editContactMetod(id: info.id, newValue: .init(id: info.id, label: $0.value, value: info.value))) }
-                    )
+                .onChange(of: viewModel.state.contactInfo) { _, newValue in
+                    if newValue.isEmpty {
+                        withAnimation {
+                            viewModel.handle(.showSection(.contactInfo, false))
+                        }
+                    }
                 }
             }
         }
@@ -88,25 +149,34 @@ struct EditContactView: View {
 
     @ViewBuilder
     private func addressSection() -> some View {
-        VStack(spacing: 0) {
-            sectionHeader(
-                text: "Address",
-                action: {
-                    viewModel.handle(.addPostalAddress(.init(id: UUID().uuidString, label: "", value: "")))
+        if viewModel.state.presentedSections.contains(.address) {
+            VStack(spacing: 0) {
+                sectionHeader(text: "Address")
+
+                VStack(spacing: 14) {
+                    ForEach(viewModel.state.contact.postalAddresses) { address in
+                        let text = Binding(
+                            get: { address.value },
+                            set: { viewModel.handle(.editPostalAddress(id: address.id, newValue: .init(id: address.id, label: address.label, value: $0))) }
+                        )
+
+                        HexagonTextField(
+                            text: text,
+                            promt: "Address",
+                            deleteAction: {
+                                withAnimation {
+                                    viewModel.handle(.deletePostalAddress(id: address.id))
+                                }
+                            }
+                        )
+                    }
                 }
-            )
-
-            VStack(spacing: 14) {
-                ForEach(viewModel.state.contact.postalAddresses) { address in
-                    let text = Binding(
-                        get: { address.value },
-                        set: { viewModel.handle(.editPostalAddress(id: address.id, newValue: .init(id: address.id, label: address.label, value: $0))) }
-                    )
-
-                    HexagonTextField(
-                        text: text,
-                        promt: "Address",
-                        deleteAction: { viewModel.handle(.deletePostalAddress(id: address.id)) })
+                .onChange(of: viewModel.state.contact.postalAddresses) { _, newValue in
+                    if newValue.isEmpty {
+                        withAnimation {
+                            viewModel.handle(.showSection(.address, false))
+                        }
+                    }
                 }
             }
         }

@@ -64,6 +64,12 @@ final class EditContactViewModel: ObservableObject {
             state.contact.birthday = date
         case .checkIfIsModified:
             state.initialContact
+        case .showSection(let section, let shouldShow):
+            if shouldShow {
+                state.presentedSections.insert(section)
+            } else {
+                state.presentedSections.remove(section)
+            }
         }
     }
 }

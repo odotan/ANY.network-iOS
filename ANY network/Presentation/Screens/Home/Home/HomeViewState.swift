@@ -15,6 +15,7 @@ extension HomeViewModel {
         var gridContentOffset: CGPoint = .zero
         var gridContentSize: CGSize = .zero
         var gridCenterPosition: CGPoint = .zero
+        var gridUserInteracting: Bool = false
         
         var contentIdentifier = UUID()
         
@@ -51,7 +52,7 @@ extension HomeViewModel {
             return HexCell.all
         }
         var listToDisplay: [Contact] {
-            if isSearching && searchResults != nil {
+            if isSearching && searchResults != nil && !searchedTerm.isEmpty {
                 return searchResults ?? [Contact]()
             }
             return list ?? [Contact]()
@@ -83,5 +84,6 @@ extension HomeViewModel {
         case setCenterPosition(CGPoint)
         case setDrawerOpen(Bool)
         case addContact
+        case gridUserInteracting(Bool)
     }
 }

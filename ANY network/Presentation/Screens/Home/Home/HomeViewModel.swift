@@ -56,7 +56,9 @@ final class HomeViewModel: ViewModel {
         case .isSearching(let isSearching):
             state.isSearching = isSearching
         case .recenter(let userInitiated):
-            recenter(userInitiated: userInitiated)
+            if state.contactsStatus != .notDetermined {
+                recenter(userInitiated: userInitiated)
+            }
         case .headerSize(let size):
             uiState.headerSize = size
         case .getAllContacts:
@@ -119,6 +121,8 @@ final class HomeViewModel: ViewModel {
             }
 
             coordinator.showDetails(for: contact, isNew: true)
+        case .gridUserInteracting(let interacting):
+            uiState.gridUserInteracting = interacting
         }
     }
 }
@@ -231,7 +235,7 @@ extension HomeViewModel {
     private func generateGrid(favorites: [Contact]) {
         var array = [HexCell]()
         var count = 1
-        let circles = 10
+        let circles = 19
         for idx in 1..<circles {
             count += idx * 6
         }

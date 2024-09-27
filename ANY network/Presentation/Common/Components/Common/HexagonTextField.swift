@@ -30,6 +30,7 @@ struct HexagonTextField: View {
             .font(.montserat(size: |14))
             .foregroundStyle(.appTransparentWhiteText)
             .padding(.leading, 28)
+            .padding(.trailing)
             .padding(.vertical, 19)
             .frame(height: 54)
 

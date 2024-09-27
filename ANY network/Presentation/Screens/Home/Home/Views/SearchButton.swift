@@ -15,13 +15,10 @@ struct SearchButton: View {
         }
         .frame(width: <->48, height: <->48)
         .background {
-            Color.appBackground
-                .overlay {
-                    Color.appLightGray
-                        .opacity(0.1)
-                }
+            VisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterial))
         }
         .clipShape(Circle())
+        .shadow(radius: <->3)
     }
 }
 

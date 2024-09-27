@@ -38,6 +38,7 @@ extension EditContactViewModel {
         case setBirthday(Date)
         
         case checkIfIsModified
+        case showSection(DetailsViewModel.EditSection, Bool)
     }
 }
 

@@ -25,7 +25,7 @@ struct ContactInfoTextField: View {
         self.onTypeChange = onTypeChange
         self.charLimit = fieldType == .email ? 30 : 19
 
-        types = LabeledValueLabelType.allCases.filter { $0 != .unknown }
+        types = LabeledValueLabelType.allCases.filter { $0 != .unknown && $0 != .address }
     }
 
     var body: some View {
@@ -43,6 +43,7 @@ struct ContactInfoTextField: View {
             .font(Font.montserat(size: 14, weight: .regular))
             .foregroundStyle(.white)
             .padding(.vertical, 19)
+            .padding(.horizontal)
             .frame(height: 54)
             .contentShape(Rectangle())
 

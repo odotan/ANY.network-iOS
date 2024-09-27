@@ -2,11 +2,10 @@ import SwiftUI
 import Combine
 
 struct SwitcherView: View {
-    let numberOfCells = 6
-
     @State private var cards: [SwitcherItem]
     @Binding private var selectedItem: (any ContactMethod)?
     private var contactMethods: [any ContactMethod]
+    private var fillerCards: [SwitcherItem]
 
     private let onContainingViewDragEvent: PassthroughSubject<DragGesture.Value, Never>
     private let onContainingViewDragEnd: PassthroughSubject<Void, Never>
@@ -19,17 +18,19 @@ struct SwitcherView: View {
     ) {
         self.contactMethods = contactMethods
         self._selectedItem = selectedItem
-        self._cards = State(initialValue: contactMethods.map({ .init(id: $0.id, imageName: $0.image) }))
+        self._cards = State(initialValue: contactMethods.map({ $0.asSwitcherItem() }))
         self.onContainingViewDragEvent = onContainingViewDragEvent
         self.onContainingViewDragEnd = onContainingViewDragEnd
+        self.fillerCards = []
+        let original = _cards.wrappedValue
+        self.fillerCards = createCards(originalItems: original)
     }
 
     var body: some View {
         VStack {
             Carousel3D(
                 cardSize: CGSize(width: <->28, height: |27.16),
-                numberForItems: numberIfItemsExacludingEmpty,
-                items: cards, 
+                items: fillerCards,
                 selectedItem: selectedItemBinding,
                 onContainingViewDragEvent: onContainingViewDragEvent,
                 onContainingViewDragEnd: onContainingViewDragEnd,
@@ -42,11 +43,7 @@ struct SwitcherView: View {
         .mask(overlay)
         .clipShape(Rectangle())
     }
-    
-    var numberIfItemsExacludingEmpty: Int {
-        cards.filter { $0.imageName != nil }.count
-    }
-    
+
     @ViewBuilder
     var overlay: some View {
         HStack(spacing: 0) {
@@ -82,6 +79,17 @@ struct SwitcherView: View {
                 self.selectedItem = contactMethods.first(where: { $0.id == newItem?.id })
             }
         )
+    }
+
+    private func createCards(originalItems: [SwitcherItem]) -> [SwitcherItem] {
+        switch originalItems.count {
+        case 2:
+            return originalItems.duplicate(repetitions: 3)
+        case 3...:
+            return originalItems.duplicate()
+        default:
+            return originalItems
+        }
     }
 }
 

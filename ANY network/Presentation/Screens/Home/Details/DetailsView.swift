@@ -142,6 +142,7 @@ struct DetailsView: View {
                             .captureCenterPoint { point in
                                 avatarPossition = point
                             }
+                            .opacity(isEditing.wrappedValue ? 0 : 1)
                     )
                 default:
                     cellView
@@ -232,6 +233,7 @@ struct DetailsView: View {
             .scrollTargetBehavior(.viewAligned)
             .scrollIndicators(.hidden)
             .scrollDisabled(!isEditing.wrappedValue)
+            .scrollDismissesKeyboard(.interactively)
             .frame(width: size.width, height: UIScreen.main.bounds.height / 1.4 - keyboardHeight)
             .coordinateSpace(name: "scroll")
         }

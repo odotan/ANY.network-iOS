@@ -4,23 +4,20 @@ import Combine
 struct ContactCell: View {
     private let contact: Contact
     @State private var selectedSwitcherItem: (any ContactMethod)?
+    @StateObject private var swipeDetector = HorizontalSwipeDetector()
 
     private let onDragEvent = PassthroughSubject<DragGesture.Value, Never>()
     private let onDragEnd = PassthroughSubject<Void, Never>()
     
-    private let methodos: [any ContactMethod]
+    private let methods: [any ContactMethod]
 
     init(contact: Contact) {
         self.contact = contact
-        #warning("Hardcoded values for testing, remove later")
-        self.methodos = [
-            Facebook(id: "facebook", value: "Tes Ting"),
-            Blackbery(id: "blackbery", value: "_TesTingBlackbery"),
-            PhoneNumber(id: "phone", value: "01851923616"),
-            Twitter(id: "twitter", value: "...TesTingTwitter"),
-            Instagram(id: "instagram", value: "@TesTingInsta"),
-        ]
-        self._selectedSwitcherItem = State(initialValue: methodos.first)
+        let methodCreator = ContactMethodCreator()
+
+        self.methods = methodCreator.getFirstMethodForAllTypes(using: contact.allContactMethods)
+
+        self._selectedSwitcherItem = State(initialValue: methods.first)
     }
     
     var body: some View {
@@ -39,7 +36,8 @@ struct ContactCell: View {
             }
             .frame(width: <->56.71, height: |64.19)
             .clipShape(HexagonShape(cornerRadius: 5))
-            .onAppear { self.selectedSwitcherItem = methodos.first }
+            .onAppear { self.selectedSwitcherItem = methods.first }
+            .zIndex(1)
 
             VStack(alignment: .leading, spacing: |2) {
                 Text(contact.fullName)
@@ -51,23 +49,24 @@ struct ContactCell: View {
                     Text(selectedSwitcherItem.value)
                         .font(.montserat(size: |14))
                         .opacity(0.7)
-                        .transition(.push(from: .top))
+                        .transition(.push(from: swipeDetector.swipeDirection.scrollFromEdge))
                         .id(UUID().uuidString)
                 } else if let topNumber = contact.topNumber {
                     Text(topNumber)
                         .font(.montserat(size: |14))
                         .opacity(0.7)
-                        .transition(.push(from: .top))
+                        .transition(.push(from: swipeDetector.swipeDirection.scrollFromEdge))
                         .id(topNumber)
                 }
             }
             .padding(.horizontal, <->16)
             .foregroundColor(.white)
-            
-            Spacer()
+            .zIndex(0)
 
+            Spacer()
+            
             SwitcherView(
-                contactMethods: methodos,
+                contactMethods: methods,
                 selectedItem: $selectedSwitcherItem,
                 onContainingViewDragEvent: onDragEvent,
                 onContainingViewDragEnd: onDragEnd
@@ -75,14 +74,82 @@ struct ContactCell: View {
         }
         .contentShape(Rectangle())
         .gesture(
-            DragGesture(minimumDistance: 30)
-                .onChanged(onDragEvent.send)
-                .onEnded({ _ in onDragEnd.send() })
+            DragGesture(minimumDistance: 25)
+                .onChanged { value in
+                    onDragEvent.send(value)
+                    if methods.count > 1 {
+                        withAnimation {
+                            swipeDetector.swipe(value.translation.width)
+                        }
+                    }
+                }
+                .onEnded({ _ in
+                    onDragEnd.send()
+                    swipeDetector.release()
+                })
         )
     }
 }
 
+private class HorizontalSwipeDetector: ObservableObject {
+    @Published private(set) var swipeDirection: SwipeDirection = .left
+    private var lastScrollValue: CGFloat = .zero
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        $swipeDirection
+            .removeDuplicates()
+            .assign(to: &$swipeDirection)
+    }
+
+    public func swipe(_ value: Double) {
+        if lastScrollValue > value && swipeDirection == .left {
+            self.swipeDirection = .right
+        } else if lastScrollValue < value && swipeDirection == .right {
+            self.swipeDirection = .left
+        }
+        lastScrollValue = value
+    }
+
+    public func release() {
+        self.lastScrollValue = .zero
+    }
+
+    fileprivate enum SwipeDirection {
+        case left, right
+
+        var scrollFromEdge: Edge {
+            switch self {
+            case .left:
+                return .leading
+            case .right:
+                return .trailing
+            }
+        }
+    }
+}
+
 #Preview {
-    ContactCell(contact: Contact(id: "asd", givenName: "Te", middleName: "Lee", familyName: "Ard", phoneNumbers: [.init(id: "ASd", label: "phone", value: "02982367364")], emailAddresses: [], postalAddresses: [], urlAddresses: [], socialProfiles: [], instantMessageAddresses: [], imageData: nil, imageDataAvailable: false, isFavorite: false))
+    ContactCell(
+        contact: Contact(
+            id: "asd",
+            givenName: "Te",
+            middleName: "Lee",
+            familyName: "Ard",
+            phoneNumbers: [.init(
+                id: "ASd",
+                label: "phone",
+                value: "02982367364"
+            )],
+            emailAddresses: [.init(id: "Email", label: "Email", value: "Email")],
+            postalAddresses: [.init(id: "Post", label: "Post", value: "Post")],
+            urlAddresses: [.init(id: "URL", label: "URL", value: "URL")],
+            socialProfiles: [.init(id: "Instagram", label: "Instagram", value: "IG")],
+            instantMessageAddresses: [.init(id: "Facebook", label: "Facebook", value: "FB")],
+            imageData: nil,
+            imageDataAvailable: false,
+            isFavorite: false
+        )
+    )
         .background(.appBackground)
 }

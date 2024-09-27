@@ -10,9 +10,9 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
     var content: (Items.Element) -> Content
 
     var hostingViews: [UIView] = []
-    
+
     let speedSensitivity: CGFloat = 25
-    
+
     // MARK: Gesture Properties
     @State var offset: CGFloat = 0
     @State var offsetDelta: CGFloat = 0
@@ -30,7 +30,6 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
 
     init(
         cardSize: CGSize,
-        numberForItems: Int,
         items: Items,
         selectedItem: Binding<Items.Element?>,
         onContainingViewDragEvent: PassthroughSubject<DragGesture.Value, Never> = .init(),
@@ -38,7 +37,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
         @ViewBuilder content: @escaping (Items.Element) -> Content
     ) {
         self.cardSize = cardSize
-        self.numberOfItems = numberForItems
+        self.numberOfItems = items.count
         self.items = items
         self._selectedItem = selectedItem
         self.onContainingViewDragEvent = onContainingViewDragEvent
@@ -50,7 +49,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
             hostingViews.append(hostingView)
         }
     }
-    
+
     var body: some View {
         CarouselHelper(views: hostingViews, cardSize: cardSize, offset: offset, animationDuration: animationDuration)
             .frame(width: cardSize.width, height: cardSize.height)
@@ -66,7 +65,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
             )
             .onChange(of: items.count) { _, newValue in
                 guard newValue > 0 else { return }
-                
+
                 // MARK: Animating When Item is Removed or Inserted
                 animationDuration = 0.2
 
@@ -83,7 +82,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
                 let circleAngle: CGFloat = 360.0 / CGFloat(hostingViews.count)
 
                 let delta = abs(oldValue - newValue)
-//                print(delta, oldValue, newValue)
+                //                print(delta, oldValue, newValue)
                 if delta > circleAngle / 2 {
                     try? HepticService.shared.perform()
                 }
@@ -92,7 +91,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
 
                 indexObserver.changingIndex = draggingItemOffset < 0 ? numberOfItems + draggingItemOffset : draggingItemOffset % numberOfItems
 
-//                print("DeltaOffset:", Int(offset / circleAngle), "MoveBy:", (Int(offset / circleAngle) % hostingViews.count), "withCurrent:", indexObserver.currentIndex.description, "To new index:", draggingItemOffset < 0 ? numberOfItems + draggingItemOffset : draggingItemOffset % numberOfItems)
+                //                print("DeltaOffset:", Int(offset / circleAngle), "MoveBy:", (Int(offset / circleAngle) % hostingViews.count), "withCurrent:", indexObserver.currentIndex.description, "To new index:", draggingItemOffset < 0 ? numberOfItems + draggingItemOffset : draggingItemOffset % numberOfItems)
             })
             .onReceive(indexObserver.$currentIndex) { index in
                 withAnimation {
@@ -113,7 +112,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
 
         return hostingView
     }
-    
+
     private func onDrag(value: DragGesture.Value) {
         animationDuration = 0
 
@@ -125,18 +124,16 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
 
         let circleAngle = 360.0 / CGFloat(items.count)
         let truncating = abs(temp.truncatingRemainder(dividingBy: circleAngle))
-//        print(abs(truncating), temp)
-//        print(truncating)
+        //        print(abs(truncating), temp)
+        //        print(truncating)
 
-        switch numberOfItems {
-        case 2:
-            if temp > -120 && temp < 20 {
-                offset = temp
-            }
-        case 3:
-            if temp > -200 && temp < 20 {
-                offset = temp
-            }
+        switch items.count {
+        case 1:
+            break
+//        case 2...5:
+//            if temp > -(CGFloat(activeItemCount - 1) * circleAngle + 20) && temp < 20 {
+//                offset = temp
+//            }
         default:
             if truncating > 5 && truncating < circleAngle - 5 {
                 offset = temp
@@ -146,13 +143,13 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
             }
         }
     }
-    
+
     private func snapToPosition() {
         guard hostingViews.count > 0 else {
             lastStoredOffset = offset
             return
         }
-        
+
         // MARK: Adding Animation
         animationDuration = 0.2
         let anglePerCard = 360.0 / CGFloat(hostingViews.count)
@@ -161,7 +158,8 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
         lastStoredOffset = offset
     }
 }
-#Preview {
+
+#Preview("Standard") {
     @State var methods: [any ContactMethod] = [
         Facebook(value: "@LeeAsd"),
         Blackbery(value: "@LeeAsdBla"),
@@ -173,13 +171,38 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
 
     @State var selected: (any ContactMethod)?
 
-    return VStack {
-        SwitcherView(contactMethods: methods, selectedItem: $selected)
-            .background(.appBackground)
-            .onAppear { selected = methods.first }
-    }
+    return SwitcherView(contactMethods: methods, selectedItem: $selected)
+        .background(.appBackground)
+        .onAppear { selected = methods.first }
 }
 
+#Preview("Less than 6 items") {
+    @State var methods: [any ContactMethod] = [
+        Facebook(value: "@LeeAsd"),
+        Blackbery(value: "@LeeAsdBla"),
+        PhoneNumber(value: "01851923616"),
+        Twitter(value: "@LeeAasdTwi"),
+        Instagram(value: "@LeeAasdTwi")
+    ]
+
+    @State var selected: (any ContactMethod)?
+
+    return SwitcherView(contactMethods: methods, selectedItem: $selected)
+        .background(.appBackground)
+        .onAppear { selected = methods.first }
+}
+
+#Preview("1 item") {
+    @State var methods: [any ContactMethod] = [
+        Facebook(value: "@LeeAsd")
+    ]
+
+    @State var selected: (any ContactMethod)?
+
+    return SwitcherView(contactMethods: methods, selectedItem: $selected)
+        .background(.appBackground)
+        .onAppear { selected = methods.first }
+}
 
 // MARK: UIKit UnWrapper
 fileprivate
@@ -188,30 +211,30 @@ struct CarouselHelper: UIViewRepresentable {
     var cardSize: CGSize
     var offset: CGFloat
     var animationDuration: CGFloat
-    
+
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
         return view
     }
-    
+
     func updateUIView(_ uiView: UIView, context: Context) {
         // MARK: Adding Views as SubViews
         // Only Adding Single Time
         // Since We Need Cards to Form a Circle Shape
         let circleAngle = 360.0 / CGFloat(views.count)
         var angle: CGFloat = offset
-        
+
         if uiView.subviews.count > views.count {
             // MARK: Remove Last Sub View
             uiView.subviews[uiView.subviews.count - 1].removeFromSuperview()
         }
-        
+
         for (view, index) in zip(views, views.indices) {
             if uiView.subviews.indices.contains(index) {
                 // ALREADY ADDED
                 // SINCE IT"S ALREADY ADDED SO DO THE MODIFICATIONS HERE
                 apply3DTransform(view: uiView.subviews[index], angle: angle)
-                
+
                 // MARK: We Need Disable All Other Card Rather Than Our Center To Enable Proper Button/Taps
                 // Because It Can Increase 360 For Each Complete Turn
                 // Reducing Complet Turns
@@ -234,26 +257,26 @@ struct CarouselHelper: UIViewRepresentable {
                 // ADD FOR THE FIRST TIME
                 let hostView = view
                 hostView.frame = .init(origin: .zero, size: cardSize)
-                
+
                 uiView.addSubview(hostView)
-                
+
                 apply3DTransform(view: uiView.subviews[index], angle: angle)
                 angle += circleAngle
             }
         }
     }
-    
+
     func apply3DTransform(view: UIView, angle: CGFloat) {
         // MARK: Adding 3D Transform
         var transform3D = CATransform3DIdentity
         transform3D.m34 = -1.0/500.0
-        
+
         let completeRotation = CGFloat(Int(angle / 360)) * 360.0
         let delta = abs(angle - completeRotation)
         var scale = (0.5 + abs(delta - 180) / 360)
         scale = scale * 2 - 1
-        
-//        print(delta, scale)
+
+        //        print(delta, scale)
 
         // MARK: Transform Uses Radians
         let radius = Double(cardSize.width) * Double(views.count) / Double(2) / Double.pi
@@ -261,7 +284,7 @@ struct CarouselHelper: UIViewRepresentable {
         transform3D = CATransform3DRotate(transform3D, degToRad(deg: angle), 0, 1, 0)
         transform3D = CATransform3DTranslate(transform3D, 0, 0, radius)
         transform3D = CATransform3DScale(transform3D, scale, scale, 1)
-        
+
         UIView.animate(withDuration: animationDuration) {
             view.transform3D = transform3D
         }

@@ -84,3 +84,15 @@ struct Instagram: ContactMethod {
         self.image = .instagramIcon
     }
 }
+
+struct Unimplemented: ContactMethod {
+    var id: String
+    var value: String
+    var image: ImageResource
+
+    internal init(id: String = "", value: String = "") {
+        self.id = ""
+        self.value = ""
+        self.image = .avatar
+    }
+}

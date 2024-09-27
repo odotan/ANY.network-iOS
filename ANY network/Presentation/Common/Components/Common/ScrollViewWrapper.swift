@@ -5,8 +5,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
     @Binding var contentSize: CGSize
     @Binding var size: CGSize
     @Binding var zoomScale: CGFloat
-    
-    @State var userInteracting: Bool = false
+    @Binding var userInteracting: Bool
     
     var contentIdentifier: UUID
 
@@ -19,6 +18,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         contentSize: Binding<CGSize>,
         size: Binding<CGSize>,
         zoomScale: Binding<CGFloat>,
+        userInteracting: Binding<Bool>,
         animationDuration: CGFloat = 0.35,
         maxZoomLevel: CGFloat = 2,
         contentId: UUID,
@@ -27,6 +27,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             self._contentSize = contentSize
             self._size = size
             self._zoomScale = zoomScale
+            self._userInteracting = userInteracting
             self.animationDuration = animationDuration
             self.maxZoomLevel = maxZoomLevel
             self.contentIdentifier = contentId
@@ -66,13 +67,14 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             }
         }
         
-        if (uiView.contentOffset != contentOffset /* || uiView.zoomScale != self.zoomScale*/) && !userInteracting {
+        if (uiView.contentOffset != contentOffset || uiView.zoomScale != self.zoomScale) && !userInteracting {
 //            print("Animate Scroll View offset", contentOffset)
             UIView.animate(withDuration: animationDuration) {
                 uiView.contentOffset = self.contentOffset
                 uiView.zoomScale = self.zoomScale
             }
         }
+        
         
         if contentSize != uiView.contentSize || size != uiView.frame.size /*|| contentOffset != uiView.contentOffset*/ {
 //            print("User scrolls")
@@ -110,44 +112,43 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         
         public func scrollViewDidScroll(_ scrollView: UIScrollView) {
             DispatchQueue.main.async { [weak self] in
-//                print("didScroll", scrollView.contentOffset)
                 self?.contentOffset.wrappedValue = scrollView.contentOffset
             }
         }
         
         public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-//            print("scrollViewWillBeginDragging")
             DispatchQueue.main.async { [weak self] in
                 self?.userInteracting.wrappedValue = true
             }
         }
 
-        public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+//        public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
 //             print("scrollViewWillEndDragging")
-        }
+//        }
 
         public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-//            print("scrollViewDidEndDragging")
-        }
-        
-        public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-//            print("scrollViewDidEndDecelerating")
             DispatchQueue.main.async { [weak self] in
                 self?.userInteracting.wrappedValue = false
             }
         }
         
-//        public func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
-//            DispatchQueue.main.async { [weak self] in
-//                self?.userInteracting.wrappedValue = true
-//            }
-//        }
-//
-//        public func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-//            DispatchQueue.main.async { [weak self] in
-//                self?.userInteracting.wrappedValue = false
-//            }
-//        }
+        public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+            DispatchQueue.main.async { [weak self] in
+                self?.userInteracting.wrappedValue = false
+            }
+        }
+        
+        public func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
+            DispatchQueue.main.async { [weak self] in
+                self?.userInteracting.wrappedValue = true
+            }
+        }
+
+        public func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+            DispatchQueue.main.async { [weak self] in
+                self?.userInteracting.wrappedValue = false
+            }
+        }
 
         public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
             scrollView.subviews.first

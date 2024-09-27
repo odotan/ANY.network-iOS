@@ -15,13 +15,18 @@ extension DetailsViewModel {
         var hasBeenModified: Bool = false
         var actionPrompt: ActionPrompt? = nil
         var discardChanges: Bool = false
-        
+        var presentedSections: Set<EditSection>
+
         init(contact: Contact, isNew: Bool) {
             self.contact = contact
             self.isNew = isNew
             self.isEditing = isNew
             self.initialContact = contact
             self.contactImageData = contact.imageData
+            let methods = contact.allContactMethods
+                .filter { !$0.value.isEmpty }
+                .compactMap { value in EditSection.allCases.first { $0.containsItemsOfType.contains(value.key) } }
+            self.presentedSections = Set(methods + (contact.organizationName != nil ? [.company] : []))
         }
 
         var contactInfo: [LabeledValue] {
@@ -57,6 +62,36 @@ extension DetailsViewModel {
         
         static func == (lhs: DetailsViewModel.ActionPrompt, rhs: DetailsViewModel.ActionPrompt) -> Bool {
             lhs.id == rhs.id
+        }
+    }
+
+    enum EditSection: CaseIterable {
+        case company, contactInfo, address, socialMedia
+
+        var containsItemsOfType: [ContactMethodType] {
+            switch self {
+            case .company:
+                return []
+            case .contactInfo:
+                return [.emailAddresses, .phoneNumbers, .urlAddresses]
+            case .address:
+                return [.postalAddresses]
+            case .socialMedia:
+                return [.instantMessageAddresses, .socialProfiles]
+            }
+        }
+
+        var title: String {
+            switch self {
+            case .company:
+                return "Comany"
+            case .contactInfo:
+                return "Contact Info"
+            case .address:
+                return "Address"
+            case .socialMedia:
+                return "Social Media"
+            }
         }
     }
 }

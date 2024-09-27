@@ -30,6 +30,7 @@ struct HomeView: View {
                             allContacts
                         }
                     }
+                    .sizeInfo(size: sheetSize)
                     .padding(.top)
                     .background(
                         VisualEffectView(effect: UIBlurEffect(style: .dark))
@@ -38,17 +39,18 @@ struct HomeView: View {
                             .ignoresSafeArea()
                     )
                     .overlay {
-                        if !isSearching.wrappedValue {
+                        if !isSearching.wrappedValue && viewModel.state.onboardingFinished {
                             VStack {
                                 Spacer()
                                 HStack {
-                                    SearchButton(action: { /*viewModel.handle(.goToSearch)*/ isSearching.wrappedValue = true })
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                    
+                                    Spacer()
+                                    SearchButton(action: { isSearching.wrappedValue = true })
+
+                                    Spacer()
                                     RecenterButton(action: { viewModel.handle(.recenter(true)) })
-                                        .frame(maxWidth: .infinity, alignment: .trailing)
+
+                                    Spacer()
                                 }
-                                .padding(.horizontal, 18)
                             }
                         }
                     }
@@ -66,10 +68,13 @@ struct HomeView: View {
                     .interactiveDismissDisabled()
                 }
                 .onDisappear {
-                    drawerIsOpen.wrappedValue = false
+                    viewModel.handle(.setDrawerOpen(false))
                 }
                 .onAppear {
-                    drawerIsOpen.wrappedValue = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        viewModel.handle(.setDrawerOpen(true))
+                        viewModel.handle(.recenter(true))
+                    }
                 }
                 .onChange(of: viewModel.state.contactsStatus) { _, newValue in
                     detent.wrappedValue = viewModel.state.onboardingFinished ? .fraction(0.5) : .fraction(0.2)
@@ -94,7 +99,7 @@ struct HomeView: View {
             Image(.flowerNav)
                 .resizable()
                 .frame(width: <->20.11, height: |19.5)
-            
+
             Spacer()
         }
         .frame(height: |40)
@@ -116,6 +121,7 @@ struct HomeView: View {
             contentSize: gridContentSize,
             size: gridContainerSize,
             zoomScale: gridZoomScale,
+            userInteracting: gridUserInteracting,
             animationDuration: 0.35,
             contentId: viewModel.uiState.contentIdentifier
         ) {
@@ -124,7 +130,7 @@ struct HomeView: View {
                 spacing: 8,
                 cornerRadius: 6,
                 fixedCellSize: cellSize,
-                indentLine: .odd//viewModel.state.onboardingFinished ? .odd : .even
+                indentLine: viewModel.state.onboardingFinished ? .odd : .even
             ) { cell in
                 if viewModel.state.onboardingFinished {
                     view(for: cell, cellSize: cellSize)
@@ -132,6 +138,7 @@ struct HomeView: View {
                     onboardingView(for: cell, cellSize: cellSize)
                 }
             }
+            .padding(.bottom, viewModel.state.onboardingFinished ? 200 : 0)
             .background { Color.appBackground }
         }
         .sizeInfo(size: gridContainerSize)
@@ -184,6 +191,9 @@ struct HomeView: View {
                     addContact
                 }
             }
+            .refreshable {
+                viewModel.handle(.isSearching(true))
+            }
             .listRowSpacing(-10)
             .listStyle(.plain)
 //        } else {
@@ -224,15 +234,15 @@ extension HomeView {
                 AvatarHexCell(imageData: contact.imageData, color: .clear) {
                     viewModel.handle(.goToDetails(contact: contact))
                 }
+                .captureCenterPoint { point in
+//                    if cell.offsetCoordinate.row == 0 && cell.offsetCoordinate.col == 0 {
+                        viewModel.handle(.setCenterPosition(.init(x: point.x, y: point.y - cellSize.height / 2)))
+//                    }
+                }
             } else {
 //                ColorHexCell(color: cell.color)
                 let color = HexCell.all.randomElement()?.color ?? Color(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), opacity: .random(in: 0.05...0.7))
                 ColorHexCell(color: color)
-            }
-        }
-        .captureCenterPoint { point in
-            if cell.offsetCoordinate.row == 0 && cell.offsetCoordinate.col == 0 {
-                viewModel.handle(.setCenterPosition(.init(x: point.x, y: point.y - cellSize.height / 2)))
             }
         }
     }
@@ -244,11 +254,6 @@ extension HomeView {
                 AvatarHexCell(color: Color.appPurple)
             } else {
                 ColorHexCell(color: cell.color)
-            }
-        }
-        .captureCenterPoint { point in
-            if cell.offsetCoordinate.row == 4 && cell.offsetCoordinate.col == 2 {
-                viewModel.handle(.setCenterPosition(.init(x: point.x, y: point.y - cellSize.height / 2)))
             }
         }
     }
@@ -372,6 +377,13 @@ extension HomeView {
         .init(
             get: { viewModel.state.searchedTerm },
             set: { viewModel.handle(.searchTerm($0)) }
+        )
+    }
+    
+    private var gridUserInteracting: Binding<Bool> {
+        .init(
+            get: { viewModel.uiState.gridUserInteracting },
+            set: { viewModel.handle(.gridUserInteracting($0)) }
         )
     }
 }

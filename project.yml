@@ -22,7 +22,7 @@ targets:
       base:
         INFOPLIST_FILE: ANY network/Resources/Info.plist
         MARKETING_VERSION: 1 # app version
-        CURRENT_PROJECT_VERSION: 2 # build version
+        CURRENT_PROJECT_VERSION: 4 # build version
         TARGETED_DEVICE_FAMILY: 1 # iPhone
         PRODUCT_BUNDLE_IDENTIFIER: network.any.any
         ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
@@ -35,3 +35,20 @@ targets:
     dependencies:
       - package: RealmSwift
         embed: true
+
+    scheme:
+      testTargets:
+        - name: ANY networkTests
+
+  ANY networkTests:
+    platform: iOS
+    type: bundle.unit-test
+    sources: ANY networkTests
+    name: "ANY networkTests"
+    
+    dependencies:
+      - target: ANY network
+    settings:
+      base:
+        DEVELOPMENT_TEAM: 3DV26K7BE7
+        GENERATE_INFOPLIST_FILE: YES
