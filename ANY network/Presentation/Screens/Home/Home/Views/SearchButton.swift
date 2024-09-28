@@ -15,7 +15,7 @@ struct SearchButton: View {
         }
         .frame(width: <->48, height: <->48)
         .background {
-            VisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterial))
+            VisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterialDark))
         }
         .clipShape(Circle())
         .shadow(radius: <->3)

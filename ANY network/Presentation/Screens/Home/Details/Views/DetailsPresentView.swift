@@ -8,9 +8,9 @@ struct DetailsPresentView: View {
     private let shouldDismissParentView: PassthroughSubject<Void, Never>?
 
     // Grid
-    private let ratio: CGFloat = 1.31 / (<->1)
+    private let ratio: CGFloat = 518 / UIScreen.main.bounds.width * <->1
     @State private var gridSize: CGSize = .zero
-    @State private var gridZoomScale: CGFloat = 1.31 / (<->1)
+    @State private var gridZoomScale: CGFloat = 518 / UIScreen.main.bounds.width * <->1
     @State private var gridContentOffset: CGPoint = .zero
     @State private var gridContainerSize: CGSize = .zero
     @State private var gridContentSize: CGSize = .zero
@@ -48,7 +48,8 @@ struct DetailsPresentView: View {
     }
 
     var body: some View {
-        let cellSize = CGSize(width: 79.93, height: 89.99)
+        let width = 518 / 6 / ratio
+        let cellSize = CGSize(width: width, height: width * 1.1258)
         
         GeometryReader { reader in
             ScrollViewWrapper(
@@ -106,8 +107,9 @@ struct DetailsPresentView: View {
         })
         .onChange(of: isEditing, { oldValue, newValue in
             if oldValue != newValue && newValue {
-                gridZoomScale = 1.31 / (<->1)
-                gridContentOffset = .zero
+                gridZoomScale = ratio
+                let contentOffset = CGPoint(x: (gridContentSize.width - gridContainerSize.width) / 2  , y: (gridContentSize.height - gridContainerSize.height) / 2)
+                gridContentOffset = contentOffset
             }
         })
         .onAppear(perform: {
@@ -144,18 +146,22 @@ struct DetailsPresentView: View {
                 }
             }
         case (10, 1): // Plus icon
-            ColorHexCell(color: cell.color)
+            ColorHexCell(color: .clear)
                 .sizeInfo(size: $plusSize)
                 .captureCenterPoint {
-                    if didLoad {
+                    let contentOffset = CGPoint(x: (gridContentSize.width - gridContainerSize.width) / 2  , y: (gridContentSize.height - gridContainerSize.height) / 2)
+
+                    if didLoad && gridContentOffset == contentOffset && gridZoomScale == ratio {
                         plusPosition = $0
                     }
                 }
         case (10, 3): // Favorite
-            ColorHexCell(color: cell.color)
+            ColorHexCell(color: .clear)
                 .sizeInfo(size: $favoriteSize)
                 .captureCenterPoint {
-                    if didLoad {
+                    let contentOffset = CGPoint(x: (gridContentSize.width - gridContainerSize.width) / 2  , y: (gridContentSize.height - gridContainerSize.height) / 2)
+
+                    if didLoad && gridContentOffset == contentOffset && gridZoomScale == ratio {
                         favoritePosition = $0
                     }
                 }

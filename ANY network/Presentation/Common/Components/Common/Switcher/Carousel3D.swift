@@ -95,7 +95,9 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
             })
             .onReceive(indexObserver.$currentIndex) { index in
                 withAnimation {
-                    self.selectedItem = items[index]
+                    if items.count > index {
+                        self.selectedItem = items[index]
+                    }
                 }
             }
             .onReceive(onContainingViewDragEvent, perform: { onDrag(value: $0) })

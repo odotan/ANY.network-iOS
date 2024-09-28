@@ -159,12 +159,13 @@ struct DetailsView: View {
     
     @ViewBuilder
     private func myAvatar(size: CGSize) -> some View {
+        let ratio: CGFloat = 518 / UIScreen.main.bounds.width * <->1
         let screenCenterHeight = size.height / 2
         let scaleFactor = isEditing.wrappedValue ? mapCGFloat(
             value: scrollOffset,
             inputMin: -screenCenterHeight / 2.0 + keyboardHeight / 2,
             inputMax: -screenCenterHeight / 1.5,
-            outputMin: 1,
+            outputMin: ratio,
             outputMax: 119 / avatarSize.height
         ) : 1
         
