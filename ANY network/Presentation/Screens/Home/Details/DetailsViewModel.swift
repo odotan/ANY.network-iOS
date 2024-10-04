@@ -1,5 +1,4 @@
 import Foundation
-import UIKit // Move UIApplication.shared.open in seperate struct
 
 final class DetailsViewModel: ViewModel {
     @Published private(set) var state: State
@@ -21,17 +20,13 @@ final class DetailsViewModel: ViewModel {
         self.toggleFavoriteUseCase = toggleFavoriteUseCase
         self.checkIfFavoriteUseCase = checkIfFavoriteUseCase
         self.createEditContactUseCase = createEditContactUseCase
-        handle(.checkIfFavorite)
+        perform(action: checkIfFavoriteAction)
     }
     
     func handle(_ event: Event) {
         switch event {
         case .goBack:
             coordinator.pop()
-        case .starPressed:
-            Task { await toggleFavorite() }
-        case .checkIfFavorite:
-            Task { await checkIfFavorite() }
         case .performAction(let action):
             perform(action: action)
         case .presentPrompt(let prompt):
@@ -62,7 +57,21 @@ extension DetailsViewModel {
         !state.initialContact.isLike(state.contact)
     }
     
-    func save() async {
+    var toggleFavoriteAction: ToggleFavouriteAction {
+        .init(value: state.contact.id, toggleFavoriteUseCase: toggleFavoriteUseCase) { [weak self] isFavourite in
+            self?.state.contact.isFavorite = isFavourite
+            self?.state.isFavorite = isFavourite
+        }
+    }
+
+    private var checkIfFavoriteAction: CheckIfFavouriteAction {
+        .init(value: state.contact.id, checkIfFavoriteUseCase: checkIfFavoriteUseCase) { [weak self] isFavourite in
+            self?.state.contact.isFavorite = isFavourite
+            self?.state.isFavorite = isFavourite
+        }
+    }
+
+    private func save() async {
         do {
             state.contact = try await createEditContactUseCase.execute(contact: state.contact)
         } catch {
@@ -70,43 +79,11 @@ extension DetailsViewModel {
         }
     }
     
-    func toggleFavorite() async {
+    private func perform(action: any ContactAction) {
         do {
-            state.isFavorite = try await toggleFavoriteUseCase.execute(state.contact.id)
-            state.contact.isFavorite = state.isFavorite
+            try action.performAction()
         } catch {
-            print("Error", error.localizedDescription)
-        }
-    }
-    
-    func checkIfFavorite() async {
-        do {
-            state.isFavorite = try await checkIfFavoriteUseCase.execute(state.contact.id)
-            state.contact.isFavorite = state.isFavorite
-        } catch {
-            print("Error", error.localizedDescription)
-        }
-    }
-    
-    func perform(action: Action) {
-        switch action {
-        case .edit:
-            state.isEditing.toggle()
-        case .phone:
-            guard let phone = state.contact.phoneNumbers.first else { return }
-            let tel = "tel://"
-            let formattedString = tel + phone.value
-            guard let url = URL(string: formattedString) else { return }
-            if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url)
-            }
-        case .email:
-            guard let email = state.contact.emailAddresses.first?.value, let url = URL(string: "mailto:\(email)") else { return }
-            if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url)
-            }
-        case .favoriteToggle:
-            Task { await toggleFavorite() }
+            print(error.localizedDescription)
         }
     }
 }

@@ -9,23 +9,21 @@ struct EditContactView: View {
 
     // MARK: - Main View
     var body: some View {
-        GeometryReader { reader in
-            ScrollView {
-                Spacer().frame(height: 50)
+        VStack {
+            Spacer().frame(height: 50)
+            
+            personalInfoSection()
+                .padding(.top, |20)
+            
+            contactInfoSection()
+            
+            addressSection()
+            //                    .padding(.bottom, 30)
+            
+            addSectionMenu()
+                .padding(.vertical, 20)
 
-                personalInfoSection()
-                    .padding(.top, |20)
-
-                contactInfoSection()
-
-                addressSection()
-//                    .padding(.bottom, 30)
-
-                addSectionMenu()
-                    .padding(.vertical, 20)
-            }
-            .scrollIndicators(.never)
-            .frame(height: reader.size.height)
+            Spacer()
         }
     }
 

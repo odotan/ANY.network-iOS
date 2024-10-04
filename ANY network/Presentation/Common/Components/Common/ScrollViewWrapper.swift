@@ -10,6 +10,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
     var contentIdentifier: UUID
 
     let animationDuration: CGFloat
+    let minZoomLevel: CGFloat
     let maxZoomLevel: CGFloat
     let content: () -> Content
     
@@ -20,6 +21,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         zoomScale: Binding<CGFloat>,
         userInteracting: Binding<Bool>,
         animationDuration: CGFloat = 0.35,
+        minZoomLevel: CGFloat = 1,
         maxZoomLevel: CGFloat = 2,
         contentId: UUID,
         @ViewBuilder _ content: @escaping () -> Content) {
@@ -29,6 +31,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             self._zoomScale = zoomScale
             self._userInteracting = userInteracting
             self.animationDuration = animationDuration
+            self.minZoomLevel = minZoomLevel
             self.maxZoomLevel = maxZoomLevel
             self.contentIdentifier = contentId
             self.content = content
@@ -37,6 +40,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
     public func makeUIView(context: UIViewRepresentableContext<ScrollViewWrapper>) -> UIScrollView {
         let view = UIScrollView()
         view.delegate = context.coordinator
+        view.minimumZoomScale = minZoomLevel
         view.maximumZoomScale = maxZoomLevel
         view.showsVerticalScrollIndicator = false
         view.showsHorizontalScrollIndicator = false

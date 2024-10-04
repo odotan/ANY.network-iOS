@@ -52,6 +52,7 @@ struct HomeView: View {
                                     Spacer()
                                 }
                             }
+                            .padding(.bottom)
                         }
                     }
                     .overlay(alignment: .top) {
@@ -123,6 +124,7 @@ struct HomeView: View {
             zoomScale: gridZoomScale,
             userInteracting: gridUserInteracting,
             animationDuration: 0.35,
+            minZoomLevel: 0.3,
             contentId: viewModel.uiState.contentIdentifier
         ) {
             HexGrid(
@@ -191,7 +193,7 @@ struct HomeView: View {
                     addContact
                 }
             }
-            .refreshable {
+            .refreshable(isActive: !viewModel.state.isSearching) {
                 viewModel.handle(.isSearching(true))
             }
             .listRowSpacing(-10)
@@ -240,9 +242,22 @@ extension HomeView {
 //                    }
                 }
             } else {
-//                ColorHexCell(color: cell.color)
-                let color = HexCell.all.randomElement()?.color ?? Color(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1), opacity: .random(in: 0.05...0.7))
-                ColorHexCell(color: color)
+                let offset = (row: -4, col: -2) // The offset we need to put 4, 2 from `HexCell.all` in the center
+                if let defaultBackgroundCell = HexCell.all.first(where: {
+                    $0.offsetCoordinate.row == (cell.offsetCoordinate.row - offset.row) &&
+                    $0.offsetCoordinate.col == (cell.offsetCoordinate.col - offset.col + (cell.offsetCoordinate.row % 2 != 0 ? 1 : 0))
+                }) {
+                    ColorHexCell(color: defaultBackgroundCell.color)
+                } else {
+                    ColorHexCell(
+                        color: Color(
+                            red: .random(in: 0...1),
+                            green: .random(in: 0...1),
+                            blue: .random(in: 0...1),
+                            opacity: .random(in: 0.015...0.035)
+                        )
+                    )
+                }
             }
         }
     }
@@ -385,5 +400,16 @@ extension HomeView {
             get: { viewModel.uiState.gridUserInteracting },
             set: { viewModel.handle(.gridUserInteracting($0)) }
         )
+    }
+}
+
+fileprivate extension View {
+    @ViewBuilder
+    func refreshable(isActive: Bool, action: @escaping () -> Void) -> some View {
+        if isActive {
+            self.refreshable { action() }
+        } else {
+            self
+        }
     }
 }

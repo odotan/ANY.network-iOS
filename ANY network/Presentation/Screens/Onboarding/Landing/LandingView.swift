@@ -98,10 +98,25 @@ struct LandingView: View {
             showLabel = true
         } completion: {
             withAnimation(
-                .easeIn(duration: Constants.Duration.switchScreensOnSubsequentLaunches)
-                .delay(Constants.Delay.switchScreensOnSubsequentLaunches)
+                .easeIn(duration: Constants.Duration.hideLabelOnSubsequentLaunches)
+                .delay(Constants.Delay.hideLabelOnSubsequentLaunches)
             ) {
-                self.animationFinished = true
+                showLabel = false
+                changeImages = true
+            } completion: {
+                withAnimation(
+                    .easeIn(duration: Constants.Duration.hexagonScaleOnSubsequentLaunches)
+                    .delay(Constants.Delay.hexagonScaleOnSubsequentLaunches)
+                ) {
+                    scale = 30
+                } completion: {
+                    withAnimation(
+                        .easeIn(duration: Constants.Duration.switchScreensOnSubsequentLaunches)
+                        .delay(Constants.Delay.switchScreensOnSubsequentLaunches)
+                    ) {
+                        self.animationFinished = true
+                    }
+                }
             }
         }
     }
@@ -115,9 +130,9 @@ struct LandingView: View {
             static let purpleHexagonScale: CGFloat = 4.7 // 4.6 + 0.1
             static let switchScreens: CGFloat = 0.4
 
-//            static let hideLabelOnSubsequentLaunches: CGFloat = 0.7
-//            static let hexagonScaleOnSubsequentLaunches: CGFloat = 0.3
-            static let switchScreensOnSubsequentLaunches: CGFloat = 1
+            static let hideLabelOnSubsequentLaunches: CGFloat = 0.3
+            static let hexagonScaleOnSubsequentLaunches: CGFloat = 0.3
+            static let switchScreensOnSubsequentLaunches: CGFloat = 0.3
         }
 
         enum Duration {
@@ -127,10 +142,10 @@ struct LandingView: View {
             static let purpleHexagonScale: CGFloat = 1
             static let switchScreens: CGFloat = 1.5
 
-            static let showLogoOnSubsequentLaunches: CGFloat = 0.3
-//            static let hideLabelOnSubsequentLaunches: CGFloat = 0.4
-//            static let hexagonScaleOnSubsequentLaunches: CGFloat = 0.7
-            static let switchScreensOnSubsequentLaunches: CGFloat = 0.4
+            static let showLogoOnSubsequentLaunches: CGFloat = 0.35
+            static let hideLabelOnSubsequentLaunches: CGFloat = 0.35
+            static let hexagonScaleOnSubsequentLaunches: CGFloat = 0.5
+            static let switchScreensOnSubsequentLaunches: CGFloat = 0.35
         }
     }
 }

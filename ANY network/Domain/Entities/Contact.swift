@@ -72,7 +72,7 @@ extension Contact {
 extension Array where Element == Contact {
     func sort() -> [Contact] {
         self.sorted {
-            return $0.fullName < $1.fullName
+            return $0.fullName.lowercased() < $1.fullName.lowercased()
         }
     }
 }

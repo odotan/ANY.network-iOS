@@ -1,6 +1,7 @@
 import SwiftUI
 import Combine
 
+@MainActor
 struct DetailsPresentView: View {
     typealias CellView = View
     typealias CellDatasource = ((HexCell, AnyView) -> AnyView)
@@ -26,7 +27,8 @@ struct DetailsPresentView: View {
     @State private var shakeAnimation: Bool = false
     @State private var didLoad: Bool = false
     private let contactDatasource: () -> Contact
-    private let performAction: (DetailsViewModel.Action) -> Void
+    private let performAction: (any ContactAction) -> Void
+    private let toggleFavouriteAction: ToggleFavouriteAction
     private let cellDatasource: CellDatasource
     
     var contact: Contact {
@@ -36,11 +38,13 @@ struct DetailsPresentView: View {
     init(
         isEditing: Binding<Bool>,
         shouldDismissParentView: PassthroughSubject<Void, Never>? = nil,
+        toggleFavouriteAction: ToggleFavouriteAction,
         contact contactDatasource: @escaping () -> Contact,
-        performAction: @escaping (DetailsViewModel.Action) -> Void,
+        performAction: @escaping (any ContactAction) -> Void,
         cellDatasource: @escaping CellDatasource
     ) {
         self._isEditing = isEditing
+        self.toggleFavouriteAction = toggleFavouriteAction
         self.shouldDismissParentView = shouldDismissParentView
         self.contactDatasource = contactDatasource
         self.performAction = performAction
@@ -89,7 +93,7 @@ struct DetailsPresentView: View {
         }
         .overlay {
             IconHexCell(type: .favorite(filled: contact.isFavorite), imageSize: CGSize(width: 32, height: 32)) {
-                performAction(.favoriteToggle)
+                performAction(toggleFavouriteAction)
             }
             .frame(width: plusSize.width * ratio, height: plusSize.height * ratio)
 //            .scaleEffect(ratio)
@@ -129,7 +133,7 @@ struct DetailsPresentView: View {
             Group {
                 if !contact.phoneNumbers.isEmpty {
                     IconHexCell(type: .phone) {
-                        performAction(.phone)
+                        performAction(PhoneNumberAction(value: contact.phoneNumbers.first?.value ?? ""))
                     }
                 } else {
                     ColorHexCell(color: cell.color)
@@ -139,7 +143,7 @@ struct DetailsPresentView: View {
             Group {
                 if !contact.emailAddresses.isEmpty {
                     IconHexCell(type: .email) {
-                        performAction(.email)
+                        performAction(EmailAction(value: contact.emailAddresses.first?.value ?? ""))
                     }
                 } else {
                     ColorHexCell(color: cell.color)

@@ -22,7 +22,7 @@ targets:
       base:
         INFOPLIST_FILE: ANY network/Resources/Info.plist
         MARKETING_VERSION: 1 # app version
-        CURRENT_PROJECT_VERSION: 5 # build version
+        CURRENT_PROJECT_VERSION: 6 # build version
         TARGETED_DEVICE_FAMILY: 1 # iPhone
         PRODUCT_BUNDLE_IDENTIFIER: network.any.any
         ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES

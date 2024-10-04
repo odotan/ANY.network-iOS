@@ -12,10 +12,10 @@ struct RecenterButton: View {
             Image(.recenterIcon)
                 .resizable()
                 .frame(width: <->24, height: <->24)
-        }
-        .frame(width: <->48, height: <->48)
-        .background {
-            VisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterialDark))
+                .frame(width: <->48, height: <->48)
+                .background {
+                    VisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterialDark))
+                }
         }
         .clipShape(Circle())
         .shadow(radius: <->3)

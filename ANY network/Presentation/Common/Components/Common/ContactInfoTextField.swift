@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 struct ContactInfoTextField: View {
+    @FocusState private var focused: Bool
     @Binding private var text: String
     private var promt: String
     @State private var fieldType: LabeledValueLabelType
@@ -37,6 +38,7 @@ struct ContactInfoTextField: View {
                 text: $text,
                 prompt: Text(promt).foregroundStyle(.appTransparentWhiteText)
             )
+            .focused($focused)
             .textInputAutocapitalization(.never)
             .keyboardType(fieldType.keyboardType)
             .submitLabel(.done)
@@ -60,6 +62,13 @@ struct ContactInfoTextField: View {
         .padding(.horizontal, 16)
         .onChange(of: fieldType) { _, newValue in
             onTypeChange(newValue)
+            if focused {
+                // Need to hide keyboard to chage its `.keyboardType`
+                focused = false // Defocus so we hide keyboard
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    focused = true  // Focus again to present the new keyboard
+                }
+            }
         }
     }
 

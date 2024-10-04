@@ -105,6 +105,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
                 lastReleasedWidth = .zero
                 snapToPosition()
             })
+            .onAppear(perform: snapToPosition)
     }
     // MARK: - Converting SwiftUI View Into UIKit View
     func convertToUIView(item: Items.Element) -> UIHostingController<Content> {

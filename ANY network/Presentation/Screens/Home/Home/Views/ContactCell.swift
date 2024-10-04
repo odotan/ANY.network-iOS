@@ -71,6 +71,13 @@ struct ContactCell: View {
                 onContainingViewDragEvent: onDragEvent,
                 onContainingViewDragEnd: onDragEnd
             )
+            .onTapGesture {
+                let actionCreator = ContactActionCreator()
+                guard let selectedSwitcherItem else { return }
+                let action = actionCreator.createAction(for: selectedSwitcherItem)
+                #warning("Handle errors later")
+                try? action?.performAction()
+            }
         }
         .contentShape(Rectangle())
         .gesture(

@@ -21,7 +21,6 @@ struct DetailsView: View {
                 let size = reader.size
 
                 grid(size: size)
-                
 
                 ZStack {
                     if isEditing.wrappedValue {
@@ -125,6 +124,7 @@ struct DetailsView: View {
         DetailsPresentView(
             isEditing: isEditing,
             shouldDismissParentView: shouldDismiss,
+            toggleFavouriteAction: viewModel.toggleFavoriteAction,
             contact: {
                 viewModel.state.contact
             },
@@ -198,12 +198,12 @@ struct DetailsView: View {
             ScrollView {
                 VStack(spacing: 0) {
                     Spacer()
-                        .frame(height: isEditing.wrappedValue ? size.height * 0.43 - 100 : size.height * 1)
-                        .id("space")
-                    
+                        .frame(minHeight: size.height * 0.40 - 90)
+                        .frame(height: isEditing.wrappedValue ? size.height * 0.40 - 90 : size.height * 1)
+
                     EditContactView(viewModel: viewModel.createEditVM)
-                        .frame(width: size.width, height: size.height)
-                        .id("edit")
+                        .frame(width: size.width)
+                        .frame(minHeight: size.height)
                         .background(.appBackground)
                         .background(alignment: .top) {
                             LinearGradient(colors: [.appBackground, .clear], startPoint: .bottom, endPoint: .top)
@@ -230,8 +230,8 @@ struct DetailsView: View {
                         ) : 0
                     )
             }
-            .scrollTargetLayout()
-            .scrollTargetBehavior(.viewAligned)
+//            .scrollTargetLayout()
+//            .scrollTargetBehavior(.viewAligned)
             .scrollIndicators(.hidden)
             .scrollDisabled(!isEditing.wrappedValue)
             .scrollDismissesKeyboard(.interactively)

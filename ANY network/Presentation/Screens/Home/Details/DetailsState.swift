@@ -36,11 +36,9 @@ extension DetailsViewModel {
     
     enum Event {
         case goBack
-        case checkIfFavorite
-        case starPressed
         case selectedPickerPhotoChanged(PhotosPickerItem?)
         case profileImageDataChanged(Data?)
-        case performAction(Action)
+        case performAction(any ContactAction)
         case presentPrompt(ActionPrompt?)
         case setIsEditing(Bool)
         case save

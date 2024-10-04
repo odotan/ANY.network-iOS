@@ -24,15 +24,19 @@ private struct SearchTextField: View {
                 .padding(.leading, <->15)
                 .padding(.trailing, <->5)
 
-            TextField("Search", text: $text, prompt: Text(""))
+            TextField("Search", text: $text, prompt: Text("Type to search or add").foregroundStyle(.white))
                 .focused($focusField, equals: .search)
                 .submitLabel(.search)
                 .frame(maxWidth: .infinity)
                 .frame(height: |56)
                 .overlay(alignment: .trailing) {
                     Button(action: action) {
-                        Image(.greenPlus)
-                            .frame(width: <->24, height: |24)
+//                        Image(.greenPlus)
+//                            .frame(width: <->24, height: |24)
+
+                        Text("Add")
+                            .font(Font.montserat(size: 14, weight: .bold))
+                            .foregroundStyle(.appGreen)
                             .padding(.trailing, <->15)
                     }
                 }
@@ -67,7 +71,7 @@ private struct SearchTextField: View {
 #Preview {
     Color.appBackground
         .edgesIgnoringSafeArea(.all)
-        .searchTextField(text: .constant("asd")) {  }
+        .searchTextField(text: .constant("")) {  }
 }
 
 struct SearchTextFieldModifier: ViewModifier {

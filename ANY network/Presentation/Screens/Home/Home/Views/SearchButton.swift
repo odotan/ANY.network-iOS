@@ -12,10 +12,10 @@ struct SearchButton: View {
             Image(.spyglass)
                 .resizable()
                 .frame(width: <->18.05, height: <->18.05)
-        }
-        .frame(width: <->48, height: <->48)
-        .background {
-            VisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterialDark))
+                .frame(width: <->48, height: <->48)
+                .background {
+                    VisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterialDark))
+                }
         }
         .clipShape(Circle())
         .shadow(radius: <->3)

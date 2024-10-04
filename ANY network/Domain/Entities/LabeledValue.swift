@@ -1,4 +1,5 @@
 import Foundation
+import Contacts
 
 struct LabeledValue: Identifiable, Hashable, Equatable {
     let id: String
@@ -8,8 +9,8 @@ struct LabeledValue: Identifiable, Hashable, Equatable {
 
 extension LabeledValue {
     var labelType: LabeledValueLabelType {
-        guard self.label == LabeledValueLabelType.address.value else { // If label is _$!<Home>!$_
-            return LabeledValueLabelType.allCases.first(where: { $0.value == self.label }) ?? .unknown
+        guard self.label == CNLabelHome else {
+            return getLabelType(labelString: label)
         }
 
         if self.value.isPhoneNumber {
@@ -18,6 +19,21 @@ extension LabeledValue {
             return .email
         } else {
             return .address
+        }
+    }
+
+    private func getLabelType(labelString: String) -> LabeledValueLabelType {
+        switch labelString {
+        case CNLabelPhoneNumberMobile, CNLabelPhoneNumberiPhone:
+            return .mobile
+        case CNLabelPhoneNumberMain:
+            return .phone
+        case CNLabelEmailiCloud:
+            return .email
+        case CNLabelURLAddressHomePage:
+            return .url
+        default:
+            return .unknown
         }
     }
 }
