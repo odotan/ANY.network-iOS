@@ -1,37 +1,86 @@
 import SwiftUI
 
 struct AvatarHexCell: View, HexCellProtocol {
-    var imageData: Data?
+    let contact: Contact
+    private var contactImage: Image?
     var color: Color
-    var pressed: (() -> Void)
+    let size: CGSize?
+    var pressed: ((CGPoint?) -> Void)
     
-    init(imageData: Data? = nil, color: Color, pressed: @escaping () -> Void = { }) {
-        self.imageData = imageData
+    private var tapGesture = TapGesture()
+    
+    init(
+        contact: Contact,
+        color: Color = .clear,
+        size: CGSize? = nil,
+        pressed: @escaping (CGPoint?) -> Void = { _ in }
+    ) {
+        self.contact = contact
         self.color = color
+        self.size = size
         self.pressed = pressed
+        guard let imageData = contact.imageData,
+              let uiImage = UIImage(data: imageData) else {
+            return
+        }
+        self.contactImage = Image(uiImage: uiImage)
     }
     
     @ViewBuilder @MainActor
     var image: some View {
-        if let data = imageData, let image = UIImage(data: data) {
+        if let contactImage {
 //            AsyncImageWithCache(imageData: data, cacheKey: "\(data.hashValue)")
-            Image(uiImage: image)
+            contactImage
                 .resizable()
                 .scaledToFill()
+                .frame(width: size?.width, height: size?.height)
         } else {
-            Image(.avatar)
-                .resizable()
-                .frame(width: <->26.37, height: |30.7)
+            Color.appRaisinBlack
+                .overlay {
+                    Text(contact.fullName)
+                        .font(Font.montserat(size: 20, weight: .bold))
+                        .minimumScaleFactor(0.3)
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.center)
+                        .padding()
+
+//                    Text(contact.abbreviation)
+//                        .font(Font.montserat(size: 20, weight: .bold))
+//                        .foregroundStyle(.white)
+                }
+                .frame(width: size?.width, height: size?.height)
         }
     }
 
     var body: some View {
-        Button(action: pressed) {
-            color.overlay(image)
-        }.buttonStyle(.plain)
+        GeometryReader { geometry in
+            Button(action: {
+                let globalTapLocation = CGPoint(
+                    x: 0 + geometry.frame(in: .global).minX,
+                    y: 0 + geometry.frame(in: .global).minY
+                )
+                
+                pressed(globalTapLocation)
+            }) {
+                color.overlay(image)
+            }
+            .buttonStyle(.plain)
+            .clipShape(HexagonShape(cornerRadius: 6))
+//            .simultaneousGesture(
+//                DragGesture(minimumDistance: 0)
+//                    .onEnded { value in
+//                        let globalTapLocation = CGPoint(
+//                            x: 0 + geometry.frame(in: .global).minX,
+//                            y: 0 + geometry.frame(in: .global).minY
+//                        )
+//                        
+//                        pressed(globalTapLocation)
+//                    }
+//            )
+        }
     }
 }
 
 #Preview {
-    AvatarHexCell(imageData: nil, color: Color.blue) { }
+    AvatarHexCell(contact: .testContact, color: Color.blue, size: .init(width: <->26.37, height: |30.7)) { _ in }
 }

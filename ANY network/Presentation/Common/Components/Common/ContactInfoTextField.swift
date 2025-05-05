@@ -2,43 +2,39 @@ import SwiftUI
 import Combine
 
 struct ContactInfoTextField: View {
-    @FocusState private var focused: Bool
     @Binding private var text: String
     private var promt: String
-    @State private var fieldType: LabeledValueLabelType
+    @State private var fieldType: any ContactInfoType
     private var deleteAction: () -> Void
-    private var onTypeChange: (LabeledValueLabelType) -> Void
+    private var onTypeChange: (any ContactInfoType) -> Void
     private var charLimit: Int
-
-    private let types: [LabeledValueLabelType]
+    private var infoType: any ContactInfoType.Type
 
     init(
         text: Binding<String>,
         promt: String,
-        fieldType: LabeledValueLabelType = .mobile,
+        fieldType: any ContactInfoType,
         deleteAction: @escaping () -> Void,
-        onTypeChange: @escaping (LabeledValueLabelType) -> Void
+        onTypeChange: @escaping (any ContactInfoType) -> Void
     ) {
         self._text = text
         self.promt = promt
-        self.fieldType = fieldType
+        self._fieldType = State(initialValue: fieldType)
         self.deleteAction = deleteAction
         self.onTypeChange = onTypeChange
-        self.charLimit = fieldType == .email ? 30 : 19
-
-        types = LabeledValueLabelType.allCases.filter { $0 != .unknown && $0 != .address }
+        self.infoType = type(of: fieldType)
+        self.charLimit = infoType is EmailAddressType.Type ? 30 : 19
     }
 
     var body: some View {
         HStack(spacing: 14) {
-            fieldTypeButton
+            fieldTypeButton(array: infoType.allCases)
 
             TextField(
                 "HexagonTextField",
                 text: $text,
                 prompt: Text(promt).foregroundStyle(.appTransparentWhiteText)
             )
-            .focused($focused)
             .textInputAutocapitalization(.never)
             .keyboardType(fieldType.keyboardType)
             .submitLabel(.done)
@@ -60,29 +56,15 @@ struct ContactInfoTextField: View {
         .background(.appBackground)
         .clipShape(RotatedHexagonShape(cornerRadius: 3))
         .padding(.horizontal, 16)
-        .onChange(of: fieldType) { _, newValue in
-            onTypeChange(newValue)
-            if focused {
-                // Need to hide keyboard to chage its `.keyboardType`
-                focused = false // Defocus so we hide keyboard
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    focused = true  // Focus again to present the new keyboard
-                }
-            }
-        }
     }
 
-    private var fieldTypeButton: some View {
+    @ViewBuilder
+    private func fieldTypeButton(array: [any ContactInfoType]) -> some View {
         Menu {
-#warning("Placeholder menu until we get the design")
-            ForEach(types, id: \.self) { type in
-                Button(action: { self.fieldType = type }) {
-                    Text(type.title)
-                        .font(Font.montserat(size: 14, weight: .medium))
-                        .foregroundStyle(.appGreen)
-                        .minimumScaleFactor(0.7)
-                }
-            }
+            submenu(title: "Phone Number", values: PhoneNumberType.allCases, action: typeChanged)
+            submenu(title: "Email", values: EmailAddressType.allCases, action: typeChanged)
+            submenu(title: "Postal Address", values: PostalAddressType.allCases, action: typeChanged)
+            submenu(title: "URL Address", values: URLAddressType.allCases, action: typeChanged)
         } label: {
             HStack(spacing: 18) {
                 Text(fieldType.title)
@@ -104,6 +86,24 @@ struct ContactInfoTextField: View {
         }
     }
 
+    @ViewBuilder
+    private func submenu<T: ContactInfoType>(title: String, values: [T], action: @escaping (T) -> Void) -> some View {
+        Menu {
+            ForEach(values, id: \.self) { type in
+                Button(action: { withAnimation {action(type) } } ) {
+                    Text(type.title)
+                        .font(Font.montserat(size: 14, weight: .medium))
+                        .minimumScaleFactor(0.7)
+                }
+            }
+        } label: {
+            Text(title)
+                .font(Font.montserat(size: 14, weight: .medium))
+                .minimumScaleFactor(0.7)
+        }
+    }
+
+    @ViewBuilder
     private var deleteButton: some View {
         Button(action: deleteAction) {
             ZStack {
@@ -117,6 +117,11 @@ struct ContactInfoTextField: View {
         }
         .zIndex(1)
     }
+
+    func typeChanged<T: ContactInfoType>(type: T) {
+        self.fieldType = type
+        onTypeChange(type)
+    }
 }
 
 #Preview {
@@ -126,17 +131,17 @@ struct ContactInfoTextField: View {
         VStack(spacing: 24) {
             ContactInfoTextField(text: $text,
                                  promt: "+56 903286 8274",
-                                 fieldType: .mobile,
+                                 fieldType: PhoneNumberType.mobile,
                                  deleteAction: {},
                                  onTypeChange: { _ in })
             ContactInfoTextField(text: $text,
                                  promt: "+56 903286 8274",
-                                 fieldType: .phone,
+                                 fieldType: PhoneNumberType.main,
                                  deleteAction: {},
                                  onTypeChange: { _ in })
             ContactInfoTextField(text: $text,
                                  promt: "hanson852@mail.com",
-                                 fieldType: .email,
+                                 fieldType: EmailAddressType.home,
                                  deleteAction: {},
                                  onTypeChange: { _ in })
         }

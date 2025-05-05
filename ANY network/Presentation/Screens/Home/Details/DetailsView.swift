@@ -5,7 +5,6 @@ import PhotosUI
 struct DetailsView: View {
     typealias CellView = View
 
-    @Environment(\.dismiss) private var dismiss
     private let shouldDismiss = PassthroughSubject<Void, Never>()
 
     @StateObject var viewModel: DetailsViewModel
@@ -16,7 +15,7 @@ struct DetailsView: View {
     @State private var cancellable: AnyCancellable?
 
     var body: some View {
-        VStack {
+//        VStack {
             GeometryReader { reader in
                 let size = reader.size
 
@@ -32,19 +31,10 @@ struct DetailsView: View {
                     }
                 }
             }
-        }
+//        }
+            .edgesIgnoringSafeArea(.all)
         .background { Color.appBackground }
-        .ignoresSafeArea(.container)
         .toolbar(.hidden)
-        .backButton {
-            if isEditing.wrappedValue && viewModel.hasBeenModified {
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    discardChanges.wrappedValue = true
-                }
-            } else {
-                viewModel.handle(.goBack)
-            }
-        }
         .overlay(alignment: .top) {
             Text(isEditing.wrappedValue ? "Edit" : viewModel.state.contact.fullName)
                 .multilineTextAlignment(.center)
@@ -54,35 +44,29 @@ struct DetailsView: View {
                 .foregroundColor(.white)
                 .frame(width: <->300)
         }
-        .overlay(alignment: .topTrailing) {
-            Button {
-                withAnimation {
-                    if isEditing.wrappedValue {
-                        viewModel.handle(.save)
-                    } else {
-                        viewModel.handle(.setIsEditing(true))
+        .pillToolbar(items: [
+            .init(icon: .back, position: .leading, action: {
+                if isEditing.wrappedValue && viewModel.hasBeenModified {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        discardChanges.wrappedValue = true
                     }
-                }
-            } label: {
-                if isEditing.wrappedValue {
-                    Text("Save")
-                        .foregroundColor(.appGreen)
-                        .font(.montserat(size: 16, weight: .semibold))
                 } else {
-                    Image(.penEditIcon)
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                        .scaledToFit()
-                        .padding(.horizontal, 8)
+                    viewModel.handle(.goBack)
                 }
+            }),
+            .init(icon: .add, position: .middle, action: { viewModel.handle(.showRequestNetwork) }),
+            .init(icon: .custom(viewModel.state.contact.isFavorite ? .startFillIcon : .starIcon), position: .middle, action: {
+                withAnimation {
+                    viewModel.handle(.performAction(viewModel.toggleFavoriteAction))
+                }
+            }),
+            .init(icon: .custom(.penEditIcon), position: .middle, action: { viewModel.handle(.setIsEditing(true)) })
+        ])
+        .alert(viewModel.state.actionPrompt?.title ?? "", isPresented: hasAlert, presenting: viewModel.state.actionPrompt) { prompt in
+            Button(role: prompt.confirmActionRole, action: prompt.confirmAction) {
+                Text(prompt.confirmText)
             }
-            .padding(.trailing, 8)
-        }
-        .alert(viewModel.state.actionPrompt?.title ?? "", isPresented: hasAlert, presenting: viewModel.state.actionPrompt) { action in
-            Button(action: action.action) {
-                Text("Call")
-            }
-            Button("Cancel", role: .cancel) {}
+            Button(prompt.cancelText, role: .cancel) { }
         } message: { action in
             Text(action.description)
         }
@@ -113,7 +97,7 @@ struct DetailsView: View {
             }
         }
         .onReceive(shouldDismiss) { _ in
-            dismiss()
+            viewModel.handle(.goBack)
         }
     }
     
@@ -147,7 +131,8 @@ struct DetailsView: View {
                 default:
                     cellView
                 }
-            }
+            },
+            onContactInteraction: { viewModel.handle(.interact($0)) }
         )
         .opacity(
             isEditing.wrappedValue ? calculateHexagonOpacity(
@@ -166,12 +151,18 @@ struct DetailsView: View {
             inputMin: -screenCenterHeight / 2.0 + keyboardHeight / 2,
             inputMax: -screenCenterHeight / 1.5,
             outputMin: ratio,
-            outputMax: 119 / avatarSize.height
+            outputMax: ratio // 119 / avatarSize.height
         ) : 1
         
         PhotosPicker(selection: selectedPhoto, matching: .any(of: [.images, .screenshots])) {
-            AvatarHexCell(imageData: viewModel.state.contact.imageData, color: .appPurple)
+            AvatarHexCell(contact: viewModel.state.contact, color: .appPurple)
                 .disabled(true)
+                .overlay(alignment: .bottom) {
+                    Image(.editProfile)
+                        .resizable()
+                        .frame(width: <->14, height: |14)
+                        .padding(.bottom, 8)
+                }
         }
         .frame(width: avatarSize.width, height: avatarSize.height)
         .clipShape(HexagonShape(cornerRadius: 6))
@@ -184,7 +175,7 @@ struct DetailsView: View {
                 inputMax: -screenCenterHeight / 1.5,
                 outputMin: 0,
                 outputMax: 1
-            ) * (avatarPossition.y - |173) * (-1)) : 0
+            ) * (avatarPossition.y - |130) * (-1)) : 0
         )
     }
     
@@ -199,11 +190,11 @@ struct DetailsView: View {
                 VStack(spacing: 0) {
                     Spacer()
                         .frame(minHeight: size.height * 0.40 - 90)
-                        .frame(height: isEditing.wrappedValue ? size.height * 0.40 - 90 : size.height * 1)
+                        .frame(height: isEditing.wrappedValue ? size.height * 0.6 - 90 : size.height * 1)
 
                     EditContactView(viewModel: viewModel.createEditVM)
                         .frame(width: size.width)
-                        .frame(minHeight: size.height)
+                        .frame(minHeight: size.height + keyboardHeight)
                         .background(.appBackground)
                         .background(alignment: .top) {
                             LinearGradient(colors: [.appBackground, .clear], startPoint: .bottom, endPoint: .top)
@@ -220,6 +211,9 @@ struct DetailsView: View {
                     scrollOffset = value > 0 ? 0 : value
                 }
             }
+            .task {
+                print(size.height)
+            }
             .overlay(alignment: .top) {
                 LinearGradient(colors: [.appBackground, .appBackground, .clear], startPoint: .top, endPoint: .bottom)
                     .frame(height: 50)
@@ -235,7 +229,7 @@ struct DetailsView: View {
             .scrollIndicators(.hidden)
             .scrollDisabled(!isEditing.wrappedValue)
             .scrollDismissesKeyboard(.interactively)
-            .frame(width: size.width, height: UIScreen.main.bounds.height / 1.4 - keyboardHeight)
+            .frame(width: size.width, height: UIScreen.main.bounds.height / 1.2/* - keyboardHeight*/)
             .coordinateSpace(name: "scroll")
         }
         .frame(width: size.width, height: size.height)

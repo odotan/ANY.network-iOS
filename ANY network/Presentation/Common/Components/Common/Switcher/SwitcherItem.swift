@@ -5,9 +5,9 @@ struct SwitcherItem: Identifiable, Equatable {
     var imageName: ImageResource?
 }
 
-extension Array where Element == SwitcherItem {
-    func duplicate(repetitions: Int = 2) -> [SwitcherItem] {
-        var temp = [SwitcherItem]()
+extension Array {
+    func duplicate(repetitions: Int = 2) -> [Element] {
+        var temp = [Element]()
         for _ in 0..<repetitions {
             self.forEach {
                 temp.append($0)

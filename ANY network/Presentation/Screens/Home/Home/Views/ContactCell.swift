@@ -10,18 +10,76 @@ struct ContactCell: View {
     private let onDragEnd = PassthroughSubject<Void, Never>()
     
     private let methods: [any ContactMethod]
+    @State private var error: ContactActionError?
+    private let onInteraction: (ContactInteraction) -> Void
 
-    init(contact: Contact) {
+    init(contact: Contact, onInteraction: @escaping (ContactInteraction) -> Void) {
         self.contact = contact
         let methodCreator = ContactMethodCreator()
 
         self.methods = methodCreator.getFirstMethodForAllTypes(using: contact.allContactMethods)
 
         self._selectedSwitcherItem = State(initialValue: methods.first)
+        self.onInteraction = onInteraction
     }
     
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: <->8) {
+            Color.appRaisinBlack
+                .overlay {
+                    Text(contact.fullNameTwoLines)
+                        .font(.montserat(size: |12, weight: .semibold))
+                        .minimumScaleFactor(0.7)
+                        .lineLimit(2)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.leading)
+                        .padding(.horizontal, 2)
+                }
+                .frame(width: <->56.71, height: |64.19)
+                .clipShape(HexagonShape(cornerRadius: 5))
+                .onAppear { self.selectedSwitcherItem = methods.first }
+                .zIndex(1)
+
+            Spacer()
+            
+            VStack(alignment: .center, spacing: |2) {
+                SwitcherView(
+                    contactMethods: methods,
+                    selectedItem: $selectedSwitcherItem,
+                    onContainingViewDragEvent: onDragEvent,
+                    onContainingViewDragEnd: onDragEnd,
+                    swipeValue: { value in
+                        swipeDetector.swipe(value)
+                    }
+                )
+                .onTapGesture {
+                    switcherTapped()
+                }
+                
+                
+                if let selectedSwitcherItem {
+                    Text(selectedSwitcherItem.value)
+                        .font(.montserat(size: |14))
+                        .minimumScaleFactor(0.8)
+                        .lineLimit(1)
+                        .opacity(0.7)
+                        .transition(.push(from: swipeDetector.swipeDirection.scrollFromEdge))
+                        .id(UUID().uuidString)
+                } else if let topNumber = contact.topNumber {
+                    Text(topNumber)
+                        .font(.montserat(size: |14))
+                        .minimumScaleFactor(0.8)
+                        .lineLimit(1)
+                        .opacity(0.7)
+                        .transition(.push(from: swipeDetector.swipeDirection.scrollFromEdge))
+                        .id(topNumber)
+                }
+            }
+            .foregroundColor(.white)
+            .zIndex(0)
+            
+            Spacer()
+
             Group {
                 if let data = contact.imageData {
                     AsyncImageWithCache(imageData: data, cacheKey: "\(data.hashValue)")
@@ -38,63 +96,63 @@ struct ContactCell: View {
             .clipShape(HexagonShape(cornerRadius: 5))
             .onAppear { self.selectedSwitcherItem = methods.first }
             .zIndex(1)
-
-            VStack(alignment: .leading, spacing: |2) {
-                Text(contact.fullName)
-                    .lineLimit(1)
-                    .font(.montserat(size: |18, weight: .semibold))
-                    .minimumScaleFactor(0.5)
-                
-                if let selectedSwitcherItem {
-                    Text(selectedSwitcherItem.value)
-                        .font(.montserat(size: |14))
-                        .opacity(0.7)
-                        .transition(.push(from: swipeDetector.swipeDirection.scrollFromEdge))
-                        .id(UUID().uuidString)
-                } else if let topNumber = contact.topNumber {
-                    Text(topNumber)
-                        .font(.montserat(size: |14))
-                        .opacity(0.7)
-                        .transition(.push(from: swipeDetector.swipeDirection.scrollFromEdge))
-                        .id(topNumber)
-                }
-            }
-            .padding(.horizontal, <->16)
-            .foregroundColor(.white)
-            .zIndex(0)
-
-            Spacer()
-            
-            SwitcherView(
-                contactMethods: methods,
-                selectedItem: $selectedSwitcherItem,
-                onContainingViewDragEvent: onDragEvent,
-                onContainingViewDragEnd: onDragEnd
-            )
-            .onTapGesture {
-                let actionCreator = ContactActionCreator()
-                guard let selectedSwitcherItem else { return }
-                let action = actionCreator.createAction(for: selectedSwitcherItem)
-                #warning("Handle errors later")
-                try? action?.performAction()
-            }
         }
+        .padding(.horizontal, <->8)
         .contentShape(Rectangle())
-        .gesture(
-            DragGesture(minimumDistance: 25)
-                .onChanged { value in
-                    onDragEvent.send(value)
-                    if methods.count > 1 {
-                        withAnimation {
-                            swipeDetector.swipe(value.translation.width)
-                        }
-                    }
-                }
-                .onEnded({ _ in
-                    onDragEnd.send()
-                    swipeDetector.release()
-                })
+//        .gesture(
+//            DragGesture(minimumDistance: 25)
+//                .onChanged { value in
+//                    onDragEvent.send(value)
+//                    if methods.count > 1 {
+//                        withAnimation {
+//                            swipeDetector.swipe(value.translation.width)
+//                        }
+//                    }
+//                }
+//                .onEnded({ _ in
+//                    onDragEnd.send()
+//                    swipeDetector.release()
+//                })
+//        )
+        .alert(
+            "Error",
+            isPresented: hasError,
+            presenting: error,
+            actions: { error in
+                Text(error.description)
+                Button("Dismiss", role: .cancel) {}
+            }
         )
+    }
+
+    private var hasError: Binding<Bool> {
+        .init(
+            get: { error != nil },
+            set: { _ in }
+        )
+    }
+
+    private func switcherTapped() {
+        guard let selectedSwitcherItem else { return }
+        do {
+            let action = try ContactActionCreator().createAction(for: selectedSwitcherItem)
+            try action.performAction()
+        } catch is ContactActionError {
+            self.error = error
+        } catch is ContactActionCreationError {
+            print("Couldn't create action")
+        } catch {
+            print("Unexpected Error")
+        }
+
+        guard let interactedWith = contact.allContactMethods
+            .values
+            .flatMap({ $0 })
+            .first(where: { $0.id == selectedSwitcherItem.id }) else {
+            return
+        }
+
+        onInteraction(.init(contact: contact, labeledValue: interactedWith, priority: 0))
     }
 }
 
@@ -140,9 +198,9 @@ private class HorizontalSwipeDetector: ObservableObject {
     ContactCell(
         contact: Contact(
             id: "asd",
-            givenName: "Te",
+            givenName: "Ivan",
             middleName: "Lee",
-            familyName: "Ard",
+            familyName: "Petkov",
             phoneNumbers: [.init(
                 id: "ASd",
                 label: "phone",
@@ -156,7 +214,9 @@ private class HorizontalSwipeDetector: ObservableObject {
             imageData: nil,
             imageDataAvailable: false,
             isFavorite: false
-        )
+        ), onInteraction: { _ in
+
+        }
     )
         .background(.appBackground)
 }

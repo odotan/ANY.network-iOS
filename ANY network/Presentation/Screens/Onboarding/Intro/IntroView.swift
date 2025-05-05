@@ -30,24 +30,26 @@ struct IntroView: View {
                 spacing: 8,
                 cornerRadius: 6,
                 fixedCellSize: .init(width: <->80, height: |90),
-                shadow: (color: .black.opacity(0.25), radius: 4, x: 0, y: 4)
-            ) { cell in
-                cell.color
-                    .overlay {
-                        avatarCell(cell: cell)
-                            .background(
-                                GeometryReader { reader in
-                                    Color.clear
-                                        .onAppear {
-                                            let frame = reader.frame(in: .global)
-                                            setMyAvatarOffsetAndBottomEdge(containerSize: size, frame: frame, cell: cell)
-                                            setMyAvatarPossition(containerSize: size, frame: frame, cell: cell)
-                                            setPopoutPossition(containerSize: size, frame: frame, cell: cell)
-                                        }
-                                }
-                            )
-                    }
-            }
+                shadow: (color: .black.opacity(0.25), radius: 4, x: 0, y: 4),
+                content: { cell in
+                    cell.color
+                        .overlay {
+                            avatarCell(cell: cell)
+                                .background(
+                                    GeometryReader { reader in
+                                        Color.clear
+                                            .onAppear {
+                                                let frame = reader.frame(in: .global)
+                                                setMyAvatarOffsetAndBottomEdge(containerSize: size, frame: frame, cell: cell)
+                                                setMyAvatarPossition(containerSize: size, frame: frame, cell: cell)
+                                                setPopoutPossition(containerSize: size, frame: frame, cell: cell)
+                                            }
+                                    }
+                                )
+                        }
+                },
+                overlay: { _ in EmptyView() }
+            )
             .blur(radius: blur ? 6 : 0)
             .scaleEffect(1.08)
             .overlay {

@@ -9,9 +9,9 @@ extension CNContact {
             middleName: middleName,
             familyName: familyName,
             phoneNumbers: phoneNumbers.compactMap { $0.asLabeledValue() },
-            emailAddresses: emailAddresses.compactMap { $0.asLabeledValue() },
+            emailAddresses: emailAddresses.compactMap { $0.asLabeledValue(for: EmailAddressType.self) },
             postalAddresses: postalAddresses.compactMap { $0.asLabeledValue() },
-            urlAddresses: urlAddresses.compactMap { $0.asLabeledValue() },
+            urlAddresses: urlAddresses.compactMap { $0.asLabeledValue(for: URLAddressType.self) },
             socialProfiles: socialProfiles.compactMap { $0.asLabeledValue() },
             instantMessageAddresses: instantMessageAddresses.compactMap { $0.asLabeledValue() },
             imageData: thumbnailImageData,//imageData,
@@ -23,13 +23,15 @@ extension CNContact {
 
 extension CNLabeledValue<CNPhoneNumber> {
     func asLabeledValue() -> LabeledValue {
-        LabeledValue(id: identifier, label: label ?? "Various", value: value.stringValue)
+        let type = PhoneNumberType.getValue(label: label ?? CNLabelHome) ?? .other
+        return LabeledValue(id: identifier, label: label ?? type.prompt, value: value.stringValue, infoType: type)
     }
 }
 
 extension CNLabeledValue<NSString> {
-    func asLabeledValue() -> LabeledValue {
-        LabeledValue(id: identifier, label: label ?? "Various", value: String(value))
+    func asLabeledValue(for type: any ContactInfoType.Type) -> LabeledValue {
+        let specify = type.getValue(label: label ?? CNLabelHome)
+        return LabeledValue(id: identifier, label: label ?? specify?.prompt ?? "Error", value: String(value), infoType: specify)
     }
 }
 
@@ -38,19 +40,20 @@ extension CNLabeledValue<CNPostalAddress> {
         let formatter = CNPostalAddressFormatter()
         formatter.style = .mailingAddress
         let address = formatter.string(from: value)
-        return LabeledValue(id: identifier, label: label ?? "Various", value: address)
+        let type = PostalAddressType.getValue(label: label ?? CNLabelHome)
+        return LabeledValue(id: identifier, label: label ?? type?.prompt ?? "Error", value: address, infoType: type)
     }
 }
 
 extension CNLabeledValue<CNSocialProfile> {
     func asLabeledValue() -> LabeledValue {
-        LabeledValue(id: identifier, label: label ?? "Various", value: value.username)
+        LabeledValue(id: identifier, label: label ?? "Various", value: value.username, infoType: nil)
     }
 }
 
 extension CNLabeledValue<CNInstantMessageAddress> {
     func asLabeledValue() -> LabeledValue {
-        LabeledValue(id: identifier, label: label ?? "Various", value: value.username)
+        LabeledValue(id: identifier, label: label ?? "Various", value: value.username, infoType: nil)
     }
 }
 

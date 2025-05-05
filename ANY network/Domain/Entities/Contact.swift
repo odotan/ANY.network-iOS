@@ -16,14 +16,23 @@ struct Contact: Hashable, Equatable, Identifiable {
     var imageData: Data?
     var imageDataAvailable: Bool = false
     var isFavorite: Bool = false
+    var isMe: Bool = false
 }
 
 extension Contact {
     var abbreviation: String {
         var short = ""
-        if let first = givenName?.first {
-            short += String(first)
+
+        if let words = givenName?.components(separatedBy: " ") {
+            if let first = words.first?.first {
+                if words.count > 1, let last = words.last?.first {
+                    short += String(first) + String(last)
+                } else {
+                    short += String(first)
+                }
+            }
         }
+
         if let second = familyName?.first {
             short += String(second)
         }
@@ -32,7 +41,23 @@ extension Contact {
     }
     
     var fullName: String {
-        return (givenName ?? "") + " " + (familyName ?? "")
+        var name = ""
+        if givenName != nil && !givenName!.isEmpty || familyName != nil && !familyName!.isEmpty {
+            name = "\(givenName ?? "") " + (familyName ?? "")
+        } else {
+            name = topNumber ?? ""
+        }
+        return name
+    }
+    
+    var fullNameTwoLines: String {
+        var name = givenName ?? ""
+        
+        if familyName != nil && !familyName!.isEmpty {
+            name += "\n" + familyName!
+        }
+
+        return name
     }
     
     var topNumber: String? {

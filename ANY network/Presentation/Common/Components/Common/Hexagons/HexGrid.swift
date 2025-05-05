@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct HexGrid<Data, ID, Content>: View where Data: RandomAccessCollection, Data.Element: OffsetCoordinateProviding, ID: Hashable, Content: View {
+public struct HexGrid<Data, ID, Content, Overlay>: View where Data: RandomAccessCollection, Data.Element: OffsetCoordinateProviding, ID: Hashable, Content: View, Overlay: View {
     public let data: Data
     public let id: KeyPath<Data.Element, ID>
     public let cornerRadius: CGFloat
@@ -9,6 +9,7 @@ public struct HexGrid<Data, ID, Content>: View where Data: RandomAccessCollectio
     public let indentLine: HexGridIndentLine
     public let shadow: (color: Color, radius: CGFloat, x: CGFloat, y: CGFloat)?
     public let content: (Data.Element) -> Content
+    public let overlay: (Data.Element) -> Overlay
 
     @inlinable public init(
         _ data: Data,
@@ -18,7 +19,8 @@ public struct HexGrid<Data, ID, Content>: View where Data: RandomAccessCollectio
         fixedCellSize: CGSize? = nil,
         indentLine: HexGridIndentLine = .even,
         shadow: (color: Color, radius: CGFloat, x: CGFloat, y: CGFloat)? = nil,
-        @ViewBuilder content: @escaping (Data.Element) -> Content
+        @ViewBuilder content: @escaping (Data.Element) -> Content,
+        @ViewBuilder overlay: @escaping ((Data.Element) -> Overlay)
     ) {
         self.data = data
         self.id = id
@@ -28,6 +30,7 @@ public struct HexGrid<Data, ID, Content>: View where Data: RandomAccessCollectio
         self.indentLine = indentLine
         self.shadow = shadow
         self.content = content
+        self.overlay = overlay
     }
 
     public var body: some View {
@@ -42,7 +45,7 @@ public struct HexGrid<Data, ID, Content>: View where Data: RandomAccessCollectio
                         x: shadow?.x ?? 0,
                         y: shadow?.y ?? 0
                     )
-//                    .clipShape(HexagonShape(cornerRadius: cornerRadius))
+                    .overlay(overlay(element))
                     .padding(.all, spacing)
                     .layoutValue(key: OffsetCoordinateLayoutValueKey.self,
                                  value: element.offsetCoordinate)
@@ -59,9 +62,20 @@ public extension HexGrid where ID == Data.Element.ID, Data.Element: Identifiable
         fixedCellSize: CGSize? = nil,
         indentLine: HexGridIndentLine = .even,
         shadow: (color: Color, radius: CGFloat, x: CGFloat, y: CGFloat)? = nil,
-        @ViewBuilder content: @escaping (Data.Element) -> Content
+        @ViewBuilder content: @escaping (Data.Element) -> Content,
+        @ViewBuilder overlay: @escaping (Data.Element) -> Overlay
     ) {
-        self.init(data, id: \.id, spacing: spacing, cornerRadius: cornerRadius, fixedCellSize: fixedCellSize, indentLine: indentLine, shadow: shadow, content: content)
+        self.init(
+            data,
+            id: \.id,
+            spacing: spacing,
+            cornerRadius: cornerRadius,
+            fixedCellSize: fixedCellSize,
+            indentLine: indentLine,
+            shadow: shadow,
+            content: content,
+            overlay: overlay
+        )
     }
 }
 

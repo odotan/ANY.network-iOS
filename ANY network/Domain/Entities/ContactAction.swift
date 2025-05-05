@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 
+@MainActor
 protocol ContactAction {
     associatedtype T
     var value: T { get }
@@ -71,17 +72,45 @@ struct CheckIfFavouriteAction: ContactAction {
 
 enum ContactActionError: Error {
     case noValue, invalidValue, cantCreateURL, cantOpenUrl
+
+    var description: String {
+        switch self {
+        case .noValue:
+            "This method is missing a value."
+        case .invalidValue:
+            "The value for this method is not valid."
+        case .cantCreateURL:
+            "Can't create a link for this method."
+        case .cantOpenUrl:
+            "The device has no application that can execute this request."
+        }
+    }
 }
 
 struct ContactActionCreator {
-    func createAction(for method: any ContactMethod) -> (any ContactAction)? {
+    func createAction(for method: any ContactMethod) throws -> any ContactAction {
         switch method.self {
         case is PhoneNumber:
             PhoneNumberAction(value: method.value)
         case is EmailAddress:
             EmailAction(value: method.value)
         default:
-            nil
+            throw ContactActionCreationError.invalidActionType
         }
     }
+
+    func createAction(for interaction: LabeledValue) throws -> any ContactAction {
+        switch interaction.infoType {
+        case is PhoneNumberType:
+            PhoneNumberAction(value: interaction.value)
+        case is EmailAddressType:
+            EmailAction(value: interaction.value)
+        default:
+            throw ContactActionCreationError.invalidActionType
+        }
+    }
+}
+
+enum ContactActionCreationError: Error {
+    case invalidActionType
 }

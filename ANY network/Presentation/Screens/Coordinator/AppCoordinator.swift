@@ -36,6 +36,11 @@ final class AppCoordinator: ObservableObject {
 
 extension AppCoordinator {
     func checkPermissions() {
+        if UserDefaults.standard.bool(forKey: UserDefaultsKeys.replayAnimation) {
+            handle(.showOnboarding)
+            UserDefaults.standard.setValue(false, forKey: UserDefaultsKeys.replayAnimation)
+            return
+        }
 //        if case .notDetermined = getContactsStatusUseCase.status {
 //            handle(.showOnboarding)
 //        } else {

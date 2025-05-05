@@ -5,12 +5,22 @@ final class SearchViewModel: ViewModel {
     private let coordinator: MainCoordinatorProtocol
     private let getAllContactsUseCase: GetAllContactsUseCase
     private let searchUseCase: SearchInContactUseCase
-
-    init(coordinator: MainCoordinatorProtocol, getAllContactsUseCase: GetAllContactsUseCase, searchUseCase: SearchInContactUseCase) {
+    private let interactWithContactUseCase: InteractWithContactUseCase
+    private let onContactChangeEvent: (ContactChangeEvent) -> Void
+    
+    init(
+        coordinator: MainCoordinatorProtocol,
+        getAllContactsUseCase: GetAllContactsUseCase,
+        searchUseCase: SearchInContactUseCase,
+        interactWithContactUseCase: InteractWithContactUseCase,
+        onContactChangeEvent: @escaping (ContactChangeEvent) -> Void
+    ) {
         self.state = State()
         self.coordinator = coordinator
         self.getAllContactsUseCase = getAllContactsUseCase
         self.searchUseCase = searchUseCase
+        self.interactWithContactUseCase = interactWithContactUseCase
+        self.onContactChangeEvent = onContactChangeEvent
     }
     
     func handle(_ event: Event) {
@@ -22,7 +32,12 @@ final class SearchViewModel: ViewModel {
         case .goBack:
             coordinator.pop()
         case .goToDetails(let contact):
-            coordinator.showDetails(for: contact, isNew: false)
+            coordinator.showDetails(
+                for: contact,
+                isNew: false,
+                anchor: nil,
+                onContactChangeEvent: onContactChangeEvent
+            )
         case .addContact:
             print("Add it with searched term:", state.searchTerm)
             var contact = Contact(id: "")
@@ -34,7 +49,14 @@ final class SearchViewModel: ViewModel {
                 contact.givenName = state.searchTerm
             }
 
-            coordinator.showDetails(for: contact, isNew: true)
+            coordinator.showDetails(
+                for: contact,
+                isNew: true,
+                anchor: nil,
+                onContactChangeEvent: onContactChangeEvent
+            )
+        case .interact(let interaction):
+            Task { await interact(interaction: interaction) }
         }
     }
 }
@@ -61,6 +83,15 @@ extension SearchViewModel {
             }
         } catch let error {
             print("Error", error.localizedDescription)
+        }
+    }
+
+    private func interact(interaction: ContactInteraction) async {
+        do {
+            try await interactWithContactUseCase.extecute(interaction: interaction, type: .create)
+            print("interaction Created")
+        } catch {
+            print(error.localizedDescription)
         }
     }
 }

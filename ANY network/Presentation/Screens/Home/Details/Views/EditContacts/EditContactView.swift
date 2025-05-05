@@ -20,11 +20,12 @@ struct EditContactView: View {
             addressSection()
             //                    .padding(.bottom, 30)
             
-            addSectionMenu()
+            addButton()
                 .padding(.vertical, 20)
 
             Spacer()
         }
+        .onAppear { viewModel.handle(.getSections) }
     }
 
     // MARK: - Components
@@ -49,37 +50,20 @@ struct EditContactView: View {
 
     @ViewBuilder
     private func addSectionMenu() -> some View {
-        let avaliableFieldsToAdd = DetailsViewModel.EditSection.allCases.filter {
-            !(viewModel.state.presentedSections.contains(.company) && $0 == .company) && $0 != .socialMedia
-        }
-
         Menu {
             VStack {
-                ForEach(avaliableFieldsToAdd, id: \.hashValue) { section in
-                    Button(action: {
-                        withAnimation {
-                            switch section {
-                            case .contactInfo:
-                                viewModel.handle(.addPhoneNumber(.init(id: UUID().uuidString, label: LabeledValueLabelType.mobile.value, value: "")))
-                            case .address:
-                                viewModel.handle(.addPostalAddress(.init(id: UUID().uuidString, label: "", value: "")))
-                            case .company:
-                                viewModel.handle(.showSection(section, true))
-                            default:
-                                return
-                            }
-                            viewModel.handle(.showSection(section, true))
-                        }
-                    }) {
-                        Text(section.title)
-                            .font(Font.montserat(size: 14, weight: .medium))
-                            .foregroundStyle(.appGreen)
-                            .minimumScaleFactor(0.7)
-                    }
+                submenu(title: Constants.Strings.phoneNumber, values: PhoneNumberType.allCases) { type in
+                    viewModel.handle(.addPhoneNumber(.init(id: UUID().uuidString, label: type.label, value: "", infoType: type)))
                 }
+
+                submenu(title: Constants.Strings.emailAddress, values: EmailAddressType.allCases) { type in
+                    viewModel.handle(.addEmailAddress(.init(id: UUID().uuidString, label: type.label, value: "", infoType: type)))
+                }
+
+                othersMenu()
             }
         } label: {
-            Text("Add")
+            Text(Constants.Strings.add)
                 .font(Font.montserat(size: 14, weight: .medium))
                 .foregroundStyle(.appGreen)
                 .frame(width: <->80, height: 40)
@@ -87,9 +71,55 @@ struct EditContactView: View {
     }
 
     @ViewBuilder
-    private func addButton(action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text("Add")
+    private func submenu<T: ContactInfoType>(title: String, values: [T], action: @escaping (T) -> Void) -> some View {
+        Menu {
+            ForEach(values, id: \.self) { type in
+                Button(action: { withAnimation { action(type) } } ) {
+                    Text(type.title)
+                        .font(Font.montserat(size: 14, weight: .medium))
+                        .minimumScaleFactor(0.7)
+                }
+            }
+        } label: {
+            Text(title)
+                .font(Font.montserat(size: 14, weight: .medium))
+                .minimumScaleFactor(0.7)
+        }
+    }
+
+    @ViewBuilder
+    private func othersMenu() -> some View {
+        Menu {
+            if !viewModel.state.presentedSections.contains(.company) {
+                Button(action: {
+                    withAnimation {
+                        viewModel.handle(.showSection(.company, true))
+                    }
+                }) {
+                    Text(DetailsViewModel.EditSection.company.title)
+                        .font(Font.montserat(size: 14, weight: .medium))
+                        .minimumScaleFactor(0.7)
+                }
+            }
+
+            submenu(title: Constants.Strings.address, values: PostalAddressType.allCases) { type in
+                viewModel.handle(.addPostalAddress(.init(id: UUID().uuidString, label: type.label, value: "")))
+            }
+        } label: {
+            Text(Constants.Strings.other)
+                .font(Font.montserat(size: 14, weight: .medium))
+                .minimumScaleFactor(0.7)
+        }
+    }
+
+    @ViewBuilder
+    private func addButton() -> some View {
+        Button(action: {
+            withAnimation {
+                viewModel.handle(.addPhoneNumber(.init(id: UUID().uuidString, label: PhoneNumberType.main.label, value: "", infoType: PhoneNumberType.mobile)))
+            }
+        }) {
+            Text(Constants.Strings.add)
                 .font(Font.montserat(size: 14, weight: .medium))
                 .foregroundStyle(.appGreen)
         }
@@ -112,25 +142,25 @@ struct EditContactView: View {
     private func contactInfoSection() -> some View {
         if viewModel.state.presentedSections.contains(.contactInfo) {
             VStack(spacing: 0) {
-                sectionHeader(text: "Contact Info")
+                sectionHeader(text: Constants.Strings.contactInfo)
 
                 VStack(spacing: 14) {
                     ForEach(viewModel.state.contactInfo) { info in
                         let text = Binding(
                             get: { info.value },
-                            set: { viewModel.handle(.editContactMetod(id: info.id, newValue: .init(id: info.id, label: info.label, value: $0))) }
+                            set: { viewModel.handle(.editContactMetod(oldValue: info, newValue: .init(id: info.id, label: info.label, value: $0, infoType: info.infoType))) }
                         )
 
                         ContactInfoTextField(
                             text: text,
-                            promt: "",
-                            fieldType: info.labelType,
+                            promt: info.infoType?.prompt ?? Constants.Strings.unknown,
+                            fieldType: info.infoType ?? UnknownType.unknown,
                             deleteAction: {
                                 withAnimation {
-                                    viewModel.handle(.deleteContactMetod(id: info.id, type: info.labelType))
+                                    viewModel.handle(.deleteContactMetod(id: info.id, type: info.infoType ?? UnknownType.unknown))
                                 }
                             },
-                            onTypeChange: { viewModel.handle(.editContactMetod(id: info.id, newValue: .init(id: info.id, label: $0.value, value: info.value))) }
+                            onTypeChange: { viewModel.handle(.editContactMetod(oldValue: info, newValue: .init(id: info.id, label: $0.label, value: info.value, infoType: $0))) }
                         )
                     }
                 }
@@ -149,23 +179,25 @@ struct EditContactView: View {
     private func addressSection() -> some View {
         if viewModel.state.presentedSections.contains(.address) {
             VStack(spacing: 0) {
-                sectionHeader(text: "Address")
+                sectionHeader(text: Constants.Strings.address)
 
                 VStack(spacing: 14) {
                     ForEach(viewModel.state.contact.postalAddresses) { address in
                         let text = Binding(
                             get: { address.value },
-                            set: { viewModel.handle(.editPostalAddress(id: address.id, newValue: .init(id: address.id, label: address.label, value: $0))) }
+                            set: { viewModel.handle(.editPostalAddress(newValue: .init(id: address.id, label: address.label, value: $0, infoType: address.infoType))) }
                         )
 
-                        HexagonTextField(
+                        ContactInfoTextField(
                             text: text,
-                            promt: "Address",
+                            promt: address.infoType?.prompt ?? Constants.Strings.unknown,
+                            fieldType: address.infoType ?? UnknownType.unknown,
                             deleteAction: {
                                 withAnimation {
                                     viewModel.handle(.deletePostalAddress(id: address.id))
                                 }
-                            }
+                            },
+                            onTypeChange: { viewModel.handle(.editContactMetod(oldValue: address, newValue: .init(id: address.id, label: $0.label, value: address.value, infoType: $0))) }
                         )
                     }
                 }
@@ -200,7 +232,7 @@ struct EditContactView: View {
     @ViewBuilder
     private func socialMediaSection() -> some View {
         VStack(spacing: 14) {
-            sectionHeader(text: "Social Media")
+            sectionHeader(text: Constants.Strings.socialMedia)
 
             //            ForEach(model.socialMedia) { media in
             //                let text = Binding(get: { media.userHandle },
@@ -240,6 +272,23 @@ struct EditContactView: View {
             }
         )
     }
+
+    private struct Constants {
+        enum Strings {
+            // MARK: Menus
+            static let phoneNumber = "Phone Number"
+            static let emailAddress = "Email Address"
+            static let other = "Other Info"
+
+            // MARK: Sections
+            static let contactInfo = "Contact Info"
+            static let address = "Address"
+            static let socialMedia = "Social Media"
+
+            static let add = "Add"
+            static let unknown = "Unknown"
+        }
+    }
 }
 
 extension Contact {
@@ -249,15 +298,15 @@ extension Contact {
         middleName: "A",
         familyName: "Reed",
         organizationName: "TestCo",
-        phoneNumbers: [],
-        emailAddresses: [],
-        postalAddresses: [],
-        urlAddresses: [],
+        phoneNumbers: [.init(id: "number", label: PhoneNumberType.home.label, value: "0123456789", infoType: PhoneNumberType.home)],
+        emailAddresses: [.init(id: "email", label: EmailAddressType.home.label, value: "email@email.com", infoType: EmailAddressType.home)],
+        postalAddresses: [.init(id: "postal", label: PostalAddressType.home.label, value: "test str. 9, 8600, Testvile", infoType: PostalAddressType.home)],
+        urlAddresses: [.init(id: "url", label: URLAddressType.home.label, value: "www.test.com", infoType: URLAddressType.home)],
         socialProfiles: [],
         instantMessageAddresses: [],
-        birthday: nil,
-        imageData: nil,
-        imageDataAvailable: false,
+        birthday: .now,
+        imageData: UIImage(named: "avatar9x2")?.pngData(),
+        imageDataAvailable: true,
         isFavorite: false
     )
 }

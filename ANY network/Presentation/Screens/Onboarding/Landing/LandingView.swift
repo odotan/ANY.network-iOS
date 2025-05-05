@@ -45,7 +45,7 @@ struct LandingView: View {
             self.animationFinished = true
         }
         .onAppear {
-            let launchAnimationPlayed = UserDefaults.standard.bool(forKey: "launch-animation-played")
+            let launchAnimationPlayed = UserDefaults.standard.bool(forKey: UserDefaultsKeys.launchAnimationPlayed)
             if !launchAnimationPlayed {
                 firstLaunchAnimation()
             } else {
@@ -84,7 +84,7 @@ struct LandingView: View {
                 .easeIn(duration: Constants.Duration.switchScreens)
                 .delay(Constants.Delay.switchScreens)
             ) {
-                UserDefaults.standard.setValue(true, forKey: "launch-animation-played")
+                UserDefaults.standard.setValue(true, forKey: UserDefaultsKeys.launchAnimationPlayed)
                 self.animationFinished = true
             }
         }

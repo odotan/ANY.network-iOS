@@ -1,79 +1,158 @@
 import SwiftUI
 
-struct HexAvatar: View {
-    private let image: Image
-    private let contactBy: Image
-    private let isMe: Bool
+struct ContactInteractionPresentable {
+    let value: LabeledValue
+    let image: Image
+    let background: Color
 
-    init(image: Image, contactBy: Image, isMe: Bool = false) {
-        self.image = image
-        self.contactBy = contactBy
-        self.isMe = isMe
+    init(value: LabeledValue, image: Image? = nil, background: Color? = nil) {
+        self.value = value // cInteraction.interaction
+        
+        if let image {
+            self.image = image
+        } else {
+            self.image = switch value.infoType {
+            case is PhoneNumberType:
+                Image(.phoneWhiteIcon)
+            case is EmailAddressType:
+                Image(.emailWhiteIcon)
+            default:
+                Image(.closeIcon)
+            }
+        }
+
+        if let background {
+            self.background = background
+        } else {
+            self.background = switch value.infoType {
+            case is PhoneNumberType:
+                    .appLightGreen
+            case is EmailAddressType:
+                    .appYellow
+            default:
+                    .red
+            }
+        }
     }
+}
 
-    init(image: ImageResource, contactBy: ImageResource, isMe: Bool = false) {
-        self.image = Image(image)
-        self.contactBy = Image(contactBy)
+struct HexAvatar: View {
+    @Binding private var isEditing: Bool
+    private let interaction: ContactInteractionPresentable
+    @State private var image: Image?
+    private let isMe: Bool
+    private let action: () -> Void
+    private let deleteAction: (() -> Void)?
+
+    init(
+        isEditing: Binding<Bool> = .constant(false),
+        interaction: ContactInteractionPresentable,
+        isMe: Bool = false,
+        action: @escaping () -> Void,
+        deleteAction: (() -> Void)? = nil
+    ) {
+        self._isEditing = isEditing
+        self.interaction = interaction
         self.isMe = isMe
+        self.action = action
+        self.deleteAction = deleteAction
+//        if let imageData = interaction.contact.imageData,
+//           let uiImage = UIImage(data: imageData) {
+//            let image = Image(uiImage: uiImage)
+//            self._image = State(initialValue: image)
+//        } else {
+//            self.image = nil
+//        }
     }
 
     var body: some View {
-#warning("Added fill with opaque white for background since the avatars' backgrounds are transparent. Remove later if necessary!")
-        image
-            .resizable()
-            .frame(width: <->80, height: |90)
-            .clipShape(HexagonShape(cornerRadius: 6))
-            .background(
-                HexagonShape(cornerRadius: 6)
-                    .fill(.white.opacity(0.7))
-            )
-            .overlay {
-                ZStack {
+        Button(action: { }) {
+            icon
+                .clipShape(HexagonShape(cornerRadius: 6))
+                .background(
+                    HexagonShape(cornerRadius: 6)
+                        .fill(.white.opacity(0.7))
+                )
+                .overlay {
+                    ZStack {
+                        if isMe {
+                            HexagonShape(cornerRadius: 6)
+                                .fill(.appPurple.opacity(0.3))
+                            HexagonShape(cornerRadius: 6)
+                                .stroke(.appPurple, lineWidth: 2)
+                        }
+                    }
+                }
+                .overlay(alignment: isMe ? .bottom : .bottomTrailing) {
                     if isMe {
-                        HexagonShape(cornerRadius: 6)
-                            .fill(.appPurple.opacity(0.3))
-                        HexagonShape(cornerRadius: 6)
-                        .stroke(.appPurple, lineWidth: 2)
-                    }
-                }
-            }
-            .overlay(alignment: isMe ? .bottom : .bottomTrailing) {
-                if isMe {
-                    Image(.editProfile)
-                        .resizable()
-                        .frame(width: <->24, height: |24)
-                        .padding(.bottom, 8)
-                } else {
-                    Group {
-                        #warning("Make fill color dynamic depending on contact method")
-                        Circle()
-                            .fill(.appGreen)
-                            .frame(width: <->24, height: |24)
-                        contactBy
+                        Image(.editProfile)
                             .resizable()
-                            .scaledToFit()
-                            .frame(width: <->12, height: |12)
+                            .frame(width: <->24, height: |24)
+                            .padding(.bottom, 8)
+                    } else {
+                        HexCircleIcon(image: interaction.image, background: interaction.background)
+                            .padding(.bottom, 6)
+                            .padding(.trailing, 8)
                     }
-                    .padding(.bottom, 5)
-                    .padding(.trailing, 7)
                 }
-            }
-    }
-}
-
-#Preview {
-    let icons: [ImageResource] = [.phoneIcon, .emailYellowIcon, .phoneGreenIcon, .facebookIcon, .blackberryMessengerIcon, .blackberryMessengerIcon]
-
-    return ZStack {
-        Color.appBackground.ignoresSafeArea()
-        ScrollView(.horizontal) {
-            HStack(spacing: 8) {
-                ForEach(1..<8) { index in
-                    let name = "avatar\(index)x3"
-                    HexAvatar(image: Image(name), contactBy: Image(icons.randomElement()!), isMe: name == "avatar3x3" )
+                .overlay(alignment: .topTrailing) {
+                    if let deleteAction {
+                        Button(action: deleteAction) {
+                            Image(systemName: "minus.circle.fill")
+                                .resizable()
+                                .foregroundStyle(.white)
+                                .frame(width: <->24, height: |24)
+                        }
+                        .padding(.top, 12)
+                    }
                 }
-            }
+                .onTapGesture { action() }
         }
-        .scrollIndicators(.hidden)
+    }
+
+    @MainActor
+    @ViewBuilder
+    private var icon: some View {
+        if let image {
+            image
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: <->75, maxHeight: |90)
+        } else {
+            Color.appRaisinBlack
+                .overlay {
+                    Text(" ") // interaction.contact.abbreviation)
+                        .font(Font.montserat(size: 20, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+        }
     }
 }
+
+//#Preview {
+//    return ZStack {
+//        Color.appBackground.ignoresSafeArea()
+//
+//        ScrollView(.horizontal) {
+//            HStack(spacing: 8) {
+//                HexAvatar(
+//                    interaction: .init(interaction: .testInteraction),
+//                    isMe: false,
+//                    action: { }
+//                )
+//
+//                HexAvatar(
+//                    interaction: .init(interaction: .testInteraction),
+//                    isMe: false,
+//                    action: { }
+//                )
+//
+//                HexAvatar(
+//                    interaction: .init(interaction: .testInteraction),
+//                    isMe: true,
+//                    action: { }
+//                )
+//            }
+//        }
+//    }
+//}

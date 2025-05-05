@@ -129,6 +129,12 @@ final class RealmContactsDataSource {
     }
     
     @RealmActor
+    func getIsMeContact() async throws -> Results<ContactObject>? {
+        guard let storage = await realmProvider.realm() else { return nil }
+        return storage.objects(ContactObject.self).where { $0.isMe }
+    }
+    
+    @RealmActor
     func checkIfFavorite(forRealmId id: String) async throws -> Bool {
         guard
             let storage = await realmProvider.realm(),
@@ -151,6 +157,19 @@ final class RealmContactsDataSource {
         }
         return contact.isFavorite
     }
+    
+    @RealmActor
+    func setIsMeContact(forRealmId id: String) async throws {
+        guard
+            let storage = await realmProvider.realm(),
+            let contact = storage.object(ofType: ContactObject.self, forPrimaryKey: id) else
+        { throw RealmError.unknown }
+        
+        storage.writeAsync {
+            contact.isMe = true
+            storage.add(contact, update: .modified)
+        }
+    }
 }
 
 // MARK: - Native Contacts
@@ -159,6 +178,23 @@ extension RealmContactsDataSource {
     func getFavoritesForNative() async throws -> Results<NativeFavoriteObject>? {
         guard let storage = await realmProvider.realm() else { return nil }
         return storage.objects(NativeFavoriteObject.self)
+    }
+    
+    @RealmActor
+    func getIsMeContactForNative() async throws -> Results<NativeIsMeObject>? {
+        guard let storage = await realmProvider.realm() else { return nil }
+        return storage.objects(NativeIsMeObject.self)
+    }
+    
+    @RealmActor
+    func setIsMeContact(forNativeId id: String) async throws {
+        guard let storage = await realmProvider.realm() else { throw RealmError.unknown }
+        
+        storage.writeAsync {
+            let object = NativeIsMeObject()
+            object.nativeId = id
+            storage.add(object, update: .modified)
+        }
     }
     
     @RealmActor
@@ -193,8 +229,8 @@ extension RealmContactsDataSource {
             throw RealmError.unknown }
 
         let contact = ContactObject(contactT)
-        
-        storage.writeAsync {
+
+        try await storage.asyncWrite {
             storage.add(contact)
         }
         
@@ -215,6 +251,91 @@ extension RealmContactsDataSource {
             storage.add(temp, update: .modified)
         }
         return contact
+    }
+}
+
+// MARK: - Realm Interactions
+extension RealmContactsDataSource {
+    @RealmActor
+    func fetchRealmInteractions() async throws -> Results<ContactInteractionObject>? {
+        guard let storage = await realmProvider.realm() else { return nil }
+        return storage.objects(ContactInteractionObject.self).where { !$0.isNative }
+    }
+
+    @RealmActor
+    func fetchRealmInteraction(id: String) async throws -> ContactInteractionObject? {
+        guard let storage = await realmProvider.realm() else { return nil }
+        let interaction = storage.object(ofType: ContactInteractionObject.self, forPrimaryKey: id)
+        return !(interaction?.isNative ?? true) ? interaction : nil
+    }
+
+    @RealmActor
+    func saveRealmInteraction(_ interaction: ContactInteractionObject) async throws {
+        guard let storage = await realmProvider.realm() else { throw RealmError.unknown }
+        try await storage.asyncWrite {
+            let realmInteraction = interaction
+            realmInteraction.isNative = false
+            storage.add(realmInteraction, update: .modified)
+        }
+    }
+
+    @RealmActor
+    func deleteRealmInteraction(id: String) async throws {
+        guard
+            let storage = await realmProvider.realm(),
+            let object = try await fetchRealmInteraction(id: id)
+        else { throw RealmError.unknown }
+
+        try await storage.asyncWrite {
+            storage.delete(object)
+        }
+    }
+
+    @RealmActor
+    func deleteAllInteractions() async throws {
+        guard let storage = await realmProvider.realm() else { throw RealmError.unknown }
+
+        try await storage.asyncWrite {
+            storage.delete(storage.objects(ContactInteractionObject.self))
+        }
+    }
+}
+
+// MARK: - Native Interactions
+extension RealmContactsDataSource {
+    @RealmActor
+    func fetchNativeInteractions() async throws -> Results<ContactInteractionObject>? {
+        guard let storage = await realmProvider.realm() else { return nil }
+        return storage.objects(ContactInteractionObject.self).where { $0.isNative }
+    }
+
+    @RealmActor
+    func fetchNativeInteraction(id: String) async throws -> ContactInteractionObject? {
+        guard let storage = await realmProvider.realm() else { return nil }
+        let interaction = storage.object(ofType: ContactInteractionObject.self, forPrimaryKey: id)
+        return (interaction?.isNative ?? false) ? interaction : nil
+    }
+
+    @RealmActor
+    func saveNativeInteraction(_ interaction: ContactInteractionObject) async throws {
+        guard let storage = await realmProvider.realm() else { throw RealmError.unknown }
+        try await storage.asyncWrite {
+            let nativeInteraction = interaction
+            nativeInteraction.isNative = true
+            storage.add(nativeInteraction, update: .modified)
+        }
+    }
+
+    @RealmActor
+    func deleteNativeInteraction(id: String) async throws {
+        guard
+            let storage = await realmProvider.realm(),
+            let object = try await fetchNativeInteraction(id: id)
+        else { throw RealmError.unknown }
+
+        try await storage.asyncWrite {
+            storage.delete(object)
+        }
     }
 }
 

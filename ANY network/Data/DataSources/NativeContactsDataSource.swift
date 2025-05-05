@@ -146,6 +146,14 @@ extension NativeContactsDataSource {
         
         return mutableContact
     }
+
+    func deleteContact(id: String) async throws {
+        guard let contact = try getContact(withIdentifier: id) else { throw NativeError.missingContact }
+        let request = CNSaveRequest()
+        guard let mutableContact = contact.mutableCopy() as? CNMutableContact else { throw NativeError.unknown }
+        request.delete(mutableContact)
+        try store.execute(request)
+    }
 }
 
 fileprivate let keysToFetch = [

@@ -17,6 +17,7 @@ class ContactObject: Object {
     @Persisted var birthday: Date?
     @Persisted var imageData: Data?
     @Persisted var imageDataAvailable: Bool
+    @Persisted var isMe: Bool = false
     
     convenience init(_ contact: Contact) {
         self.init()
