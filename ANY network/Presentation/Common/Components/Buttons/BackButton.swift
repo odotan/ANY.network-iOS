@@ -14,19 +14,30 @@ struct BackButton: View {
 }
 
 struct BackButtonModifier: ViewModifier {
+    let alignment: Alignment
     let action: () -> Void
 
     func body(content: Content) -> some View {
         content
-            .overlay(alignment: .topLeading) {
+            .overlay(alignment: alignment) {
                 BackButton(action: action)
             }
     }
 }
 
 extension View {
-    func backButton(action: @escaping (() -> Void)) -> some View {
-        modifier(BackButtonModifier(action: action))
+    func backButton(alignment: Alignment = .topLeading, action: @escaping (() -> Void)) -> some View {
+//        modifier(BackButtonModifier(alignment: alignment, action: action))
+        modifier(
+            PillToolbarViewModifier(
+                items: [.init(
+                    icon: .back,
+                    position: .leading,
+                    action: action
+                )],
+                visible: true
+            )
+        )
     }
 }
 

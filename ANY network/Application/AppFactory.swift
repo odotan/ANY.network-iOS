@@ -8,6 +8,20 @@ final class AppFactory {
         let nativeDataSource = NativeContactsDataSource()
         return ContactsRepositoryImplementation(realmDataSource: realmDataSource, nativeDataSource: nativeDataSource)
     }()
+    
+    private lazy var networkAuthenticationRepository: NetworkAuthenticationRepositoryImplementation = {
+        let smsAuthenticator = SMSNetworkAuthentication()
+        let facebookAuthenticator = FacebookNetworkAuthentication()
+        let telegramAuthenticator = TelegramNetworkAuthentication()
+        let emailAuthenticator = EmailNetworkAuthentication()
+
+        return NetworkAuthenticationRepositoryImplementation(
+            smsAuthenticator: smsAuthenticator,
+            facebookAuthenticator: facebookAuthenticator,
+            telegramAuthenticator: telegramAuthenticator,
+            emailAuthenticator: emailAuthenticator
+        )
+    }()
 }
 
 extension AppFactory {
@@ -45,5 +59,57 @@ extension AppFactory {
     
     func makeCreateEditContactUseCase() -> CreateEditContactUseCase {
         CreateEditContactUseCase(repository: contactsRepository)
+    }
+
+    func makeDeleteContactUseCase() -> DeleteContactUseCase {
+        DeleteContactUseCase(repository: contactsRepository)
+    }
+
+    func makeFetchInteractionsUseCase() -> FetchInteractionsUseCase {
+        FetchInteractionsUseCase(repository: contactsRepository)
+    }
+
+    func makeFetchInteractionUseCase() -> FetchInteractionUseCase {
+        FetchInteractionUseCase(repository: contactsRepository)
+    }
+
+    func makeInteractWithContactUseCase() -> InteractWithContactUseCase {
+        InteractWithContactUseCase(repository: contactsRepository)
+    }
+
+    func makeDeleteInteractionUseCase() -> DeleteInteractionUseCase {
+        DeleteInteractionUseCase(repository: contactsRepository)
+    }
+    
+    func makeGetIsMeUseCase() -> GetIsMeContactUseCase {
+        GetIsMeContactUseCase(repository: contactsRepository)
+    }
+    
+    func makeSetIsMeContactUseCase() -> SetIsMeContactUseCase {
+        SetIsMeContactUseCase(repository: contactsRepository)
+    }
+    
+    func makeCheckIfRealmContainsContacts() -> CheckIfRealmContainsContacts {
+        CheckIfRealmContainsContacts(contactsRepository: contactsRepository)
+    }
+    
+    func makeMergeRealmContactsUseCase() -> MergeRealmContactsUseCase {
+        MergeRealmContactsUseCase(repository: contactsRepository)
+    }
+    
+    func makeSmsSendUseCase() -> SMSSendCodeUseCase {
+        SMSSendCodeUseCase(networkRepository: networkAuthenticationRepository)
+    }
+    
+    func makeFacebookLoginUseCase() -> FacebookLoginUseCase {
+        FacebookLoginUseCase(networkRepository: networkAuthenticationRepository)
+    }
+    
+    func makeTelegramLoginUseCase() -> TelegramLoginUseCase {
+        TelegramLoginUseCase(networkRepository: networkAuthenticationRepository)
+    }
+    
+    func makeSendEmailUseCase() -> EmailLoginUseCase {
+        EmailLoginUseCase(networkRepository: networkAuthenticationRepository)
     }
 }

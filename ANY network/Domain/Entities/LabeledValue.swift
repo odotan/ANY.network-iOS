@@ -1,39 +1,26 @@
 import Foundation
 import Contacts
 
-struct LabeledValue: Identifiable, Hashable, Equatable {
+struct LabeledValue: Identifiable {
     let id: String
     let label: String
     let value: String
+    let infoType: (any ContactInfoType)?
+
+    init(id: String, label: String, value: String, infoType: (any ContactInfoType)? = nil) {
+        self.id = id
+        self.label = label
+        self.value = value
+        self.infoType = infoType
+    }
 }
 
-extension LabeledValue {
-    var labelType: LabeledValueLabelType {
-        guard self.label == CNLabelHome else {
-            return getLabelType(labelString: label)
-        }
-
-        if self.value.isPhoneNumber {
-            return .phone
-        } else if self.value.isEmail {
-            return .email
-        } else {
-            return .address
-        }
+extension LabeledValue: Equatable, Hashable {
+    static func == (lhs: LabeledValue, rhs: LabeledValue) -> Bool {
+        lhs.id == rhs.id
     }
 
-    private func getLabelType(labelString: String) -> LabeledValueLabelType {
-        switch labelString {
-        case CNLabelPhoneNumberMobile, CNLabelPhoneNumberiPhone:
-            return .mobile
-        case CNLabelPhoneNumberMain:
-            return .phone
-        case CNLabelEmailiCloud:
-            return .email
-        case CNLabelURLAddressHomePage:
-            return .url
-        default:
-            return .unknown
-        }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }

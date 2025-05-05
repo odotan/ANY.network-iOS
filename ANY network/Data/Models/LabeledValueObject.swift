@@ -5,20 +5,23 @@ class LabeledValueObject: Object {
     @Persisted(primaryKey: true) var id: String
     @Persisted var value: String
     @Persisted var label: String
-    
+    @Persisted var infoType: String?
+
     convenience init(_ labeledValue: LabeledValue) {
         self.init()
         
-        self.id = UUID().uuidString
+        self.id = labeledValue.id
         self.value = labeledValue.value
         self.label = labeledValue.label
+        self.infoType = labeledValue.infoType?.prompt
     }
     
     func asLabeledValue() -> LabeledValue {
         return LabeledValue(
             id: id,
             label: label,
-            value: value
+            value: value,
+            infoType: ContactInfoTypeCreator().getType(label: label, type: infoType)
         )
     }
 }

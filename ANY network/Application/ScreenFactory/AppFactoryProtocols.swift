@@ -15,15 +15,43 @@ protocol HomeFactory {
 
 @MainActor
 protocol MyProfileFactory {
-    func makeMyProfile(coordinator: MainCoordinatorProtocol) -> MyProfileView
+    func makeMyProfile(coordinator: MainCoordinatorProtocol, onDismiss: @escaping () -> Void) -> MyProfileView
 }
 
 @MainActor
 protocol DetailsFactory {
-    func makeDetails(contact: Contact, isNew: Bool, coordinator: MainCoordinatorProtocol) -> DetailsView
+    func makeDetails(
+        contact: Contact,
+        isNew: Bool,
+        onContactChangeEvent: @escaping (ContactChangeEvent) -> Void,
+        coordinator: MainCoordinatorProtocol
+    ) -> DetailsView
 }
 
 @MainActor
 protocol SearchFactory {
-    func makeSearch(coordinator: MainCoordinatorProtocol) -> SearchView
+    func makeSearch(
+        onContactChangeEvent: @escaping (ContactChangeEvent) -> Void,
+        coordinator: MainCoordinatorProtocol
+    ) -> SearchView
+}
+
+@MainActor
+protocol ConnectFactory {
+    func makeConnect(contact: Contact, coordinator: any MainCoordinatorProtocol) -> ConnectView
+}
+
+@MainActor
+protocol ConnectNetworkSignUpFactory {
+    func makeConnectNetworkSignUp(networkItem: NetworkItem, contact: Contact, coordinator: any MainCoordinatorProtocol) -> ConnectNetworkSignUpView
+}
+
+@MainActor
+protocol ConnectNetworkConfirmationFactory {
+    func makeConnectNetworkConfirmation(networkItem: NetworkItem, coordinator: MainCoordinatorProtocol) -> ConnectNetworkConfirmationView
+}
+
+@MainActor
+protocol RequestNetworkFactory {
+    func makeRequestNetwork(contact: Contact, coordinator: MainCoordinatorProtocol) -> RequestNetworkView
 }

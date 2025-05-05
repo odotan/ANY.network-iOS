@@ -12,5 +12,6 @@ extension SearchViewModel {
         case goBack
         case goToDetails(contact: Contact)
         case addContact
+        case interact(ContactInteraction)
     }
 }

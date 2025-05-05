@@ -5,11 +5,12 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
     @Binding var contentSize: CGSize
     @Binding var size: CGSize
     @Binding var zoomScale: CGFloat
-    @Binding var userInteracting: Bool
+    @State var userInteracting: Bool = false
     
     var contentIdentifier: UUID
 
     let animationDuration: CGFloat
+    var scrollEnabled: Bool = false
     let minZoomLevel: CGFloat
     let maxZoomLevel: CGFloat
     let content: () -> Content
@@ -19,17 +20,19 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         contentSize: Binding<CGSize>,
         size: Binding<CGSize>,
         zoomScale: Binding<CGFloat>,
-        userInteracting: Binding<Bool>,
+//        userInteracting: Binding<Bool>,
+        scrollEnabled: Bool = true,
         animationDuration: CGFloat = 0.35,
         minZoomLevel: CGFloat = 1,
-        maxZoomLevel: CGFloat = 2,
+        maxZoomLevel: CGFloat = 10,
         contentId: UUID,
         @ViewBuilder _ content: @escaping () -> Content) {
             self._contentOffset = contentOffset
             self._contentSize = contentSize
             self._size = size
             self._zoomScale = zoomScale
-            self._userInteracting = userInteracting
+//            self._userInteracting = userInteracting
+            self.scrollEnabled = scrollEnabled
             self.animationDuration = animationDuration
             self.minZoomLevel = minZoomLevel
             self.maxZoomLevel = maxZoomLevel
@@ -44,7 +47,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         view.maximumZoomScale = maxZoomLevel
         view.showsVerticalScrollIndicator = false
         view.showsHorizontalScrollIndicator = false
-        
+        view.isScrollEnabled = scrollEnabled
         // Instantiate the UIHostingController with the SwiftUI view
         let controller = UIHostingController(rootView: content())
         controller.view.translatesAutoresizingMaskIntoConstraints = false  // Disable autoresizing
@@ -60,6 +63,8 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
     
     public func updateUIView(_ uiView: UIScrollView, context: UIViewRepresentableContext<ScrollViewWrapper>) {
         let newContent = content()
+        
+        uiView.isScrollEnabled = scrollEnabled
 
         if context.coordinator.contentIdentifier != contentIdentifier {
 //            print("Scroll Refresh")
@@ -114,11 +119,11 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             self.userInteracting = userInteracting
         }
         
-        public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            DispatchQueue.main.async { [weak self] in
-                self?.contentOffset.wrappedValue = scrollView.contentOffset
-            }
-        }
+//        public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//            DispatchQueue.main.async { [weak self] in
+//                self?.contentOffset.wrappedValue = scrollView.contentOffset
+//            }
+//        }
         
         public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
             DispatchQueue.main.async { [weak self] in
@@ -133,12 +138,14 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
             DispatchQueue.main.async { [weak self] in
                 self?.userInteracting.wrappedValue = false
+                self?.contentOffset.wrappedValue = scrollView.contentOffset
             }
         }
         
         public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
             DispatchQueue.main.async { [weak self] in
                 self?.userInteracting.wrappedValue = false
+                self?.contentOffset.wrappedValue = scrollView.contentOffset
             }
         }
         
@@ -161,6 +168,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         public func scrollViewDidZoom(_ scrollView: UIScrollView) {
             DispatchQueue.main.async { [weak self] in
                 self?.zoomScale.wrappedValue = scrollView.zoomScale
+                self?.contentOffset.wrappedValue = scrollView.contentOffset
             }
         }
     }

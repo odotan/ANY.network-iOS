@@ -3,10 +3,11 @@ import CoreHaptics
 import Combine
 
 // MARK: Custom View
-struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollection, Items.Indices.Element == Int, Items.Element: Identifiable, Items.Element: Equatable {
+struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollection, Items.Indices.Element == Int, Items.Element == any ContactMethod {
     var cardSize: CGSize
     var numberOfItems: Int
     var items: Items
+    var swipeValue: ((CGFloat) -> Void)
     var content: (Items.Element) -> Content
 
     var hostingViews: [UIView] = []
@@ -34,6 +35,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
         selectedItem: Binding<Items.Element?>,
         onContainingViewDragEvent: PassthroughSubject<DragGesture.Value, Never> = .init(),
         onContainingViewDragEnd: PassthroughSubject<Void, Never> = .init(),
+        swipeValue: @escaping ((CGFloat) -> Void),
         @ViewBuilder content: @escaping (Items.Element) -> Content
     ) {
         self.cardSize = cardSize
@@ -43,7 +45,8 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
         self.onContainingViewDragEvent = onContainingViewDragEvent
         self.onContainingViewDragEnd = onContainingViewDragEnd
         self.content = content
-
+        self.swipeValue = swipeValue
+        
         for item in items {
             let hostingView = convertToUIView(item: item).view!
             hostingViews.append(hostingView)
@@ -55,13 +58,13 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
             .frame(width: cardSize.width, height: cardSize.height)
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
-            .gesture(
-                DragGesture()
-                    .onChanged(onDrag)
-                    .onEnded({ value in
-                        lastReleasedWidth = .zero
-                        snapToPosition()
-                    })
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 25)
+                    .onChanged { value in
+                        onDrag(width: value.translation.width)
+                        swipeValue(value.translation.width)
+                    }
+                    .onEnded({ _ in onDragEnd() })
             )
             .onChange(of: items.count) { _, newValue in
                 guard newValue > 0 else { return }
@@ -100,11 +103,14 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
                     }
                 }
             }
-            .onReceive(onContainingViewDragEvent, perform: { onDrag(value: $0) })
-            .onReceive(onContainingViewDragEnd, perform: {
-                lastReleasedWidth = .zero
-                snapToPosition()
+            .onReceive(onContainingViewDragEvent, perform: {
+                // ContactCell drag has a minimum value of 25, so there is a jump when dragging
+                let originalWidth = $0.translation.width
+                // Get the sign of the value and subtract or add 25
+                let offsetToRemove = 25 * -$0.translation.width.signum()
+                onDrag(width: originalWidth + offsetToRemove)
             })
+            .onReceive(onContainingViewDragEnd, perform: { _ in onDragEnd() })
             .onAppear(perform: snapToPosition)
     }
     // MARK: - Converting SwiftUI View Into UIKit View
@@ -116,12 +122,12 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
         return hostingView
     }
 
-    private func onDrag(value: DragGesture.Value) {
+    private func onDrag(width: CGFloat) {
         animationDuration = 0
 
         // MARK: Slowing Down
         let speed: CGFloat = speedSensitivity / CGFloat(items.count)
-        let initial = value.translation.width - lastReleasedWidth
+        let initial = width - lastReleasedWidth
 
         let temp = (initial * speed) + lastStoredOffset
 
@@ -133,16 +139,15 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
         switch items.count {
         case 1:
             break
-//        case 2...5:
-//            if temp > -(CGFloat(activeItemCount - 1) * circleAngle + 20) && temp < 20 {
-//                offset = temp
-//            }
+            //        case 2...5:
+            //            if temp > -(CGFloat(activeItemCount - 1) * circleAngle + 20) && temp < 20 {
+            //                offset = temp
+            //            }
         default:
             if truncating > 5 && truncating < circleAngle - 5 {
                 offset = temp
             } else {
-                lastReleasedWidth = value.translation.width
-                snapToPosition()
+                onDragEnd(width: width)
             }
         }
     }
@@ -160,6 +165,11 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
 
         lastStoredOffset = offset
     }
+
+    func onDragEnd(width: CGFloat = .zero) {
+        lastReleasedWidth = width
+        snapToPosition()
+    }
 }
 
 #Preview("Standard") {
@@ -174,7 +184,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
 
     @State var selected: (any ContactMethod)?
 
-    return SwitcherView(contactMethods: methods, selectedItem: $selected)
+    return SwitcherView(contactMethods: methods, selectedItem: $selected, swipeValue: { _ in })
         .background(.appBackground)
         .onAppear { selected = methods.first }
 }
@@ -190,7 +200,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
 
     @State var selected: (any ContactMethod)?
 
-    return SwitcherView(contactMethods: methods, selectedItem: $selected)
+    return SwitcherView(contactMethods: methods, selectedItem: $selected, swipeValue: { _ in })
         .background(.appBackground)
         .onAppear { selected = methods.first }
 }
@@ -202,7 +212,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
 
     @State var selected: (any ContactMethod)?
 
-    return SwitcherView(contactMethods: methods, selectedItem: $selected)
+    return SwitcherView(contactMethods: methods, selectedItem: $selected, swipeValue: { _ in })
         .background(.appBackground)
         .onAppear { selected = methods.first }
 }
@@ -309,4 +319,13 @@ fileprivate class IndexChangeObserver: ObservableObject {
             .removeDuplicates()
             .assign(to: &$currentIndex)
     }
+}
+
+extension FloatingPoint {
+  @inlinable
+  func signum() -> Self {
+    if self < 0 { return -1 }
+    if self > 0 { return 1 }
+    return 0
+  }
 }

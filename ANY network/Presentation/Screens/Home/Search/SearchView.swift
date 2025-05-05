@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SearchView: View {
     @StateObject var viewModel: SearchViewModel
+    @State var isSearching: Bool = true
     @Environment(\.dismiss) var dismiss
         
     var body: some View {
@@ -15,7 +16,7 @@ struct SearchView: View {
             }
         }
         .padding(.top, 40) // 
-        .searchTextField(text: searchTerm) {
+        .searchTextField(text: searchTerm, isSearching: $isSearching) {
             viewModel.handle(.addContact)
         }
         .overlay(alignment: .topLeading) {
@@ -83,7 +84,7 @@ struct SearchView: View {
             Button {
                 viewModel.handle(.goToDetails(contact: contact))
             } label: {
-                ContactCell(contact: contact)
+                ContactCell(contact: contact, onInteraction: { viewModel.handle(.interact($0)) })
             }
             .listRowSeparator(.hidden)
             .listRowBackground(Color.clear)

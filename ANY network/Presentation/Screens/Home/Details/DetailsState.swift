@@ -7,15 +7,14 @@ extension DetailsViewModel {
         var contact: Contact
         var isNew: Bool
         var initialContact: Contact
+        var initialFavouriteCheckDone: Bool = false
         var contactImageData: Data?
         var selectedPhoto: PhotosPickerItem?
-        var isModified: Bool = false
         var isFavorite: Bool = false
         var isEditing: Bool = false
-        var hasBeenModified: Bool = false
         var actionPrompt: ActionPrompt? = nil
         var discardChanges: Bool = false
-        var presentedSections: Set<EditSection>
+        var presentedSections: Set<EditSection> = []
 
         init(contact: Contact, isNew: Bool) {
             self.contact = contact
@@ -23,10 +22,10 @@ extension DetailsViewModel {
             self.isEditing = isNew
             self.initialContact = contact
             self.contactImageData = contact.imageData
-            let methods = contact.allContactMethods
-                .filter { !$0.value.isEmpty }
-                .compactMap { value in EditSection.allCases.first { $0.containsItemsOfType.contains(value.key) } }
-            self.presentedSections = Set(methods + (contact.organizationName != nil ? [.company] : []))
+            self.presentedSections = EditSection.getSections(methods: contact.allContactMethods)
+            if contact.organizationName != nil {
+                self.presentedSections.insert(.company)
+            }
         }
 
         var contactInfo: [LabeledValue] {
@@ -36,6 +35,7 @@ extension DetailsViewModel {
     
     enum Event {
         case goBack
+        case showRequestNetwork
         case selectedPickerPhotoChanged(PhotosPickerItem?)
         case profileImageDataChanged(Data?)
         case performAction(any ContactAction)
@@ -43,6 +43,8 @@ extension DetailsViewModel {
         case setIsEditing(Bool)
         case save
         case discardChanges(Bool)
+        case deleteContact
+        case interact(ContactInteraction)
     }
     
     enum Action {
@@ -56,8 +58,11 @@ extension DetailsViewModel {
         var id: String { title }
         let title: String
         let description: String
-        let action: (() -> Void)
-        
+        let confirmText: String
+        let cancelText: String = "Cancel"
+        let confirmAction: (() -> Void)
+        let confirmActionRole: ButtonRole?
+
         static func == (lhs: DetailsViewModel.ActionPrompt, rhs: DetailsViewModel.ActionPrompt) -> Bool {
             lhs.id == rhs.id
         }
@@ -90,6 +95,13 @@ extension DetailsViewModel {
             case .socialMedia:
                 return "Social Media"
             }
+        }
+
+        static func getSections(methods: [ContactMethodType: [LabeledValue]]) -> Set<EditSection> {
+            let validMethods = methods
+                .filter { !$0.value.isEmpty }
+                .compactMap { value in EditSection.allCases.first { $0.containsItemsOfType.contains(value.key) } }
+            return Set(validMethods)
         }
     }
 }

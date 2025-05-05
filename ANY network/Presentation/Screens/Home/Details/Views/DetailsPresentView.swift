@@ -30,7 +30,8 @@ struct DetailsPresentView: View {
     private let performAction: (any ContactAction) -> Void
     private let toggleFavouriteAction: ToggleFavouriteAction
     private let cellDatasource: CellDatasource
-    
+    private let onContactInteraction: (ContactInteraction) -> Void
+
     var contact: Contact {
         contactDatasource()
     }
@@ -41,7 +42,8 @@ struct DetailsPresentView: View {
         toggleFavouriteAction: ToggleFavouriteAction,
         contact contactDatasource: @escaping () -> Contact,
         performAction: @escaping (any ContactAction) -> Void,
-        cellDatasource: @escaping CellDatasource
+        cellDatasource: @escaping CellDatasource,
+        onContactInteraction: @escaping (ContactInteraction) -> Void
     ) {
         self._isEditing = isEditing
         self.toggleFavouriteAction = toggleFavouriteAction
@@ -49,6 +51,7 @@ struct DetailsPresentView: View {
         self.contactDatasource = contactDatasource
         self.performAction = performAction
         self.cellDatasource = cellDatasource
+        self.onContactInteraction = onContactInteraction
     }
 
     var body: some View {
@@ -61,19 +64,29 @@ struct DetailsPresentView: View {
                 contentSize: $gridContentSize,
                 size: $gridContainerSize,
                 zoomScale: $gridZoomScale,
-                userInteracting: $gridUserInteracting,
+//                userInteracting: $gridUserInteracting,
                 animationDuration: 0.35,
+                minZoomLevel: ratio,
                 contentId: UUID()
             ) {
-                HexGrid(HexCell.all, spacing: 8, cornerRadius: 8, fixedCellSize: cellSize) { cell in
-                    cellDatasource(
-                        cell,
-                        
-                        AnyView(
-                            cellView(for: cell)
+                HexGrid(
+                    HexCell.all,
+                    spacing: 8,
+                    cornerRadius: 8,
+                    fixedCellSize: cellSize,
+                    content: { cell in
+                        cellDatasource(
+                            cell,
+                            
+                            AnyView(
+                                cellView(
+                                    for: cell
+                                )
+                            )
                         )
-                    )
-                }
+                    },
+                    overlay: {  _ in EmptyView() }
+                )
                 .background { Color.appBackground }
             }
         }
@@ -82,32 +95,32 @@ struct DetailsPresentView: View {
                 .frame(height: |145)
                 .frame(maxWidth: .infinity)
         }
-        .overlay {
-            IconHexCell(type: .plus) {
-                
-            }
-            .frame(width: plusSize.width * ratio, height: plusSize.height * ratio)
-            .clipShape(HexagonShape(cornerRadius: 8))
-            .position(plusPosition)
-            .opacity(didLoad ? 1 : 0)
-        }
-        .overlay {
-            IconHexCell(type: .favorite(filled: contact.isFavorite), imageSize: CGSize(width: 32, height: 32)) {
-                performAction(toggleFavouriteAction)
-            }
-            .frame(width: plusSize.width * ratio, height: plusSize.height * ratio)
-//            .scaleEffect(ratio)
-            .clipShape(HexagonShape(cornerRadius: 8))
-            .position(favoritePosition)
-            .opacity(didLoad ? 1 : 0)
-        }
+//        .overlay {
+//            IconHexCell(type: .plus) {
+//                
+//            }
+//            .frame(width: plusSize.width * ratio, height: plusSize.height * ratio)
+//            .clipShape(HexagonShape(cornerRadius: 8))
+//            .position(plusPosition)
+//            .opacity(didLoad ? 1 : 0)
+//        }
+//        .overlay {
+//            IconHexCell(type: .favorite(filled: contact.isFavorite), imageSize: CGSize(width: 32, height: 32)) {
+//                performAction(toggleFavouriteAction)
+//            }
+//            .frame(width: plusSize.width * ratio, height: plusSize.height * ratio)
+////            .scaleEffect(ratio)
+//            .clipShape(HexagonShape(cornerRadius: 8))
+//            .position(favoritePosition)
+//            .opacity(didLoad ? 1 : 0)
+//        }
         .onChange(of: gridContentSize) { _, newValue in
             // Center the grid
             let contentOffset = CGPoint(x: (newValue.width - gridContainerSize.width) / 2  , y: (newValue.height - gridContainerSize.height) / 2)
             gridContentOffset = contentOffset
         }
         .onChange(of: gridZoomScale, { _, newValue in
-            if newValue < 0.6 { shouldDismissParentView?.send() }
+            if newValue < ratio - 0.5 { shouldDismissParentView?.send() }
         })
         .onChange(of: isEditing, { oldValue, newValue in
             if oldValue != newValue && newValue {
@@ -128,12 +141,14 @@ struct DetailsPresentView: View {
     func cellView(for cell: HexCell) -> some View {
         switch (cell.offsetCoordinate.row, cell.offsetCoordinate.col) {
         case (4, 2):
-            AvatarHexCell(imageData: contact.imageData, color: cell.color)
+            AvatarHexCell(contact: contact, color: cell.color)
         case (5, 2):
             Group {
                 if !contact.phoneNumbers.isEmpty {
                     IconHexCell(type: .phone) {
-                        performAction(PhoneNumberAction(value: contact.phoneNumbers.first?.value ?? ""))
+                        guard let value = contact.phoneNumbers.first else { return }
+                        performAction(PhoneNumberAction(value: value.value))
+                        interact(with: value)
                     }
                 } else {
                     ColorHexCell(color: cell.color)
@@ -143,7 +158,9 @@ struct DetailsPresentView: View {
             Group {
                 if !contact.emailAddresses.isEmpty {
                     IconHexCell(type: .email) {
-                        performAction(EmailAction(value: contact.emailAddresses.first?.value ?? ""))
+                        guard let value = contact.emailAddresses.first else { return }
+                        performAction(EmailAction(value: value.value))
+                        interact(with: value)
                     }
                 } else {
                     ColorHexCell(color: cell.color)
@@ -172,5 +189,9 @@ struct DetailsPresentView: View {
         default:
             ColorHexCell(color: cell.color)
         }
+    }
+
+    private func interact(with value: LabeledValue) {
+        onContactInteraction(.init(contact: contact, labeledValue: value, priority: 0))
     }
 }

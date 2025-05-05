@@ -5,5 +5,9 @@ protocol OnboardingCoordinatorFactory: IntroFactory { }
 protocol MainCoordinatorFactory: HomeFactory,
                                  MyProfileFactory,
                                  DetailsFactory,
-                                 SearchFactory { }
+                                 SearchFactory,
+                                 ConnectFactory,
+                                 ConnectNetworkConfirmationFactory,
+                                 ConnectNetworkSignUpFactory,
+                                 RequestNetworkFactory { }
 

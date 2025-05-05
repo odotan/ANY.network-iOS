@@ -11,8 +11,8 @@ extension EditContactViewModel {
         case editFamilyname(String)
         case editOrganizationName(String)
 
-        case editContactMetod(id: String, newValue: LabeledValue)
-        case deleteContactMetod(id: String, type: LabeledValueLabelType)
+        case editContactMetod(oldValue: LabeledValue, newValue: LabeledValue)
+        case deleteContactMetod(id: String, type: any ContactInfoType)
 
         case addPhoneNumber(LabeledValue)
         case addEmailAddress(LabeledValue)
@@ -21,12 +21,12 @@ extension EditContactViewModel {
         case addSocialProfile(LabeledValue)
         case addInstantMessageAddress(LabeledValue)
 
-        case editPhoneNumber(id: String, newValue: LabeledValue)
-        case editEmailAddress(id: String, newValue: LabeledValue)
-        case editPostalAddress(id: String, newValue: LabeledValue)
-        case editURLAddress(id: String, newValue: LabeledValue)
-        case editSocialProfile(id: String, newValue: LabeledValue)
-        case editInstantMessageAddress(id: String, newValue: LabeledValue)
+        case editPhoneNumber(newValue: LabeledValue)
+        case editEmailAddress(newValue: LabeledValue)
+        case editPostalAddress(newValue: LabeledValue)
+        case editURLAddress(newValue: LabeledValue)
+        case editSocialProfile(newValue: LabeledValue)
+        case editInstantMessageAddress(newValue: LabeledValue)
 
         case deletePhoneNumber(id: String)
         case deleteEmailAddress(id: String)
@@ -39,63 +39,13 @@ extension EditContactViewModel {
         
         case checkIfIsModified
         case showSection(DetailsViewModel.EditSection, Bool)
+        case getSections
     }
 }
 
-enum LabeledValueLabelType: CaseIterable {
-    case mobile
-    case phone
+enum LabeledValueClassification: CaseIterable {
+    case phoneNumber
     case email
-    case url
-    case address
+    case other
     case unknown
-
-    var value: String {
-        switch self {
-        case .mobile:
-            return CNLabelPhoneNumberMobile
-        case .phone:
-            return CNLabelPhoneNumberMain
-        case .email:
-            return CNLabelEmailiCloud
-        case .url:
-            return CNLabelURLAddressHomePage
-        case .address:
-            return CNLabelHome
-        case .unknown:
-            return "Unknown"
-        }
-    }
-
-    var title: String {
-        switch self {
-        case .mobile:
-            return "Mobile"
-        case .phone:
-            return "Phone"
-        case .email:
-            return "E-mail"
-        case .url:
-            return "URL Address"
-        case .address:
-            return "Postal Address"
-        case .unknown:
-            return "Unknown"
-        }
-    }
-
-    var keyboardType: UIKeyboardType {
-        switch self {
-        case .mobile, .phone:
-            return .numberPad
-        case .email:
-            return .emailAddress
-        case .url:
-            return .URL
-        case .address:
-            return .default
-        default:
-            return .default
-        }
-    }
 }

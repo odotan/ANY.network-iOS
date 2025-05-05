@@ -2,38 +2,36 @@ import SwiftUI
 import Combine
 
 struct SwitcherView: View {
-    @State private var cards: [SwitcherItem]
+    @State private var cards: [any ContactMethod]
     @Binding private var selectedItem: (any ContactMethod)?
-    private var contactMethods: [any ContactMethod]
-    private var fillerCards: [SwitcherItem]
 
     private let onContainingViewDragEvent: PassthroughSubject<DragGesture.Value, Never>
     private let onContainingViewDragEnd: PassthroughSubject<Void, Never>
+    private var swipeValue: ((CGFloat) -> Void)
 
     init(
         contactMethods: [any ContactMethod],
         selectedItem: Binding<(any ContactMethod)?>,
         onContainingViewDragEvent: PassthroughSubject<DragGesture.Value, Never> = .init(),
-        onContainingViewDragEnd: PassthroughSubject<Void, Never> = .init()
+        onContainingViewDragEnd: PassthroughSubject<Void, Never> = .init(),
+        swipeValue: @escaping ((CGFloat) -> Void)
     ) {
-        self.contactMethods = contactMethods
         self._selectedItem = selectedItem
-        self._cards = State(initialValue: contactMethods.map({ $0.asSwitcherItem() }))
         self.onContainingViewDragEvent = onContainingViewDragEvent
         self.onContainingViewDragEnd = onContainingViewDragEnd
-        self.fillerCards = []
-        let original = _cards.wrappedValue
-        self.fillerCards = createCards(originalItems: original)
+        self._cards = State(initialValue: SwitcherView.createCards(originalItems: contactMethods))
+        self.swipeValue = swipeValue
     }
 
     var body: some View {
         VStack {
             Carousel3D(
                 cardSize: CGSize(width: <->28, height: |27.16),
-                items: fillerCards,
-                selectedItem: selectedItemBinding,
+                items: cards,
+                selectedItem: $selectedItem,
                 onContainingViewDragEvent: onContainingViewDragEvent,
                 onContainingViewDragEnd: onContainingViewDragEnd,
+                swipeValue: swipeValue,
                 content: { card in
                     SwitcherItemView(item: card)
                 }
@@ -71,17 +69,17 @@ struct SwitcherView: View {
         }
     }
 
-    var selectedItemBinding: Binding<SwitcherItem?> {
-        let itemId = self.selectedItem?.id ?? self.contactMethods.first?.id
-        return Binding(
-            get: { SwitcherItem(id: itemId ?? "", imageName: self.selectedItem?.image) },
-            set: { newItem in
-                self.selectedItem = contactMethods.first(where: { $0.id == newItem?.id })
-            }
-        )
-    }
+//    var selectedItemBinding: Binding<SwitcherItem?> {
+//        let itemId = self.selectedItem?.id ?? self.contactMethods.first?.id
+//        return Binding(
+//            get: { SwitcherItem(id: itemId ?? "", imageName: self.selectedItem?.image) },
+//            set: { newItem in
+//                self.selectedItem = contactMethods.first(where: { $0.id == newItem?.id })
+//            }
+//        )
+//    }
 
-    private func createCards(originalItems: [SwitcherItem]) -> [SwitcherItem] {
+    static private func createCards(originalItems: [any ContactMethod]) -> [any ContactMethod] {
         switch originalItems.count {
         case 2:
             return originalItems.duplicate(repetitions: 3)
@@ -104,7 +102,7 @@ struct SwitcherView: View {
     @State var selected: (any ContactMethod)?
 
     return VStack(alignment: .leading) {
-        SwitcherView(contactMethods: methods, selectedItem: $selected)
+        SwitcherView(contactMethods: methods, selectedItem: $selected, swipeValue: { _ in })
             .background(.appBackground)
             .onAppear { selected = methods.first }
     }

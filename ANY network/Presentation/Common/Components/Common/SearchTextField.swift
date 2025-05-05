@@ -6,11 +6,11 @@ private struct SearchTextField: View {
     }
 
     @Binding private var text: String
-    private let action: () -> Void
+    private let action: (() -> Void)?
 
     @FocusState var focusField: FocusField?
 
-    init(text: Binding<String>, action: @escaping () -> Void) {
+    init(text: Binding<String>, action: (() -> Void)?) {
         self._text = text
         self.action = action
         self.focusField = .search//nil
@@ -18,26 +18,41 @@ private struct SearchTextField: View {
 
     var body: some View {
         HStack {
-            Image(.spyglass)
-                .resizable()
-                .frame(width: <->14, height: |14)
-                .padding(.leading, <->15)
-                .padding(.trailing, <->5)
+            if !text.isEmpty {
+                Button(action: { text = "" }) {
+                    Image(.closeIcon)
+                        .resizable()
+                        .frame(width: <->14, height: |14)
+                        .padding(5)
+                        .background(.appLightGray)
+                        .clipShape(.circle)
+                        .padding(.leading, <->10)
+                        .padding(.trailing, <->0)
+                }
+            } else {
+                Image(.spyglass)
+                    .resizable()
+                    .frame(width: <->14, height: |14)
+                    .padding(.leading, <->15)
+                    .padding(.trailing, <->5)
+            }
 
-            TextField("Search", text: $text, prompt: Text("Type to search or add").foregroundStyle(.white))
+            TextField("Search", text: $text, prompt: Text("Type to search or add").foregroundStyle(.appLightGray))
                 .focused($focusField, equals: .search)
                 .submitLabel(.search)
                 .frame(maxWidth: .infinity)
                 .frame(height: |56)
                 .overlay(alignment: .trailing) {
-                    Button(action: action) {
-//                        Image(.greenPlus)
-//                            .frame(width: <->24, height: |24)
-
-                        Text("Add")
-                            .font(Font.montserat(size: 14, weight: .bold))
-                            .foregroundStyle(.appGreen)
-                            .padding(.trailing, <->15)
+                    if let action = action {
+                        Button(action: action) {
+                            //                        Image(.greenPlus)
+                            //                            .frame(width: <->24, height: |24)
+                            
+                            Text("Add")
+                                .font(Font.montserat(size: 14, weight: .bold))
+                                .foregroundStyle(.appGreen)
+                        }
+                        .padding(.trailing, <->15)
                     }
                 }
                 .foregroundStyle(.white)
@@ -62,32 +77,35 @@ private struct SearchTextField: View {
             )
             .frame(height: 400)
         }
-        .onAppear {
-            self.focusField = .search
-        }
+//        .onAppear {
+//            self.focusField = .search
+//        }
     }
 }
 
 #Preview {
     Color.appBackground
         .edgesIgnoringSafeArea(.all)
-        .searchTextField(text: .constant("")) {  }
+        .searchTextField(text: .constant(""), isSearching: .constant(true)) {  }
 }
 
 struct SearchTextFieldModifier: ViewModifier {
     @Binding var text: String
-    let action: () -> Void
+    @Binding var isSearching: Bool
+    let action: (() -> Void)?
 
     func body(content: Content) -> some View {
         content
-            .safeAreaInset(edge: .bottom) {
-                SearchTextField(text: $text, action: action)
+            .overlay(alignment: .bottom) {
+                if isSearching {
+                    SearchTextField(text: $text, action: action)
+                }
             }
     }
 }
 
 extension View {
-    func searchTextField(text: Binding<String>, action: @escaping () -> Void) -> some View {
-        self.modifier(SearchTextFieldModifier(text: text, action: action))
+    func searchTextField(text: Binding<String>, isSearching: Binding<Bool>, action: (() -> Void)? = nil) -> some View {
+        self.modifier(SearchTextFieldModifier(text: text, isSearching: isSearching, action: action))
     }
 }
