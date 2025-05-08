@@ -9,6 +9,7 @@
 ## Project files
 *.xcworkspace
 *.xcodeproj
+GoogleService-Info.plist
 
 ## Build generated
 build/
