@@ -111,16 +111,17 @@ struct ANY_networkApp: App {
 
     var body: some Scene {
         WindowGroup {
-            destination
-                .background(SceneHandlerView())
-                .onChange(of: animationRedo.redoAnimation) { _, newValue in
-                    if newValue {
-                        UserDefaults.standard.setValue(false, forKey: UserDefaultsKeys.launchAnimationPlayed)
-                        animationFinished = false
-                        UserDefaults.standard.setValue(true, forKey: UserDefaultsKeys.replayAnimation)
-                    }
-                }
-                .environmentObject(animationRedo)
+            HashGenView()
+//            destination
+//                .background(SceneHandlerView())
+//                .onChange(of: animationRedo.redoAnimation) { _, newValue in
+//                    if newValue {
+//                        UserDefaults.standard.setValue(false, forKey: UserDefaultsKeys.launchAnimationPlayed)
+//                        animationFinished = false
+//                        UserDefaults.standard.setValue(true, forKey: UserDefaultsKeys.replayAnimation)
+//                    }
+//                }
+//                .environmentObject(animationRedo)
         }
     }
     
