@@ -16,6 +16,7 @@ final class MainCoordinator: Coordinator {
         case connectSignUp(NetworkItem, Contact)
         case connectConfirmation(NetworkItem)
         case requestNetwork(Contact)
+        case hiUHome
     }
     
     @Published var navigationPath = [Screen]()
@@ -97,6 +98,10 @@ extension MainCoordinator: MainCoordinatorProtocol {
         }
         guard !navigationPath.isEmpty else { return }
         navigationPath.removeLast(k)
+    }
+    
+    func showHiUHome() {
+        navigationPath.append(.home)
     }
 }
 

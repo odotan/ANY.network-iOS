@@ -141,3 +141,11 @@ extension ScreenFactory: RequestNetworkFactory {
         return view
     }
 }
+
+extension ScreenFactory: HiUFactory {
+    func makeHiU(coordinator: MainCoordinatorProtocol) -> HiUHomeView {
+        let viewModel = HiUHomeViewModel(coordinator: coordinator)
+        let view = HiUHomeView(viewModel: viewModel)
+        return view
+    }
+}

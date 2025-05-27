@@ -9,5 +9,6 @@ protocol MainCoordinatorFactory: HomeFactory,
                                  ConnectFactory,
                                  ConnectNetworkConfirmationFactory,
                                  ConnectNetworkSignUpFactory,
-                                 RequestNetworkFactory { }
+                                 RequestNetworkFactory,
+                                 HiUFactory { }
 

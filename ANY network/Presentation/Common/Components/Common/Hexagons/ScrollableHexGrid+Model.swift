@@ -107,7 +107,7 @@ class ScrollableHexGridModel: ObservableObject {
     @MainActor
     private var gridCenter: CGPoint {
         .init(
-            x: gridContentSize.width / 2 - gridContainerSize.width / 2 - ((<->cellSize.width / 2 - 4) * gridZoomScale),
+            x: gridContentSize.width / 2 - gridContainerSize.width / 2 - ((cellSize.width / 2) * gridZoomScale),
             y: gridContentSize.height / 2 - gridContainerSize.height / 2 - 40//+ 80 // keep the center over the sheet
         )
     }

@@ -126,16 +126,16 @@ struct ANY_networkApp: App {
     
     @ViewBuilder
     var destination: some View {
-        if !animationFinished {
-            LandingView(animationFinished: $animationFinished)
-                .transition(.opacity)
-        } else {
-            AppCoordinatorView(
-                screenFactory: ScreenFactory(appFactory: appFactory),
-                coordinator: AppCoordinator(getContactsStatusUseCase: appFactory.makeContactsStatus())
-            )
-            .transition(.opacity)
-        }
+         if !animationFinished {
+             LandingView(animationFinished: $animationFinished)
+                 .transition(.opacity)
+         } else {
+             AppCoordinatorView(
+                 screenFactory: ScreenFactory(appFactory: appFactory),
+                 coordinator: AppCoordinator(getContactsStatusUseCase: appFactory.makeContactsStatus())
+             )
+             .transition(.opacity)
+         }
     }
 }
 

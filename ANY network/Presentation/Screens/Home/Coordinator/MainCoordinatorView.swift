@@ -13,7 +13,7 @@ struct MainCoordinatorView: View {
 
     var body: some View {
         NavigationStack(path: $coordinator.navigationPath) {
-            factory.makeHome(coordinator: coordinator)
+            factory.makeHiU(coordinator: coordinator)
                 .navigationDestination(for: MainCoordinator.Screen.self) {
                     destination($0)
                 }
@@ -71,6 +71,8 @@ struct MainCoordinatorView: View {
             factory.makeConnectNetworkConfirmation(networkItem: networkItem, coordinator: coordinator)
         case .requestNetwork(let contact):
             factory.makeRequestNetwork(contact: contact, coordinator: coordinator)
+        case .hiUHome:
+            factory.makeHiU(coordinator: coordinator)
         }
     }
 }

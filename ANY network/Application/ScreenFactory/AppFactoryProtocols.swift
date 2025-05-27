@@ -55,3 +55,8 @@ protocol ConnectNetworkConfirmationFactory {
 protocol RequestNetworkFactory {
     func makeRequestNetwork(contact: Contact, coordinator: MainCoordinatorProtocol) -> RequestNetworkView
 }
+
+@MainActor
+protocol HiUFactory {
+    func makeHiU(coordinator: MainCoordinatorProtocol) -> HiUHomeView
+}

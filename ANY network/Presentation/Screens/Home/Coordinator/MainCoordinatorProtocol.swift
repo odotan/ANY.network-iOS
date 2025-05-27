@@ -18,4 +18,5 @@ protocol MainCoordinatorProtocol {
     func pop(_ k: Int)
     func toggleFullscreen()
     func showRequestNetwork(contact: Contact)
+    func showHiUHome()
 }

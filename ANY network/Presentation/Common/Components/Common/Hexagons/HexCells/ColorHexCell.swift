@@ -9,5 +9,5 @@ struct ColorHexCell: View, HexCellProtocol {
 }
 
 #Preview {
-    ColorHexCell(color: .red)
+    ColorHexCell(color: Color.appRaisinBlack)
 }
