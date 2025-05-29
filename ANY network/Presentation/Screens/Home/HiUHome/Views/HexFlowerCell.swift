@@ -4,57 +4,35 @@ struct HexFlowerCell: View, HexCellProtocol {
     @Binding var model: HexFlowerModel
     @State var id: UUID = UUID()
     @State private var currentProgress: CGFloat = 0
+    @State private var timer: Timer?
     var color: Color
 
     var stateChanged: (HexFlowerState) -> Void
     var details: () -> Void
 
-    var points: String {
-        guard let startedAt = model.startedAt else { return "0" }
-        let seconds = Int(Date.now.timeIntervalSince(startedAt))
-        
-        // First minute: 1 point per second (0-60 points)
-        if seconds <= 60 {
-            return "\(seconds)"
+    private func updateProgress() {
+        guard let startedAt = model.startedAt else {
+            currentProgress = 0
+            return
         }
         
-        // 1-60 minutes: 1 point per minute (61-120 points)
-        let minutes = seconds / 60 - 1
-        if minutes <= 60 {
-            return "\(60 + minutes)"
-        }
-        
-        // 1-24 hours: 1 point per hour (121-144 points)
-        let hours = seconds / 3600 - 1
-        if hours <= 24 {
-            return "\(120 + hours)"
-        }
-        
-        return "144" // Max points
-    }
-
-    var circleProgress: CGFloat {
-        guard let startedAt: Date = model.startedAt else { return 0 }
-        let seconds = Int(Date.now.timeIntervalSince(startedAt))
+        let seconds = floor(Date.now.timeIntervalSince(startedAt))
         
         // First minute: one point per second
         if seconds <= 60 {
-            return CGFloat(seconds)
+            currentProgress = CGFloat(seconds)
         }
-        
         // 1-60 minutes: one point per minute
-        let minutes = seconds / 60 - 1
-        if minutes <= 60 {
-            return CGFloat(60 + minutes)
+        else if seconds <= 3600 {
+            currentProgress = CGFloat(60 + (seconds / 60 - 1))
         }
-        
         // 1-24 hours: one point per hour
-        let hours = seconds / 3600 - 1
-        if hours <= 24 {
-            return CGFloat(120 + hours)
+        else if seconds <= 86400 {
+            currentProgress = CGFloat(120 + (seconds / 3600 - 1))
         }
-        
-        return 144
+        else {
+            currentProgress = 144
+        }
     }
 
     var body: some View {
@@ -79,32 +57,47 @@ struct HexFlowerCell: View, HexCellProtocol {
                     stateChanged(.timerStarted)
                 }
             case .timerStarted:
-                ClockCircleView(progress: $currentProgress)
+                ClockCircleView(progress: $currentProgress, startDate: model.startedAt ?? Date())
                     .scaleEffect(1.2)
-                    .onChange(of: circleProgress) { _, newValue in
-                        currentProgress = newValue
-                    }
 
-                Text(points)
+                Text("\(Int(currentProgress))")
                     .font(Font.montserat(size: 20, weight: .bold))
                     .minimumScaleFactor(0.3)
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
                     .padding()
-                    .contentTransition(.numericText(value: Double(points) ?? 0))
+                    .contentTransition(.numericText(value: Double(currentProgress)))
                     .animation(.easeInOut, value: model.seconds)
             }
+        }
+        .onAppear {
+            if model.state == .timerStarted {
+                startTimer()
+            }
+        }
+        .onChange(of: model.state) { oldState, newState in
+            if newState == .timerStarted {
+                updateProgress()
+                startTimer()
+            }
+        }
+        .onDisappear {
+            timer?.invalidate()
+            timer = nil
         }
         .onTapGesture(count: 2, perform: doubleTap)
         .onTapGesture(count: 1, perform: singleTap)
         .onLongPressGesture(minimumDuration: 0.5, perform: longPress)
-        .onChange(of: model.state) { oldState, newState in
-            print("HexFlowerCell: State changed from \(oldState) to \(newState)")
+    }
+
+    private func startTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            updateProgress()
         }
     }
 
     private func singleTap() {
-        model.startedAt = Date.now
         model.state = .selected
         stateChanged(.selected)
     }
