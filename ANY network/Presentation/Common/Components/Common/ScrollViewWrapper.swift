@@ -20,7 +20,6 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         contentSize: Binding<CGSize>,
         size: Binding<CGSize>,
         zoomScale: Binding<CGFloat>,
-//        userInteracting: Binding<Bool>,
         scrollEnabled: Bool = true,
         animationDuration: CGFloat = 0.35,
         minZoomLevel: CGFloat = 1,
@@ -31,7 +30,6 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             self._contentSize = contentSize
             self._size = size
             self._zoomScale = zoomScale
-//            self._userInteracting = userInteracting
             self.scrollEnabled = scrollEnabled
             self.animationDuration = animationDuration
             self.minZoomLevel = minZoomLevel
@@ -48,16 +46,18 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         view.showsVerticalScrollIndicator = false
         view.showsHorizontalScrollIndicator = false
         view.isScrollEnabled = scrollEnabled
+        
         // Instantiate the UIHostingController with the SwiftUI view
         let controller = UIHostingController(rootView: content())
-        controller.view.translatesAutoresizingMaskIntoConstraints = false  // Disable autoresizing
+        controller.view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(controller.view)
         
         controller.view.sizeToFit()
         view.contentSize = controller.view.bounds.size
         
         context.coordinator.hostingController = controller
-
+        context.coordinator.scrollView = view
+        
         return view
     }
     
@@ -67,34 +67,32 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         uiView.isScrollEnabled = scrollEnabled
 
         if context.coordinator.contentIdentifier != contentIdentifier {
-//            print("Scroll Refresh")
             DispatchQueue.main.async {
                 context.coordinator.hostingController.rootView = newContent
                 context.coordinator.hostingController.view.sizeToFit()
                 uiView.contentSize = context.coordinator.hostingController.view.frame.size
                 context.coordinator.contentIdentifier = contentIdentifier
+                context.coordinator.centerContent()
             }
         }
         
         if (uiView.contentOffset != contentOffset || uiView.zoomScale != self.zoomScale) && !userInteracting {
-//            print("Animate Scroll View offset", contentOffset)
             UIView.animate(withDuration: animationDuration) {
                 uiView.contentOffset = self.contentOffset
                 uiView.zoomScale = self.zoomScale
+                context.coordinator.centerContent()
             }
         }
         
-        
-        if contentSize != uiView.contentSize || size != uiView.frame.size /*|| contentOffset != uiView.contentOffset*/ {
-//            print("User scrolls")
+        if contentSize != uiView.contentSize || size != uiView.frame.size {
             DispatchQueue.main.async {
                 self.contentSize = uiView.contentSize
                 self.size = uiView.frame.size
                 
-                // Update the frame of the hosted view if necessary
                 if let hostedView = uiView.subviews.first {
                     hostedView.frame = CGRect(origin: .zero, size: uiView.contentSize)
                 }
+                context.coordinator.centerContent()
             }
         }
     }
@@ -109,6 +107,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         
         var hostingController: UIHostingController<Content>!
         var contentIdentifier: UUID?
+        weak var scrollView: UIScrollView?
 
         var userInteracting: Binding<Bool>
     
@@ -119,21 +118,28 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             self.userInteracting = userInteracting
         }
         
-//        public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//            DispatchQueue.main.async { [weak self] in
-//                self?.contentOffset.wrappedValue = scrollView.contentOffset
-//            }
-//        }
+        func centerContent() {
+            guard let scrollView = scrollView else { return }
+            
+            let boundsSize = scrollView.bounds.size
+            let contentSize = scrollView.contentSize
+            
+            let x = max((boundsSize.width - contentSize.width) * 0.5, 0)
+            let y = max((boundsSize.height - contentSize.height) * 0.5, 0)
+            
+            scrollView.contentInset = UIEdgeInsets(
+                top: y,
+                left: x,
+                bottom: y,
+                right: x
+            )
+        }
         
         public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
             DispatchQueue.main.async { [weak self] in
                 self?.userInteracting.wrappedValue = true
             }
         }
-
-//        public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-//             print("scrollViewWillEndDragging")
-//        }
 
         public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
             DispatchQueue.main.async { [weak self] in
@@ -158,6 +164,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         public func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
             DispatchQueue.main.async { [weak self] in
                 self?.userInteracting.wrappedValue = false
+                self?.centerContent()
             }
         }
 
@@ -169,6 +176,7 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             DispatchQueue.main.async { [weak self] in
                 self?.zoomScale.wrappedValue = scrollView.zoomScale
                 self?.contentOffset.wrappedValue = scrollView.contentOffset
+                self?.centerContent()
             }
         }
     }

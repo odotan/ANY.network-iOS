@@ -37,9 +37,11 @@ final class HiUHomeViewModel: ViewModel {
             }
             gridModel.refresh()
         case .moveBack:
+            gridModel.zoom(to: 1)
+            state.selectedCell = nil
+            
             Task { @MainActor in
-                gridModel.zoomAndCenter(to: .init(row: 0, col: 0), scale: 1)
-                state.selectedCell = nil
+                gridModel.recenter(paddingBottom: 100)
             }
             gridModel.scrollEnabled = true
             gridModel.refresh()
