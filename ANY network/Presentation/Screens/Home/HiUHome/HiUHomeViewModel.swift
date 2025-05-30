@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 final class HiUHomeViewModel: ViewModel {
     @Published private(set) var state: State
@@ -64,17 +65,17 @@ final class HiUHomeViewModel: ViewModel {
                 state.cellQueue[cell.offsetCoordinate] = model
                 state.cellQueueOrder.append(cell.offsetCoordinate) // Add to order tracking
             }
+            gridModel.refresh()
             
             let allReady = self.state.cellQueue.filter { $0.value.state == .selected }
             let animating = self.state.cellQueue.filter { $0.value.state == .animationStarted }
-
 
             // Use the first element from our ordered list that is in ready state
             if let next = state.cellQueueOrder.first(where: { allReady.keys.contains($0) }), animating.isEmpty {
                 guard var model = self.state.cellQueue[next] else { return }
                 model.state = .animationStarted
                 state.cellQueue[next] = model
-                gridModel.refresh()
+                 gridModel.refresh()
             }
         }
     }

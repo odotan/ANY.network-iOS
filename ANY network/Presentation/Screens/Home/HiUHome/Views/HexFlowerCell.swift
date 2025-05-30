@@ -53,8 +53,10 @@ struct HexFlowerCell: View, HexCellProtocol {
                 EmptyView()
             case .animationStarted:
                 Flower {
-                    model.state = .timerStarted
-                    stateChanged(.timerStarted)
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        model.state = .timerStarted
+                        stateChanged(.timerStarted)
+                    }
                 }
             case .timerStarted:
                 ClockCircleView(progress: $currentProgress, startDate: model.startedAt ?? Date())
@@ -114,8 +116,10 @@ struct HexFlowerCell: View, HexCellProtocol {
     }
 
     private func singleTap() {
-        model.state = .selected
-        stateChanged(.selected)
+        withAnimation(.easeInOut(duration: 0.3)) { 
+            model.state = .selected
+            stateChanged(.selected)
+        }
     }
     
     private func doubleTap() {
