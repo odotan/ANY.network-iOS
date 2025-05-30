@@ -13,6 +13,5 @@ extension HiUHomeViewModel {
         case details(HexCell)
         case moveBack
         case recenter
-        case startTimer
     }
 }

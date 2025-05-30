@@ -31,35 +31,20 @@ final class HiUHomeViewModel: ViewModel {
         case .details(let cell):
             guard state.selectedCell == nil else { return }
 
-            gridModel.zoom(to: 8)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: {
-                self.gridModel.center(on: cell.offsetCoordinate)
-            })
-            
             state.selectedCell = cell
+            Task { @MainActor in
+                gridModel.zoomAndCenter(to: cell.offsetCoordinate, scale: 8)
+            }
             gridModel.refresh()
         case .moveBack:
-            gridModel.zoom(to: 1)
-            state.selectedCell = nil
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: {
-                self.handle(.recenter)
-            })
+            Task { @MainActor in
+                gridModel.zoomAndCenter(to: .init(row: 0, col: 0), scale: 1)
+                state.selectedCell = nil
+            }
             gridModel.scrollEnabled = true
             gridModel.refresh()
         case .recenter:
             gridModel.recenter(paddingBottom: 100)
-        case .startTimer:
-            break
-            // timer = Timer.scheduledTimer(
-            //     withTimeInterval: 1,
-            //     repeats: true,
-            //     block: { [weak self] _ in
-            //         guard let self else { return }
-            //         Task { @MainActor in
-            //             self.gridModel.refresh()
-            //         }
-            // })
         case .stateUpdated(let hexState, let cell):
             print("ViewModel: State update requested for \(cell.offsetCoordinate) to state: \(hexState)")
             if let model = state.cellQueue[cell.offsetCoordinate] {
@@ -88,10 +73,6 @@ final class HiUHomeViewModel: ViewModel {
                 model.state = .animationStarted
                 state.cellQueue[next] = model
                 gridModel.refresh()
-            }
-            
-            if state.cellQueue.contains(where: { $0.value.state == .timerStarted }) && timer == nil {
-                handle(.startTimer)
             }
         }
     }

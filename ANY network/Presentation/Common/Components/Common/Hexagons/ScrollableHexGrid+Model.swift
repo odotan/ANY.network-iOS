@@ -17,6 +17,10 @@ class ScrollableHexGridModel: ObservableObject {
 
     var gridItems: [HexCell]
     
+    // Grid offset constants based on the grid layout
+    private let gridRowOffset: Int = 1  // Adjusted based on actual behavior
+    private let gridColOffset: Int = -3  // Adjusted based on actual behavior
+    
     init(gridItems: [HexCell]? = nil) {
         self.gridItems = gridItems ?? HexCell.all
         generateGrid()
@@ -33,6 +37,76 @@ class ScrollableHexGridModel: ObservableObject {
     
     public func zoom(to scale: CGFloat) {
         gridZoomScale = scale
+    }
+    
+    @MainActor
+    public func zoomAndCenter(to coordinate: OffsetCoordinate, scale: CGFloat) {
+        // Calculate the current position before zooming
+        let evenRow = coordinate.row.isMultiple(of: 2)
+        
+        print("Debug - Original coordinate: \(coordinate)")
+        
+        // Calculate adjusted coordinates using grid offsets
+        let adjustedCol = coordinate.col - gridColOffset
+        let adjustedRow = coordinate.row + gridRowOffset
+        
+        print("Debug - Adjusted coordinate: row: \(adjustedRow), col: \(adjustedCol)")
+        
+        // Calculate position with current zoom
+        let currentHexWidth = cellSize.width * gridZoomScale
+        let currentYSpacing = cellSize.height * gridZoomScale * 0.75
+        
+        // Get current hex position with grid-based offsets
+        let currentXOffset = (CGFloat(adjustedCol) * currentHexWidth) + 
+            (!evenRow ? currentHexWidth / 2 : 0) + (currentHexWidth / 2)
+        let currentYOffset = CGFloat(adjustedRow) * currentYSpacing - 40
+        
+        print("Debug - Current offsets - X: \(currentXOffset), Y: \(currentYOffset)")
+        
+        // Calculate current center
+        let currentCenterX = gridContentSize.width / 2 - gridContainerSize.width / 2 - ((cellSize.width / 2) * gridZoomScale)
+        let currentCenterY = gridContentSize.height / 2 - gridContainerSize.height / 2 - 40
+        
+        // Get the target hex's current position
+        let currentPosition = CGPoint(
+            x: currentCenterX + currentXOffset,
+            y: currentCenterY + currentYOffset
+        )
+        
+        print("Debug - Current position: \(currentPosition)")
+        
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.95)) {
+            // Update zoom scale
+            gridZoomScale = scale
+            
+            // Calculate new measurements with new zoom
+            let newHexWidth = cellSize.width * scale
+            let newYSpacing = cellSize.height * scale * 0.75
+            
+            // Calculate new offsets using grid-based offsets
+            let newXOffset = (CGFloat(adjustedCol) * newHexWidth) + 
+                (!evenRow ? newHexWidth / 2 : 0) + (newHexWidth / 2)
+            let newYOffset = CGFloat(adjustedRow) * newYSpacing - 40
+            
+            print("Debug - New offsets - X: \(newXOffset), Y: \(newYOffset)")
+            
+            // Calculate new center
+            let newCenterX = gridContentSize.width / 2 - gridContainerSize.width / 2 - ((cellSize.width / 2) * scale)
+            let newCenterY = gridContentSize.height / 2 - gridContainerSize.height / 2 - 40
+            
+            // Calculate the zoom adjustment to maintain position
+            let zoomAdjustX = (newXOffset - currentXOffset) * (scale / gridZoomScale)
+            let zoomAdjustY = (newYOffset - currentYOffset) * (scale / gridZoomScale)
+            
+            let finalPosition = CGPoint(
+                x: newCenterX + newXOffset - zoomAdjustX,
+                y: newCenterY + newYOffset - zoomAdjustY
+            )
+            
+            print("Debug - Final position: \(finalPosition)")
+            
+            gridContentOffset = finalPosition
+        }
     }
     
     @MainActor

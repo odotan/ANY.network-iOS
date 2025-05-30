@@ -47,7 +47,6 @@ struct ClockCircleView: View {
         
         if iterationCount != Int(progress) + 1 {
             iterationCount = Int(progress) + 1
-            print("iterationCount: \(iterationCount)")
         }
 
         // Ensure we never exceed 1.0 and handle the transition smoothly
