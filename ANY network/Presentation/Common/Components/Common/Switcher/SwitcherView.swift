@@ -92,19 +92,16 @@ struct SwitcherView: View {
 }
 
 #Preview {
-    @State var methods: [any ContactMethod] = [
+    let methods: [any ContactMethod] = [
         Facebook(value: "@LeeAsd"),
         Blackbery(value: "@LeeAsdBla"),
         PhoneNumber(value: "01851923616"),
         Twitter(value: "@LeeAasdTwi")
     ]
 
-    @State var selected: (any ContactMethod)?
-
-    return VStack(alignment: .leading) {
-        SwitcherView(contactMethods: methods, selectedItem: $selected, swipeValue: { _ in })
+    VStack(alignment: .leading) {
+        SwitcherView(contactMethods: methods, selectedItem: .constant(methods.first), swipeValue: { _ in })
             .background(.appBackground)
-            .onAppear { selected = methods.first }
     }
 //    .background(Color.appBackground)
 }

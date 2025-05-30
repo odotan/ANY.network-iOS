@@ -26,6 +26,7 @@ struct ClockCircleView: View {
     let startDate: Date
     @State private var animationProgress: Double = 0
     @State private var timer: Timer?
+    @State private var iterationCount: Int = 1 
     
     private func calculateAnimationProgress() -> Double {
         let now = Date.now.timeIntervalSince1970
@@ -44,21 +45,39 @@ struct ClockCircleView: View {
             progress = elapsed / 3600.0
         }
         
+        if iterationCount != Int(progress) + 1 {
+            iterationCount = Int(progress) + 1
+            print("iterationCount: \(iterationCount)")
+        }
+
         // Ensure we never exceed 1.0 and handle the transition smoothly
         if progress >= 1.0 {
-            print(progress - floor(progress))
-            return progress - floor(progress)
+            let newProgress = progress - floor(progress)
+            return newProgress
         }
 
         return progress
     }
     
     var body: some View {
-        PieSliceShape(
-            startAngle: .degrees(-90),
-            endAngle: .degrees(-90 + animationProgress * 360)
-        )
-        .fill(Color.appGray.opacity(0.3))
+        ZStack {
+            // Base shape that's always visible
+            PieSliceShape(
+                startAngle: .degrees(-90),
+                endAngle: .degrees(-90 + (iterationCount % 2 == 1 ? animationProgress * 360 : 360))
+            )
+            .fill(Color.appGray.opacity(0.3))
+            
+            // Overlay shape for clearing effect
+            PieSliceShape(
+                startAngle: .degrees(-90),
+                endAngle: .degrees(-90 + animationProgress * 360)
+            )
+            .fill(Color.black)
+            .blendMode(.destinationOut)
+            .opacity(iterationCount % 2 == 0 ? 1 : 0)
+        }
+        .compositingGroup()
         .onAppear {
             startNewAnimation()
         }
@@ -89,7 +108,7 @@ struct ClockCircleView: View {
         
         // Initial update
         animationProgress = calculateAnimationProgress()
-        print(interval, progress)
+
         timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { _ in
             withAnimation(.linear(duration: interval)) {
                 animationProgress = calculateAnimationProgress()

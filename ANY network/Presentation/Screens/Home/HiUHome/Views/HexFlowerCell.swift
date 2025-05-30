@@ -60,14 +60,30 @@ struct HexFlowerCell: View, HexCellProtocol {
                 ClockCircleView(progress: $currentProgress, startDate: model.startedAt ?? Date())
                     .scaleEffect(1.2)
 
-                Text("\(Int(currentProgress))")
-                    .font(Font.montserat(size: 20, weight: .bold))
+                TimerNumberView(number: Int(currentProgress))
+                    .font(Font.montserat(size: 24, weight: .semibold))
                     .minimumScaleFactor(0.3)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.white.opacity(0.8))
                     .multilineTextAlignment(.center)
-                    .padding()
-                    .contentTransition(.numericText(value: Double(currentProgress)))
-                    .animation(.easeInOut, value: model.seconds)
+                    .monospacedDigit()
+                    .transaction { transaction in
+                        transaction.animation = .spring(
+                            response: 0.4,
+                            dampingFraction: 0.65,
+                            blendDuration: 0.5
+                        )
+                    }
+                    .id(Int(currentProgress))
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .bottom)
+                                .combined(with: .opacity)
+                                .animation(.spring(response: 0.4, dampingFraction: 0.65, blendDuration: 0.5)),
+                            removal: .move(edge: .top)
+                                .combined(with: .opacity)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.7, blendDuration: 0.3))
+                        )
+                    )
             }
         }
         .onAppear {

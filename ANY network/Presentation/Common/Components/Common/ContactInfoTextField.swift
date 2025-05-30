@@ -125,21 +125,20 @@ struct ContactInfoTextField: View {
 }
 
 #Preview {
-    @State var text = ""
     return ZStack {
 //        Color.appBackground.ignoresSafeArea()
         VStack(spacing: 24) {
-            ContactInfoTextField(text: $text,
+            ContactInfoTextField(text: .constant(""),
                                  promt: "+56 903286 8274",
                                  fieldType: PhoneNumberType.mobile,
                                  deleteAction: {},
                                  onTypeChange: { _ in })
-            ContactInfoTextField(text: $text,
+            ContactInfoTextField(text: .constant(""),
                                  promt: "+56 903286 8274",
                                  fieldType: PhoneNumberType.main,
                                  deleteAction: {},
                                  onTypeChange: { _ in })
-            ContactInfoTextField(text: $text,
+            ContactInfoTextField(text: .constant(""),
                                  promt: "hanson852@mail.com",
                                  fieldType: EmailAddressType.home,
                                  deleteAction: {},

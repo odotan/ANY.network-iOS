@@ -173,7 +173,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
 }
 
 #Preview("Standard") {
-    @State var methods: [any ContactMethod] = [
+    let methods: [any ContactMethod] = [
         Facebook(value: "@LeeAsd"),
         Blackbery(value: "@LeeAsdBla"),
         PhoneNumber(value: "01851923616"),
@@ -182,15 +182,12 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
         EmailAddress(value: "email")
     ]
 
-    @State var selected: (any ContactMethod)?
-
-    return SwitcherView(contactMethods: methods, selectedItem: $selected, swipeValue: { _ in })
+    SwitcherView(contactMethods: methods, selectedItem: .constant(methods.first), swipeValue: { _ in })
         .background(.appBackground)
-        .onAppear { selected = methods.first }
 }
 
 #Preview("Less than 6 items") {
-    @State var methods: [any ContactMethod] = [
+    let methods: [any ContactMethod] = [
         Facebook(value: "@LeeAsd"),
         Blackbery(value: "@LeeAsdBla"),
         PhoneNumber(value: "01851923616"),
@@ -198,23 +195,17 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
         Instagram(value: "@LeeAasdTwi")
     ]
 
-    @State var selected: (any ContactMethod)?
-
-    return SwitcherView(contactMethods: methods, selectedItem: $selected, swipeValue: { _ in })
+    SwitcherView(contactMethods: methods, selectedItem: .constant(methods.first), swipeValue: { _ in })
         .background(.appBackground)
-        .onAppear { selected = methods.first }
 }
 
 #Preview("1 item") {
-    @State var methods: [any ContactMethod] = [
+    let methods: [any ContactMethod] = [
         Facebook(value: "@LeeAsd")
     ]
 
-    @State var selected: (any ContactMethod)?
-
-    return SwitcherView(contactMethods: methods, selectedItem: $selected, swipeValue: { _ in })
+    SwitcherView(contactMethods: methods, selectedItem: .constant(methods.first), swipeValue: { _ in })
         .background(.appBackground)
-        .onAppear { selected = methods.first }
 }
 
 // MARK: UIKit UnWrapper

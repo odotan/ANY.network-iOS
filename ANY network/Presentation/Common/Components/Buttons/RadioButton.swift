@@ -31,9 +31,8 @@ struct RadioButton: View {
 }
 
 #Preview {
-    @State var isActive: Bool = true
     return ZStack {
         Color.appBackground.ignoresSafeArea()
-        RadioButton(isActive: $isActive, text: "Allow me to Reset my account")
+        RadioButton(isActive: .constant(true), text: "Allow me to Reset my account")
     }
 }

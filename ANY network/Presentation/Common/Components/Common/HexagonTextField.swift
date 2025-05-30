@@ -65,12 +65,11 @@ struct HexagonTextField: View {
 }
 
 #Preview {
-    @State var text = ""
     return ZStack {
 //        Color.appBackground.ignoresSafeArea()
         VStack(spacing: 24) {
-            HexagonTextField(text: $text, promt: "Email", keyboardType: .emailAddress)
-            HexagonTextField(text: $text, promt: "Email", deleteAction: { }, keyboardType: .emailAddress)
+            HexagonTextField(text: .constant(""), promt: "Email", keyboardType: .emailAddress)
+            HexagonTextField(text: .constant(""), promt: "Email", deleteAction: { }, keyboardType: .emailAddress)
         }
     }
 }
