@@ -8,6 +8,7 @@ class ScrollableHexGridModel: ObservableObject {
     @Published var gridZoomScale: CGFloat = 1
     @Published var refreshID: UUID = UUID()
     @Published var scrollEnabled: Bool = true
+    @Published private(set) var isRefreshing: Bool = false
 
     @MainActor
     let cellSize = CGSize(width: <->85, height: |96.42)
@@ -27,7 +28,29 @@ class ScrollableHexGridModel: ObservableObject {
     }
 
     public func refresh() {
+        isRefreshing = true
+        // Capture current scroll position and zoom
+        let currentOffset = gridContentOffset
+        let currentZoom = gridZoomScale
+        
+        // Update the refresh ID to trigger re-render
         refreshID = UUID()
+        
+        // Use async to ensure the refresh state is properly handled
+        Task { @MainActor in
+            // Small delay to allow the view to update
+            try? await Task.sleep(nanoseconds: 50_000_000) // 50ms
+            
+            // Restore scroll position and zoom if needed
+            if gridContentOffset != currentOffset {
+                gridContentOffset = currentOffset
+            }
+            if gridZoomScale != currentZoom {
+                gridZoomScale = currentZoom
+            }
+            
+            isRefreshing = false
+        }
     }
     
     @MainActor
@@ -141,7 +164,6 @@ class ScrollableHexGridModel: ObservableObject {
 
         for idx in 0..<count {
             let coords = priorityManager.positionBottom(for: idx)
-//            print("index:\(idx) coords:\(coords)")
             let cell = HexCell(offsetCoordinate: coords, color: .appRaisinBlack, priority: idx)
             array.append(cell)
         }
@@ -182,7 +204,7 @@ class ScrollableHexGridModel: ObservableObject {
     private var gridCenter: CGPoint {
         .init(
             x: gridContentSize.width / 2 - gridContainerSize.width / 2 - ((cellSize.width / 2) * gridZoomScale),
-            y: gridContentSize.height / 2 - gridContainerSize.height / 2 - 40//+ 80 // keep the center over the sheet
+            y: gridContentSize.height / 2 - gridContainerSize.height / 2 - 40
         )
     }
 }

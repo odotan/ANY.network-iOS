@@ -31,19 +31,28 @@ struct ScrollableHexGrid: View {
                 content: { item in
                     if let content = content {
                         content(item)
+                            .id(item.offsetCoordinate)
                     } else {
                         ColorHexCell(color: item.color)
+                            .id(item.offsetCoordinate)
                     }
                 },
                 overlay: { item in
                     if let overlay = overlay {
                         overlay(item)
+                            .id("\(item.offsetCoordinate)_overlay")
                     } else {
                         EmptyView()
                     }
                 }
             )
             .background { Color.appBackground }
+            .transaction { transaction in
+                // Disable animations during refresh to prevent jumping
+                if viewModel.isRefreshing {
+                    transaction.animation = nil
+                }
+            }
         }
         .background { Color.appBackground }
     }
