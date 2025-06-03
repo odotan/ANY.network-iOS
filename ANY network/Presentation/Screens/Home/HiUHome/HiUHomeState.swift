@@ -5,13 +5,16 @@ extension HiUHomeViewModel {
         var selectedCell: HexCell?
         var cellQueue: [OffsetCoordinate: HexFlowerModel] = [:]
         var cellQueueOrder: [OffsetCoordinate] = [] // Tracks the order of insertion
+        var lastTapTime: Date?
+        var lastTappedCell: HexCell?
     }
     
     enum Event {
         case stateUpdated(HexFlowerState, HexCell)
-        case doubleTap(HexCell)
         case details(HexCell)
         case moveBack
         case recenter
+        case setCellState(OffsetCoordinate, HexFlowerModel)
+        case updateLastTap(time: Date?, cell: HexCell?)
     }
 }

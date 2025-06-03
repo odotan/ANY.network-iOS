@@ -36,58 +36,64 @@ struct HexFlowerCell: View, HexCellProtocol {
     }
 
     var body: some View {
-        ZStack {
-            color
-            
-            Color.white
-                .opacity(model.state == .initial ? 0 : 0.1)
-                .animation(.easeInOut(duration: 0.3), value: model.state)
-            
-            Color.red.opacity(model.state == .timerStarted ? 0.8 : 0)
-                .animation(.easeInOut(duration: 0.3), value: model.state)
-            
-            switch model.state {
-            case .initial:
-                EmptyView()
-            case .selected:
-                EmptyView()
-            case .animationStarted:
-                Flower {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        model.state = .timerStarted
-                        stateChanged(.timerStarted)
+        Button {
+            model.state = .selected
+            stateChanged(.selected)
+        } label: {
+            ZStack {
+                color
+                
+                Color.white
+                    .opacity(model.state == .initial ? 0 : 0.1)
+                    .animation(.easeInOut(duration: 0.3), value: model.state)
+                
+                Color.red.opacity(model.state == .timerStarted ? 0.8 : 0)
+                    .animation(.easeInOut(duration: 0.3), value: model.state)
+                
+                switch model.state {
+                case .initial:
+                    EmptyView()
+                case .selected:
+                    EmptyView()
+                case .animationStarted:
+                    Flower {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            model.state = .timerStarted
+                            stateChanged(.timerStarted)
+                        }
                     }
-                }
-            case .timerStarted:
-                ClockCircleView(progress: $currentProgress, startDate: model.startedAt ?? Date())
-                    .scaleEffect(1.2)
+                case .timerStarted:
+                    ClockCircleView(progress: $currentProgress, startDate: model.startedAt ?? Date())
+                        .scaleEffect(1.2)
 
-                TimerNumberView(number: Int(currentProgress))
-                    .font(Font.montserat(size: 24, weight: .semibold))
-                    .minimumScaleFactor(0.3)
-                    .foregroundStyle(.white.opacity(0.8))
-                    .multilineTextAlignment(.center)
-                    .monospacedDigit()
-                    .transaction { transaction in
-                        transaction.animation = .spring(
-                            response: 0.4,
-                            dampingFraction: 0.65,
-                            blendDuration: 0.5
+                    TimerNumberView(number: Int(currentProgress))
+                        .font(Font.montserat(size: 24, weight: .semibold))
+                        .minimumScaleFactor(0.3)
+                        .foregroundStyle(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .monospacedDigit()
+                        .transaction { transaction in
+                            transaction.animation = .spring(
+                                response: 0.4,
+                                dampingFraction: 0.65,
+                                blendDuration: 0.5
+                            )
+                        }
+                        .id(Int(currentProgress))
+                        .transition(
+                            .asymmetric(
+                                insertion: .move(edge: .bottom)
+                                    .combined(with: .opacity)
+                                    .animation(.spring(response: 0.4, dampingFraction: 0.65, blendDuration: 0.5)),
+                                removal: .move(edge: .top)
+                                    .combined(with: .opacity)
+                                    .animation(.spring(response: 0.3, dampingFraction: 0.7, blendDuration: 0.3))
+                            )
                         )
-                    }
-                    .id(Int(currentProgress))
-                    .transition(
-                        .asymmetric(
-                            insertion: .move(edge: .bottom)
-                                .combined(with: .opacity)
-                                .animation(.spring(response: 0.4, dampingFraction: 0.65, blendDuration: 0.5)),
-                            removal: .move(edge: .top)
-                                .combined(with: .opacity)
-                                .animation(.spring(response: 0.3, dampingFraction: 0.7, blendDuration: 0.3))
-                        )
-                    )
+                }
             }
         }
+        .disabled(model.state != .initial)
         .onAppear {
             if model.state == .timerStarted {
                 startTimer()
@@ -103,8 +109,6 @@ struct HexFlowerCell: View, HexCellProtocol {
             timer?.invalidate()
             timer = nil
         }
-        .onTapGesture(count: 2, perform: doubleTap)
-        .onTapGesture(count: 1, perform: singleTap)
         .onLongPressGesture(minimumDuration: 0.5, perform: longPress)
     }
 
@@ -115,17 +119,6 @@ struct HexFlowerCell: View, HexCellProtocol {
         }
     }
 
-    private func singleTap() {
-        withAnimation(.easeInOut(duration: 0.3)) { 
-            model.state = .selected
-            stateChanged(.selected)
-        }
-    }
-    
-    private func doubleTap() {
-        details()
-    }
-    
     private func longPress() {
         details()
     }
