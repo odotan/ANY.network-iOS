@@ -5,6 +5,7 @@ enum HexFlowerState {
     case selected
     case animationStarted
     case timerStarted
+    case finished
 }
 
 struct HexFlowerModel: Equatable {

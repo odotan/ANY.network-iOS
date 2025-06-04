@@ -32,6 +32,12 @@ struct HexFlowerCell: View, HexCellProtocol {
         }
         else {
             currentProgress = 144
+            if model.state == .timerStarted {
+                model.state = .finished
+                stateChanged(.finished)
+                timer?.invalidate()
+                timer = nil
+            }
         }
     }
 
@@ -90,12 +96,22 @@ struct HexFlowerCell: View, HexCellProtocol {
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7, blendDuration: 0.3))
                             )
                         )
+                case .finished:
+                    ClockCircleView(progress: .constant(144), startDate: model.startedAt ?? Date())
+                        .scaleEffect(1.2)
+                        .overlay(
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundStyle(.white)
+                                .transition(.scale.combined(with: .opacity))
+                        )
                 }
             }
         }
         .disabled(model.state != .initial)
         .onAppear {
             if model.state == .timerStarted {
+                updateProgress()
                 startTimer()
             }
         }
