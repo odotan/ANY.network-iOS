@@ -175,10 +175,11 @@ class ScrollableHexGridModel: ObservableObject {
     private func generateGridColors(grid: [HexCell]) -> [HexCell] {
         var coloredGrid = [HexCell]()
         coloredGrid.reserveCapacity(grid.count)
-        
+        let all = HexCell.all
+
         for cell in grid {
             let offset = (row: -4, col: -2) // The offset we need to put 4, 2 from `HexCell.all` in the center
-            if let defaultBackgroundCell = HexCell.all.first(where: {
+            if let defaultBackgroundCell = all.first(where: { 
                 $0.offsetCoordinate.row == (cell.offsetCoordinate.row - offset.row) &&
                 $0.offsetCoordinate.col == (cell.offsetCoordinate.col - offset.col + (cell.offsetCoordinate.row % 2 != 0 ? 1 : 0))
             }) {
@@ -187,12 +188,7 @@ class ScrollableHexGridModel: ObservableObject {
                 coloredGrid.append(coloredHex)
             } else {
                 var coloredHex = cell
-                coloredHex.color = .init(
-                    red: .random(in: 0...1),
-                    green: .random(in: 0...1),
-                    blue: .random(in: 0...1),
-                    opacity: .random(in: 0.02...0.035)
-                )
+                coloredHex.color = all.randomElement()?.color ?? .appRaisinBlack
                 coloredGrid.append(coloredHex)
             }
         }

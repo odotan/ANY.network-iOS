@@ -10,6 +10,21 @@ struct HexFlowerCell: View, HexCellProtocol {
     var stateChanged: (HexFlowerState) -> Void
     var details: () -> Void
 
+    var background: some View {
+        ZStack {
+            if model.state == .timerStarted {
+                if currentProgress < 30 {
+                    Color(hex: "1CC580") // green
+                } else {
+                    Color(hex: "FF6061") // red
+                }  
+            }
+
+            color
+                .opacity(model.state == .initial ? 0.1 : model.state == .selected ? 1.0 : 0.2)
+        }
+    }
+
     private func updateProgress() {
         guard let startedAt = model.startedAt else {
             currentProgress = 0
@@ -43,18 +58,13 @@ struct HexFlowerCell: View, HexCellProtocol {
 
     var body: some View {
         Button {
-            model.state = .selected
-            stateChanged(.selected)
+            if model.state == .initial {
+                model.state = .selected
+                stateChanged(.selected)
+            }
         } label: {
             ZStack {
-                color
-                
-                Color.white
-                    .opacity(model.state == .initial ? 0 : 0.1)
-                    .animation(.easeInOut(duration: 0.3), value: model.state)
-                
-                Color.red.opacity(model.state == .timerStarted ? 0.8 : 0)
-                    .animation(.easeInOut(duration: 0.3), value: model.state)
+                background
                 
                 switch model.state {
                 case .initial:
@@ -108,7 +118,6 @@ struct HexFlowerCell: View, HexCellProtocol {
                 }
             }
         }
-        .disabled(model.state != .initial)
         .onAppear {
             if model.state == .timerStarted {
                 updateProgress()
