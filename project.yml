@@ -17,6 +17,13 @@ packages:
   Facebook:
     url: https://github.com/facebook/facebook-ios-sdk
     from: "18.0.0"
+  XMTPiOS:
+    url: https://github.com/xmtp/xmtp-ios.git
+    from: "4.2.0"
+  KeychainSwift:
+    url: https://github.com/evgenyneu/keychain-swift.git
+    from: "24.0.0"
+    
 targets:
   ANY network:
     type: application
@@ -57,6 +64,10 @@ targets:
         product: FacebookCore
       - package: Facebook
         product: FacebookLogin
+      - package: XMTPiOS
+        product: XMTPiOS
+      - package: KeychainSwift
+        product: KeychainSwift
         
 
     scheme:

@@ -1,0 +1,50 @@
+import Foundation
+import KeychainSwift
+
+final class KeychainManager {
+    static let shared = KeychainManager()
+
+    private let keychain = KeychainSwift()
+
+    private init() {}
+
+    func save(key: String, value: String) {
+        let keyString = key
+        keychain.set(value, forKey: keyString)
+        print("🔐 [KeychainManager] Saved string value for key: \(keyString)")
+    }
+
+    func get(key: String) -> String? {
+        let keyString = key
+        let result = keychain.get(keyString)
+        if result != nil {
+            print("🔐 [KeychainManager] Retrieved string value for key: \(keyString)")
+        } else {
+            print("🔐 [KeychainManager] No string value found for key: \(keyString)")
+        }
+        return result
+    }
+    
+    func save(key: String, value: Data) {
+        let keyString = key
+        keychain.set(value, forKey: keyString)
+        print("🔐 [KeychainManager] Saved data value for key: \(keyString) (size: \(value.count) bytes)")
+    }
+
+    func get(key: String) -> Data? {
+        let keyString = key
+        let result = keychain.getData(keyString)
+        if result != nil {
+            print("🔐 [KeychainManager] Retrieved data value for key: \(keyString) (size: \(result!.count) bytes)")
+        } else {
+            print("🔐 [KeychainManager] No data value found for key: \(keyString)")
+        }
+        return result
+    }   
+}
+
+struct KeychainKey {
+    static let xmtpKeys = "xmtpKeys"
+    static let xmtpAddress = "xmtpAddress"
+    static let xmtpDbEncryptionKey = "xmtpDbEncryptionKey"
+}
