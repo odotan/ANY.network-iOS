@@ -1,6 +1,9 @@
 import Foundation
 import XMTPiOS
 import CryptoKit
+#if canImport(SQLCipher)
+import SQLCipher
+#endif
 
 public struct SCWallet: SigningKey {
     private let privateKey: PrivateKey
@@ -8,28 +11,34 @@ public struct SCWallet: SigningKey {
     public init() throws {
         print("🔑 [SCWallet] Initializing wallet...")
         
-        // Try to load from keychain
-        if let keyData = KeychainManager.shared.get(key: KeychainKey.xmtpKeys) as Data? {
-            print("🔑 [SCWallet] Found existing wallet key in keychain, restoring...")
-            self.privateKey = try PrivateKey.from(data: keyData)
-            print("🔑 [SCWallet] Successfully restored wallet key. Address: \(privateKey.identity.identifier)")
+        // Try to restore existing key from keychain first
+        if let existingKeyData = KeychainManager.shared.get(key: KeychainKey.xmtpKeys) as Data? {
+            print("🔑 [SCWallet] Restoring existing wallet key...")
+            do {
+                self.privateKey = try PrivateKey(serializedData: existingKeyData)
+                print("🔑 [SCWallet] Wallet restored. Address: \(privateKey.identity.identifier)")
+            } catch {
+                print("🔑 [SCWallet] Failed to restore key, generating new one...")
+                self.privateKey = PrivateKey()
+                let keyData = try privateKey.serializedData()
+                KeychainManager.shared.save(key: KeychainKey.xmtpKeys, value: keyData)
+                print("🔑 [SCWallet] New wallet created. Address: \(privateKey.identity.identifier)")
+            }
         } else {
-            print("🔑 [SCWallet] No existing wallet key found, generating new one...")
-            // Generate new key and persist it
-            let newKey = try PrivateKey.generate()
-            let keyData = try newKey.serializedData()
+            print("🔑 [SCWallet] Generating new wallet key...")
+            self.privateKey = PrivateKey()
+            let keyData = try privateKey.serializedData()
             KeychainManager.shared.save(key: KeychainKey.xmtpKeys, value: keyData)
-            print("🔑 [SCWallet] Generated and saved new wallet key. Address: \(newKey.identity.identifier)")
-            self.privateKey = newKey
+            print("🔑 [SCWallet] New wallet created. Address: \(privateKey.identity.identifier)")
         }
     }
     
     public var identity: PublicIdentity {
         return privateKey.identity
     }
- 
+    
     public var chainId: Int64? {
-        return 8453 // Base network
+        return nil // Try without chain ID for local development
     }
  
     public var blockNumber: Int64? {
@@ -39,12 +48,17 @@ public struct SCWallet: SigningKey {
     public var type: SignerType { 
         return .SCW 
     }
- 
+    
     public func sign(_ message: String) async throws -> SignedData {
-        print("🔑 [SCWallet] Signing message: \(message.prefix(20))...")
         let result = try await privateKey.sign(message)
         print("🔑 [SCWallet] Message signed successfully")
         return result
+    }
+    
+    // Static method to clear wallet key (for testing)
+    public static func clearWalletKey() {
+        KeychainManager.shared.delete(key: KeychainKey.xmtpKeys)
+        print("🔑 [SCWallet] Cleared wallet key from keychain")
     }
 }
 

@@ -22,6 +22,11 @@ final class AppFactory {
             emailAuthenticator: emailAuthenticator
         )
     }()
+    
+    private lazy var xmtpRepository: XMTPRepositoryImplementation = {
+        let xmtpManager = XMTPManager()
+        return XMTPRepositoryImplementation(xmtpManager: xmtpManager)
+    }()
 }
 
 extension AppFactory {
@@ -111,5 +116,9 @@ extension AppFactory {
     
     func makeSendEmailUseCase() -> EmailLoginUseCase {
         EmailLoginUseCase(networkRepository: networkAuthenticationRepository)
+    }
+    
+    func makeCreateXMTPClientUseCase() -> CreateXMTPClientUseCase {
+        CreateXMTPClientUseCase(xmtpRepository: xmtpRepository)
     }
 }

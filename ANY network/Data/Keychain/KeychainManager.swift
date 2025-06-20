@@ -28,19 +28,20 @@ final class KeychainManager {
     func save(key: String, value: Data) {
         let keyString = key
         keychain.set(value, forKey: keyString)
-        print("🔐 [KeychainManager] Saved data value for key: \(keyString) (size: \(value.count) bytes)")
+        print("🔐 [KeychainManager] Saved data for key: \(keyString)")
     }
 
     func get(key: String) -> Data? {
         let keyString = key
         let result = keychain.getData(keyString)
-        if result != nil {
-            print("🔐 [KeychainManager] Retrieved data value for key: \(keyString) (size: \(result!.count) bytes)")
-        } else {
-            print("🔐 [KeychainManager] No data value found for key: \(keyString)")
-        }
         return result
-    }   
+    }
+    
+    func delete(key: String) {
+        let keyString = key
+        keychain.delete(keyString)
+        print("🔐 [KeychainManager] Deleted key: \(keyString)")
+    }
 }
 
 struct KeychainKey {

@@ -4,8 +4,12 @@ import FirebaseCore
 import FirebaseAuth
 import FirebaseMessaging
 import FacebookCore
+#if canImport(SQLCipher)
+import SQLCipher
+#else
+import SQLite3
+#endif
 
-//https://any-network.firebaseapp.com/__/auth/handler
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {

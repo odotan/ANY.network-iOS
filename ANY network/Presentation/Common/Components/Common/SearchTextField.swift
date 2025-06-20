@@ -37,7 +37,7 @@ private struct SearchTextField: View {
                     .padding(.trailing, <->5)
             }
 
-            TextField("Search", text: $text, prompt: Text("Type to search or add").foregroundStyle(.appLightGray))
+            TextField("Search", text: $text, prompt: Text("Type to search or add").foregroundColor(.appLightGray))
                 .focused($focusField, equals: .search)
                 .submitLabel(.search)
                 .frame(maxWidth: .infinity)

@@ -6,10 +6,12 @@ final class HiUHomeViewModel: ViewModel {
     @Published var gridModel: HiUScrollableHexGridModel = .init()
 
     private let coordinator: MainCoordinatorProtocol
+    private let createXMTPClientUseCase: CreateXMTPClientUseCase
     
-    init(coordinator: MainCoordinatorProtocol) {
+    init(coordinator: MainCoordinatorProtocol, createXMTPClientUseCase: CreateXMTPClientUseCase) {
         self.state = State()
         self.coordinator = coordinator
+        self.createXMTPClientUseCase = createXMTPClientUseCase
     }
     
     func handle(_ event: Event) {
@@ -74,6 +76,44 @@ final class HiUHomeViewModel: ViewModel {
             
         case .recenter:
             gridModel.recenter(paddingBottom: 100)
+            
+        case .initializeXMTP:
+            Task {
+                do {
+                    print("🔐 [HiUHomeViewModel] Initializing XMTP client...")
+                    try await createXMTPClientUseCase.createClient()
+                    print("🔐 [HiUHomeViewModel] XMTP client initialized successfully!")
+                    await MainActor.run {
+                        state.xmtpClientInitialized = true
+                    }
+                } catch {
+                    print("🔐 [HiUHomeViewModel] Failed to initialize XMTP client: \(error)")
+                    await MainActor.run {
+                        state.xmtpClientError = error.localizedDescription
+                    }
+                }
+            }
+            
+        case .testClearAndInitialize:
+            Task {
+                do {
+                    print("🔐 [HiUHomeViewModel] Clearing XMTP data and reinitializing...")
+                    // Clear all XMTP data
+                    createXMTPClientUseCase.clearAllData()
+                    // Try to initialize again
+                    try await createXMTPClientUseCase.createClient()
+                    print("🔐 [HiUHomeViewModel] XMTP client reinitialized successfully!")
+                    await MainActor.run {
+                        state.xmtpClientInitialized = true
+                        state.xmtpClientError = nil
+                    }
+                } catch {
+                    print("🔐 [HiUHomeViewModel] Failed to reinitialize XMTP client: \(error)")
+                    await MainActor.run {
+                        state.xmtpClientError = error.localizedDescription
+                    }
+                }
+            }
         }
     }
 }

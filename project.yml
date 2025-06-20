@@ -23,6 +23,9 @@ packages:
   KeychainSwift:
     url: https://github.com/evgenyneu/keychain-swift.git
     from: "24.0.0"
+  SQLCipherSPM:
+    url: https://github.com/chanonly123/SQLCipher-SPM.git
+    from: "4.8.0"
     
 targets:
   ANY network:
@@ -41,6 +44,10 @@ targets:
         DEVELOPMENT_TEAM: 3DV26K7BE7
         GENERATE_INFOPLIST_FILE: NO
         CODE_SIGN_ENTITLEMENTS: ANY network/ANY network.entitlements
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: SQLITE_HAS_CODEC
+        OTHER_CFLAGS: -DSQLITE_HAS_CODEC
+        OTHER_CPLUSPLUSFLAGS: -DSQLITE_HAS_CODEC
+        OTHER_LDFLAGS: -l"xmtpv3"
 
     deploymentTarget: "17.0"
     sources: ANY network
@@ -68,6 +75,8 @@ targets:
         product: XMTPiOS
       - package: KeychainSwift
         product: KeychainSwift
+      - package: SQLCipherSPM
+        product: SQLCipher
         
 
     scheme:

@@ -20,6 +20,11 @@ struct HiUHomeView: View {
              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                  viewModel.handle(.recenter)
              }
+             
+             // Initialize XMTP client when view appears
+             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                 viewModel.handle(.initializeXMTP)
+             }
          }
     }
     

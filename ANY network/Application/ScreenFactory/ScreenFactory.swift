@@ -144,7 +144,10 @@ extension ScreenFactory: RequestNetworkFactory {
 
 extension ScreenFactory: HiUFactory {
     func makeHiU(coordinator: MainCoordinatorProtocol) -> HiUHomeView {
-        let viewModel = HiUHomeViewModel(coordinator: coordinator)
+        let viewModel = HiUHomeViewModel(
+            coordinator: coordinator,
+            createXMTPClientUseCase: appFactory.makeCreateXMTPClientUseCase()
+        )
         let view = HiUHomeView(viewModel: viewModel)
         return view
     }
