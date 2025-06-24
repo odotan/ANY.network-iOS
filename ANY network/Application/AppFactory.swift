@@ -27,6 +27,11 @@ final class AppFactory {
         let xmtpManager = XMTPManager()
         return XMTPRepositoryImplementation(xmtpManager: xmtpManager)
     }()
+
+    private lazy var firebaseRepository: FirebaseRepositoryImplementation = {
+        let firebaseManager = FirebaseManager()
+        return FirebaseRepositoryImplementation(firebaseManager: firebaseManager)
+    }()
 }
 
 extension AppFactory {
@@ -120,5 +125,17 @@ extension AppFactory {
     
     func makeCreateXMTPClientUseCase() -> CreateXMTPClientUseCase {
         CreateXMTPClientUseCase(xmtpRepository: xmtpRepository)
+    }
+    
+    func makeXMTPConversationUseCase() -> XMTPConversationUseCase {
+        XMTPConversationUseCase(xmtpRepository: xmtpRepository)
+    }
+
+    func makeStoreXMTPUserUseCase() -> StoreXMTPUserUseCase {
+        StoreXMTPUserUseCase(repository: firebaseRepository)
+    }
+
+    func makeFetchAllXMTPUsersUseCase() -> FetchAllXMTPUsersUseCase {
+        FetchAllXMTPUsersUseCase(repository: firebaseRepository)
     }
 }

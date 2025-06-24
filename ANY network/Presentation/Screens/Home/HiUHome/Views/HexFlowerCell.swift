@@ -117,6 +117,10 @@ struct HexFlowerCell: View, HexCellProtocol {
                         )
                 }
             }
+            
+            if !model.address.isEmpty {
+                Text(model.address)
+            }
         }
         .onAppear {
             if model.state == .timerStarted {

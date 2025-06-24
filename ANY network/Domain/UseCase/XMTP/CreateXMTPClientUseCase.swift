@@ -1,4 +1,5 @@
 import Foundation
+import XMTPiOS
 
 final class CreateXMTPClientUseCase {
     private let xmtpRepository: XMTPRepository
@@ -7,8 +8,8 @@ final class CreateXMTPClientUseCase {
         self.xmtpRepository = xmtpRepository
     }
     
-    func createClient() async throws {
-        try await xmtpRepository.createClient()
+    func createClient() async throws -> Client {
+        return try await xmtpRepository.createClient()
     }
     
     func closeClient() async throws {

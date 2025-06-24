@@ -25,6 +25,16 @@ struct HiUHomeView: View {
              DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                  viewModel.handle(.initializeXMTP)
              }
+             
+             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                 viewModel.handle(.startConversationStream)
+                 viewModel.handle(.startMessageStream)
+             }
+             
+             viewModel.handle(.fetchAllXMTPUsers)
+         }
+         .onDisappear {
+            viewModel.handle(.stopStreams)
          }
     }
     
@@ -52,39 +62,26 @@ struct HiUHomeView: View {
     @ViewBuilder
     private func view(for cell: HexCell) -> some View {
         let model = viewModel.state.cellQueue[cell.offsetCoordinate]
-        if var model = model {
-            HexFlowerCell(
-                model: Binding(
-                    get: { model },
-                    set: { newValue in
-                        viewModel.handle(.setCellState(cell.offsetCoordinate, newValue))
-                    }
-                ),
-                color: cell.color,
-                stateChanged: { state in
-                    viewModel.handle(.stateUpdated(state, cell))
-                },
-                details: { 
-                    viewModel.handle(.details(cell)) 
-                }
-            )
-            .simultaneousGesture(TapGesture().onEnded {
-                handleTap(for: cell)
-            })
-        } else {
-            HexFlowerCell(
-                model: .constant(.init()),
-                color: cell.color,
-                stateChanged: { state in
-                    viewModel.handle(.stateUpdated(state, cell))
-                },
-                details: { 
-                    viewModel.handle(.details(cell)) 
-                }
-            )
-            .simultaneousGesture(TapGesture().onEnded {
-                handleTap(for: cell)
-            })
-        }
+        var modelBinding: Binding<HexFlowerModel> = {
+            model != nil ? Binding(
+                get: { model! },
+                set: { newValue in
+                    viewModel.handle(.setCellState(cell.offsetCoordinate, newValue))
+                }) : .constant(.init())
+        }()
+        
+        HexFlowerCell(
+            model: modelBinding,
+            color: cell.color,
+            stateChanged: { state in
+                viewModel.handle(.stateUpdated(state, cell))
+            },
+            details: {
+                viewModel.handle(.details(cell))
+            }
+        )
+        .simultaneousGesture(TapGesture().onEnded {
+            handleTap(for: cell)
+        })
     }
 }

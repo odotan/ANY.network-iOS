@@ -146,7 +146,10 @@ extension ScreenFactory: HiUFactory {
     func makeHiU(coordinator: MainCoordinatorProtocol) -> HiUHomeView {
         let viewModel = HiUHomeViewModel(
             coordinator: coordinator,
-            createXMTPClientUseCase: appFactory.makeCreateXMTPClientUseCase()
+            createXMTPClientUseCase: appFactory.makeCreateXMTPClientUseCase(),
+            xmtpConversationUseCase: appFactory.makeXMTPConversationUseCase(),
+            storeXMTPUserUseCase: appFactory.makeStoreXMTPUserUseCase(),
+            fetchAllXMTPUsersUseCase: appFactory.makeFetchAllXMTPUsersUseCase()
         )
         let view = HiUHomeView(viewModel: viewModel)
         return view

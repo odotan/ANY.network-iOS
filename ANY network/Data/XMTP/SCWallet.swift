@@ -38,7 +38,7 @@ public struct SCWallet: SigningKey {
     }
     
     public var chainId: Int64? {
-        return nil // Try without chain ID for local development
+        return 8453 
     }
  
     public var blockNumber: Int64? {

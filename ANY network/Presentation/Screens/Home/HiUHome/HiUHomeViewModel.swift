@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import XMTPiOS
 
 final class HiUHomeViewModel: ViewModel {
     @Published private(set) var state: State
@@ -7,11 +8,17 @@ final class HiUHomeViewModel: ViewModel {
 
     private let coordinator: MainCoordinatorProtocol
     private let createXMTPClientUseCase: CreateXMTPClientUseCase
+    private let xmtpConversationUseCase: XMTPConversationUseCase
+    private let storeXMTPUserUseCase: StoreXMTPUserUseCase
+    private let fetchAllXMTPUsersUseCase: FetchAllXMTPUsersUseCase
     
-    init(coordinator: MainCoordinatorProtocol, createXMTPClientUseCase: CreateXMTPClientUseCase) {
+    init(coordinator: MainCoordinatorProtocol, createXMTPClientUseCase: CreateXMTPClientUseCase, xmtpConversationUseCase: XMTPConversationUseCase, storeXMTPUserUseCase: StoreXMTPUserUseCase, fetchAllXMTPUsersUseCase: FetchAllXMTPUsersUseCase) {
         self.state = State()
         self.coordinator = coordinator
         self.createXMTPClientUseCase = createXMTPClientUseCase
+        self.xmtpConversationUseCase = xmtpConversationUseCase
+        self.storeXMTPUserUseCase = storeXMTPUserUseCase
+        self.fetchAllXMTPUsersUseCase = fetchAllXMTPUsersUseCase
     }
     
     func handle(_ event: Event) {
@@ -81,11 +88,15 @@ final class HiUHomeViewModel: ViewModel {
             Task {
                 do {
                     print("🔐 [HiUHomeViewModel] Initializing XMTP client...")
-                    try await createXMTPClientUseCase.createClient()
+                    let client = try await createXMTPClientUseCase.createClient()
                     print("🔐 [HiUHomeViewModel] XMTP client initialized successfully!")
                     await MainActor.run {
                         state.xmtpClientInitialized = true
                     }
+                    // Store FUser in Firebase
+                    let user = XMTPUser(address: client.publicIdentity.identifier, inboxId: client.inboxID)
+                    try await storeXMTPUserUseCase.execute(user: user)
+                    print("✅ Stored XMTP user in Firebase: address=\(user.address), inboxId=\(user.inboxId)")
                 } catch {
                     print("🔐 [HiUHomeViewModel] Failed to initialize XMTP client: \(error)")
                     await MainActor.run {
@@ -112,6 +123,113 @@ final class HiUHomeViewModel: ViewModel {
                     await MainActor.run {
                         state.xmtpClientError = error.localizedDescription
                     }
+                }
+            }
+            
+        case .listConversations:
+            Task {
+                do {
+                    print("🔐 [HiUHomeViewModel] Listing conversations...")
+                    let conversations = try await xmtpConversationUseCase.listConversations()
+                    print("🔐 [HiUHomeViewModel] Found \(conversations.count) conversations")
+                    await MainActor.run {
+                        self.state.conversations = conversations
+                        self.state.conversationError = nil
+                    }
+                } catch {
+                    print("🔐 [HiUHomeViewModel] Failed to list conversations: \(error)")
+                    await MainActor.run {
+                        self.state.conversationError = error.localizedDescription
+                    }
+                }
+            }
+            
+        case .startConversationStream:
+            Task {
+                do {
+                    print("🔐 [HiUHomeViewModel] Starting conversation stream...")
+                    try await xmtpConversationUseCase.streamConversations(
+                        onConversation: { [weak self] conversation in
+                            Task { @MainActor in
+                                print("🔐 [HiUHomeViewModel] New conversation received: \(conversation.topic)")
+                                self?.state.conversations.append(conversation)
+                            }
+                        },
+                        onError: { [weak self] error in
+                            Task { @MainActor in
+                                print("🔐 [HiUHomeViewModel] Conversation stream error: \(error)")
+                                self?.state.conversationError = error.localizedDescription
+                            }
+                        }
+                    )
+                } catch {
+                    print("🔐 [HiUHomeViewModel] Failed to start conversation stream: \(error)")
+                    await MainActor.run {
+                        self.state.conversationError = error.localizedDescription
+                    }
+                }
+            }
+            
+        case .startMessageStream:
+            Task {
+                do {
+                    print("🔐 [HiUHomeViewModel] Starting message stream...")
+                    try await xmtpConversationUseCase.streamAllMessages(
+                        onMessage: { [weak self] message in
+                            Task { @MainActor in
+                                print("🔐 [HiUHomeViewModel] New message received")
+                                self?.state.messages.append(message)
+                            }
+                        },
+                        onError: { [weak self] error in
+                            Task { @MainActor in
+                                print("🔐 [HiUHomeViewModel] Message stream error: \(error)")
+                                self?.state.messageError = error.localizedDescription
+                            }
+                        }
+                    )
+                } catch {
+                    print("🔐 [HiUHomeViewModel] Failed to start message stream: \(error)")
+                    await MainActor.run {
+                        self.state.messageError = error.localizedDescription
+                    }
+                }
+            }
+            
+        case .stopStreams:
+            print("🔐 [HiUHomeViewModel] Stopping all streams...")
+            xmtpConversationUseCase.stopStreams()
+            
+        case .storeXMTPUser(let user):
+            Task {
+                do {
+                    try await storeXMTPUserUseCase.execute(user: user)
+                    print("✅ Stored XMTP user: address=\(user.address), inboxId=\(user.inboxId)")
+                } catch {
+                    print("❌ Failed to store XMTP user: \(error)")
+                }
+            }
+            
+        case .fetchAllXMTPUsers:
+            Task {
+                do {
+                    let users = try await fetchAllXMTPUsersUseCase.execute()
+                    state.xmtpUsers = users
+                    print("✅ Fetched XMTP users: \(users)")
+                    
+                    
+                } catch {
+                    print("❌ Failed to fetch XMTP users: \(error)")
+                }
+            }
+        case .sendMessage(inboxId: let inboxId, content: let content):
+            Task {
+                do {
+                    print("🔐 [HiUHomeViewModel] Sending message to inboxId: \(inboxId)...")
+                    try await xmtpConversationUseCase.sendMessage(inboxId: inboxId, content: content)
+                    print("🔐 [HiUHomeViewModel] Message sent successfully!")
+                } catch {
+                    print("🔐 [HiUHomeViewModel] Failed to send message: \(error)")
                 }
             }
         }
