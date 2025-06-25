@@ -4,6 +4,7 @@ import FirebaseCore
 import FirebaseAuth
 import FirebaseMessaging
 import FacebookCore
+import FirebaseFirestore
 #if canImport(SQLCipher)
 import SQLCipher
 #else

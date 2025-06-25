@@ -215,9 +215,19 @@ final class HiUHomeViewModel: ViewModel {
                 do {
                     let users = try await fetchAllXMTPUsersUseCase.execute()
                     state.xmtpUsers = users
+                    // Add each user to cellQueue with index as row, col = 0
+                    for (index, user) in users.enumerated() {
+                        guard index < gridModel.gridItems.count else { continue }
+
+                        let coordinate = gridModel.gridItems[index].offsetCoordinate
+                        let model = HexFlowerModel(address: user.address)
+                        state.cellQueue[coordinate] = model
+                        state.cellQueueOrder.append(coordinate)
+                    }
+                    
+                    gridModel.refresh()
+
                     print("✅ Fetched XMTP users: \(users)")
-                    
-                    
                 } catch {
                     print("❌ Failed to fetch XMTP users: \(error)")
                 }

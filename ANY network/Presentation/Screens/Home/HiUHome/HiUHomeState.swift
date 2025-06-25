@@ -41,7 +41,7 @@ extension HiUHomeViewModel {
     }
 }
 
-extension DecodedMessage: @retroactive Equatable {
+extension DecodedMessage: Equatable {
     public static func == (lhs: DecodedMessage, rhs: DecodedMessage) -> Bool {
         lhs.id == rhs.id
     }
