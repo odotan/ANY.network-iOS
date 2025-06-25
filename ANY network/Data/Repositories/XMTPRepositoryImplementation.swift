@@ -84,7 +84,7 @@ final class XMTPRepositoryImplementation: XMTPRepository {
     }
     
     // MARK: - Send Message
-    func sendMessage(inboxId: String, content: [String: String]) async throws {
-        try await xmtpManager.sendMessage(inboxId: inboxId, content: content)
+    func send(message: XMTPMessage) async throws {
+        try await xmtpManager.send(message: message)
     }
 } 

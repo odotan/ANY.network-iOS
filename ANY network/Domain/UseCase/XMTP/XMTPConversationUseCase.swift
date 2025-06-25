@@ -51,7 +51,7 @@ final class XMTPConversationUseCase {
     }
 
     // MARK: - Send Message
-    func sendMessage(inboxId: String, content: [String: String]) async throws {
-        try await xmtpRepository.sendMessage(inboxId: inboxId, content: content)
+    func send(message: XMTPMessage) async throws {
+        try await xmtpRepository.send(message: message)
     }
 } 

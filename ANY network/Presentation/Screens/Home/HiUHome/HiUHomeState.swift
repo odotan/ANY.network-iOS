@@ -1,5 +1,4 @@
 import Foundation
-import XMTPiOS
 
 extension HiUHomeViewModel {
     struct State: Equatable {
@@ -11,10 +10,10 @@ extension HiUHomeViewModel {
         var lastTappedCell: HexCell?
         var xmtpClientInitialized: Bool = false
         var xmtpClientError: String?
+        var clientAddress: String?
         
         // XMTP Conversation State
-        var conversations: [Conversation] = []
-        var messages: [DecodedMessage] = []
+        var messages: [XMTPMessage] = []
         var conversationError: String?
         var messageError: String?
     }
@@ -27,22 +26,15 @@ extension HiUHomeViewModel {
         case setCellState(OffsetCoordinate, HexFlowerModel)
         case updateLastTap(time: Date?, cell: HexCell?)
         case initializeXMTP
-        case testClearAndInitialize
         
         // XMTP Conversation Events
         case listConversations
         case startConversationStream
         case startMessageStream
         case stopStreams
-        case sendMessage(inboxId: String, content: [String: String])
+        case sendMessage(XMTPUser)
         
         case storeXMTPUser(user: XMTPUser)
         case fetchAllXMTPUsers
-    }
-}
-
-extension DecodedMessage: Equatable {
-    public static func == (lhs: DecodedMessage, rhs: DecodedMessage) -> Bool {
-        lhs.id == rhs.id
     }
 }

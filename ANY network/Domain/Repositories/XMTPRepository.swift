@@ -31,5 +31,5 @@ protocol XMTPRepository {
     func stopStreams()
 
     // MARK: - Send Message
-    func sendMessage(inboxId: String, content: [String: String]) async throws
-} 
+    func send(message: XMTPMessage) async throws
+}

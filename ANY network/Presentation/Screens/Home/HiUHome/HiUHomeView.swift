@@ -22,16 +22,7 @@ struct HiUHomeView: View {
              }
              
              // Initialize XMTP client when view appears
-             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                 viewModel.handle(.initializeXMTP)
-             }
-             
-             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                 viewModel.handle(.startConversationStream)
-                 viewModel.handle(.startMessageStream)
-             }
-             
-             viewModel.handle(.fetchAllXMTPUsers)
+             viewModel.handle(.initializeXMTP)
          }
          .onDisappear {
             viewModel.handle(.stopStreams)
@@ -62,12 +53,12 @@ struct HiUHomeView: View {
     @ViewBuilder
     private func view(for cell: HexCell) -> some View {
         let model = viewModel.state.cellQueue[cell.offsetCoordinate]
-        var modelBinding: Binding<HexFlowerModel> = {
+        let modelBinding: Binding<HexFlowerModel> = {
             model != nil ? Binding(
                 get: { model! },
                 set: { newValue in
                     viewModel.handle(.setCellState(cell.offsetCoordinate, newValue))
-                }) : .constant(.init())
+                }) : .constant(.init(user: .init(address: "", inboxId: "")))
         }()
         
         HexFlowerCell(

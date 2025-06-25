@@ -89,20 +89,19 @@ final class XMTPManager {
 
         return try await client.conversations.newConversation(with: publicId.identifier)
     }
-
-    func sendMessage(inboxId: String, content: [String: String]) async throws {
-        guard let client = client else {
+    
+    func send(message: XMTPMessage) async throws {
+        guard client != nil else {
             throw XMTPManagerError.dbEncryptionKeyNotFound
         }
 
-        let conversation = try await findOrCreateConversation(inboxId: inboxId)
+        let conversation = try await findOrCreateConversation(inboxId: message.toInboxId)
 
-        let jsonData = try JSONSerialization.data(withJSONObject: content)
+        let jsonData = try JSONEncoder().encode(message)
         let jsonString = String(data: jsonData, encoding: .utf8)!
-        try await conversation.prepareMessage(content: jsonString)
-        print("!!! MESSAGE PREPARED !!!")
+        _ = try await conversation.prepareMessage(content: jsonString)
+
         try await conversation.publishMessages()
-        print("!!! MESSAGE SENT !!!" )
     }
     
     // MARK: - Conversation Sync and Stream Methods

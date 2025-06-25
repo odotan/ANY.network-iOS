@@ -13,7 +13,7 @@ struct HexFlowerCell: View, HexCellProtocol {
     var background: some View {
         ZStack {
             if model.state == .timerStarted {
-                if currentProgress < 30 {
+                if model.isLastMe {
                     Color(hex: "1CC580") // green
                 } else {
                     Color(hex: "FF6061") // red
@@ -26,13 +26,14 @@ struct HexFlowerCell: View, HexCellProtocol {
     }
 
     private func updateProgress() {
-        guard let startedAt = model.startedAt else {
+        guard let startedAt = model.message?.startedAt else {
             currentProgress = 0
             return
         }
         
         let seconds = floor(Date.now.timeIntervalSince(startedAt))
-        
+        print("!!!Seconds", seconds, model.message?.messageCreationStartUnixTime)
+
         // First minute: one point per second
         if seconds <= 60 {
             currentProgress = CGFloat(seconds)
@@ -58,7 +59,7 @@ struct HexFlowerCell: View, HexCellProtocol {
 
     var body: some View {
         Button {
-            if model.state == .initial {
+            if !model.isLastMe {
                 model.state = .selected
                 stateChanged(.selected)
             }
@@ -79,7 +80,7 @@ struct HexFlowerCell: View, HexCellProtocol {
                         }
                     }
                 case .timerStarted:
-                    ClockCircleView(progress: $currentProgress, startDate: model.startedAt ?? Date())
+                    ClockCircleView(progress: $currentProgress, startDate: model.message?.startedAt ?? Date())
                         .scaleEffect(1.2)
 
                     TimerNumberView(number: Int(currentProgress))
@@ -107,7 +108,7 @@ struct HexFlowerCell: View, HexCellProtocol {
                             )
                         )
                 case .finished:
-                    ClockCircleView(progress: .constant(144), startDate: model.startedAt ?? Date())
+                    ClockCircleView(progress: .constant(144), startDate: model.message?.startedAt ?? Date())
                         .scaleEffect(1.2)
                         .overlay(
                             Image(systemName: "checkmark")
@@ -116,10 +117,13 @@ struct HexFlowerCell: View, HexCellProtocol {
                                 .transition(.scale.combined(with: .opacity))
                         )
                 }
-            }
-            
-            if !model.address.isEmpty {
-                Text(model.address)
+                
+                
+                if !model.user.address.isEmpty && model.state == .initial {
+                    Text(String(model.user.address.prefix(4)))
+                        .font(Font.montserat(size: 20, weight: .bold))
+                        .foregroundStyle(.white)
+                }
             }
         }
         .onAppear {
@@ -130,6 +134,17 @@ struct HexFlowerCell: View, HexCellProtocol {
         }
         .onChange(of: model.state) { oldState, newState in
             if newState == .timerStarted {
+                updateProgress()
+                startTimer()
+            }
+        }
+        .onChange(of: model.message?.messageCreationStartUnixTime) { oldValue, newValue in
+            if model.state == .timerStarted {
+                updateProgress()
+            }
+        }
+        .onChange(of: model.message) { oldMessage, newMessage in
+            if model.state == .timerStarted {
                 updateProgress()
                 startTimer()
             }
@@ -155,7 +170,7 @@ struct HexFlowerCell: View, HexCellProtocol {
 
 #Preview {
     HexFlowerCell(
-        model: .constant(.init()),
+        model: .constant(.init(user: .init(address: "", inboxId: ""))),
         color: Color.gray,
         stateChanged: { _ in
         },
