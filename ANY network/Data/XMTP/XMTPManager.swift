@@ -11,6 +11,11 @@ final class XMTPManager {
     private var messageStream: AsyncThrowingStream<DecodedMessage, Error>?
 
     func createClient() async throws -> Client? {
+        let kShouldNotDeleteKey = "kShouldNotDeleteKey"
+        if !UserDefaults.standard.bool(forKey: kShouldNotDeleteKey) {
+            clearAllData()
+            UserDefaults.standard.set(true, forKey: kShouldNotDeleteKey)
+        }
         print("🔐 [XMTPManager] Creating XMTP client...")
         
         #if canImport(SQLCipher)
