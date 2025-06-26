@@ -154,7 +154,7 @@ struct SceneHandlerView: View {
                 case .active:
                     print("App is active")
                     do {
-                        try HepticService.shared.start()
+                        try HapticService.shared.start()
                     } catch {
                         print("Error starting Heptic Service:", error.localizedDescription)
                     }
@@ -162,7 +162,7 @@ struct SceneHandlerView: View {
                     print("App is inactive")
                 case .background:
                     print("App is in background")
-                    HepticService.shared.stop()
+                    HapticService.shared.stop()
                 @unknown default:
                     print("Unknown phase")
                 }

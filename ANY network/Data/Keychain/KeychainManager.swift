@@ -6,7 +6,7 @@ final class KeychainManager {
 
     private let keychain = KeychainSwift()
 
-    private init() {}
+    private init() { }
 
     func save(key: String, value: String) {
         let keyString = key

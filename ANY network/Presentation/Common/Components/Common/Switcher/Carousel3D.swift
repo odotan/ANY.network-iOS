@@ -87,7 +87,7 @@ struct Carousel3D<Content: View, Items>: View where Items: RandomAccessCollectio
                 let delta = abs(oldValue - newValue)
                 //                print(delta, oldValue, newValue)
                 if delta > circleAngle / 2 {
-                    try? HepticService.shared.perform()
+                    try? HapticService.shared.perform()
                 }
 
                 let draggingItemOffset = (-Int(offset / circleAngle) % hostingViews.count)

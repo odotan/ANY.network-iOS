@@ -32,7 +32,6 @@ struct HexFlowerCell: View, HexCellProtocol {
         }
         
         let seconds = floor(Date.now.timeIntervalSince(startedAt))
-        print("!!!Seconds", seconds, model.message?.messageCreationStartUnixTime)
 
         // First minute: one point per second
         if seconds <= 60 {
@@ -59,10 +58,10 @@ struct HexFlowerCell: View, HexCellProtocol {
 
     var body: some View {
         Button {
-            if !model.isLastMe {
+//            if !model.isLastMe {
                 model.state = .selected
                 stateChanged(.selected)
-            }
+//            }
         } label: {
             ZStack {
                 background

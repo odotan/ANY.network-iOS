@@ -75,6 +75,7 @@ final class HiUHomeViewModel: ViewModel {
     
     private func handleStateUpdated(hexState: HexFlowerState, cell: HexCell) {
         print("ViewModel: State update requested for \(cell.offsetCoordinate) to state: \(hexState)")
+        try? HapticService.shared.perform()
         
         if var existingModel = state.cellQueue[cell.offsetCoordinate] {
             existingModel.state = hexState
@@ -165,6 +166,7 @@ final class HiUHomeViewModel: ViewModel {
                 handle(.startMessageStream)
             } catch {
                 print("🔐 [HiUHomeViewModel] Failed to initialize XMTP client: \(error)")
+                
                 await MainActor.run {
                     state.xmtpClientError = error.localizedDescription
                 }
@@ -361,6 +363,7 @@ final class HiUHomeViewModel: ViewModel {
         }
         
         gridModel.refresh()
+        try? HapticService.shared.perform()
     }
 }
 

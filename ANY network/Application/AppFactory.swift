@@ -1,7 +1,7 @@
 import Foundation
 
 final class AppFactory {
-    private lazy var hepticService = HepticService()
+    private lazy var hepticService = HapticService()
 
     private lazy var contactsRepository: ContactsRepositoryImplementation = {
         let realmDataSource = RealmContactsDataSource()

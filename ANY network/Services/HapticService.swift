@@ -1,8 +1,8 @@
 import Foundation
 import CoreHaptics
 
-class HepticService {
-    static let shared = HepticService()
+class HapticService {
+    static let shared = HapticService()
 
     private var engine: CHHapticEngine?
     

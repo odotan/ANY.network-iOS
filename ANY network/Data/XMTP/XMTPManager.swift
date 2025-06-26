@@ -23,11 +23,15 @@ final class XMTPManager {
         let keyBytes = getOrCreateDbEncryptionKey()
 
         let options = ClientOptions(
-            api: .init(env: .dev, isSecure: false),
+            api: .init(env: .dev, isSecure: true),
             dbEncryptionKey: keyBytes
         )
         
+        // Try using the XMTP SDK's built-in wallet creation
         let wallet = try SCWallet()
+        print("🔐 [XMTPManager] Wallet created successfully")
+        
+        // Try a different approach - use the XMTP SDK's built-in client creation
         client = try await Client.create(account: wallet, options: options)
         print("🔐 [XMTPManager] XMTP client created successfully!")
         return client
