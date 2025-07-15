@@ -36,15 +36,49 @@ struct TestScreen: View {
     @State var gridModel: HiUScrollableHexGridModel = .init(numberOfCircles: 5)
     let cellSize: CGFloat = 100
     let spacing: CGFloat = 10
+    @State private var zoomScale: CGFloat = 1.0
+    @State private var contentOffset: CGPoint = .zero
+    @State private var centerOn: CGPoint? = nil
+    @State private var lastTapLocation: CGPoint? = nil
+    @State private var scrollContentOffset: CGPoint = .zero
+    @State private var scrollContentSize: CGSize = .zero
+    @State private var scrollContainerSize: CGSize = .zero
+    @State private var scrollZoomScale: CGFloat = 1.0
+    @State private var scrollContentId: UUID = UUID()
 
     var body: some View {
-        ScrollView([.horizontal, .vertical]) {
-            let (gridWidth, gridHeight, normalizedOrigin, cellStep) = gridGeometry()
+        let (gridWidth, gridHeight, normalizedOrigin, cellStep) = gridGeometry()
+        let initialOffset = CGPoint(x: (gridWidth - UIScreen.main.bounds.width) / 2, y: (gridHeight - UIScreen.main.bounds.height) / 2)
+        print("[TestScreen] body: gridWidth=\(gridWidth), gridHeight=\(gridHeight), zoomScale=\(zoomScale)")
+        return ScrollViewWrapper(
+            contentOffset: $scrollContentOffset,
+            contentSize: $scrollContentSize,
+            size: $scrollContainerSize,
+            zoomScale: $scrollZoomScale,
+            scrollEnabled: true,
+            animationDuration: 0.35,
+            minZoomLevel: 1.0,
+            maxZoomLevel: 4.0,
+            contentId: scrollContentId
+        ) {
             Canvas { context, size in
-                drawGrid(context: context, size: size, gridWidth: gridWidth, gridHeight: gridHeight, normalizedOrigin: normalizedOrigin, cellStep: cellStep)
+                // Fill the background with black
+                context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black))
+                drawGrid(
+                    context: context,
+                    size: size,
+                    gridWidth: gridWidth,
+                    gridHeight: gridHeight,
+                    normalizedOrigin: normalizedOrigin,
+                    cellStep: cellStep
+                )
             }
             .frame(width: gridWidth, height: gridHeight)
-            .shadow(color: .black.opacity(0.3), radius: 30, x: 0, y: 14)
+            .background(Color.black)
+        }
+        .onAppear {
+            // Center the grid in the scroll view on first appear
+            contentOffset = initialOffset
         }
     }
 
@@ -55,29 +89,29 @@ struct TestScreen: View {
         let cellStep = CGSize(width: w, height: h)
         let cols = gridModel.gridItems.map { $0.offsetCoordinate.col }
         let rows = gridModel.gridItems.map { $0.offsetCoordinate.row }
-        guard let minCol = cols.min(), let _ = cols.max(),
-              let minRow = rows.min(), let _ = rows.max() else {
+        guard let minCol = cols.min(), let maxCol = cols.max(),
+              let minRow = rows.min(), let maxRow = rows.max() else {
             return (0, 0, .zero, .zero)
         }
         let normalizedOrigin = CGPoint(x: CGFloat(minCol), y: CGFloat(minRow))
         let normalizedX = cols.map { CGFloat($0) }
         let normalizedY = rows.map { CGFloat($0) + 1 / 2 * CGFloat($0 & 1) }
-        let gridWidth = (normalizedX.max()! - normalizedX.min()! + 2) * cellStep.width
-        let gridHeight = (normalizedY.max()! - normalizedY.min()! + 2) * cellStep.height
+        let gridWidth = (normalizedX.max()! - normalizedX.min()! + 1) * cellStep.width
+        let gridHeight = (normalizedY.max()! - normalizedY.min()! + 1) * cellStep.height + cellSize / 2
         return (gridWidth, gridHeight, normalizedOrigin, cellStep)
     }
 
     private func drawGrid(context: GraphicsContext, size: CGSize, gridWidth: CGFloat, gridHeight: CGFloat, normalizedOrigin: CGPoint, cellStep: CGSize) {
+        print("[TestScreen] drawGrid: size=\(size), gridWidth=\(gridWidth), gridHeight=\(gridHeight)")
         let w = cellStep.width
-        context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.black))
         for cell in gridModel.gridItems {
             let col = cell.offsetCoordinate.col
             let row = cell.offsetCoordinate.row
-            let multiplayer = CGFloat(row > 0 ? -1 : 1)
-//            let adjustedBy = abs(row) % 2 == 0 ? 0 : 0
             let adjustedBy = (abs(row) > 1 ? Int(row / 2) * 2 : 0) * (-1)
+
+            // Remove the +2/3 and +1/2 fudge factors to align to top/left
             let normalizedX = CGFloat(col) - normalizedOrigin.x + 1 / 2 * CGFloat((row + Int(adjustedBy)))
-            let normalizedY = CGFloat(row) - normalizedOrigin.y + 2 / 3
+            let normalizedY = CGFloat(row) - normalizedOrigin.y
 
             let x = normalizedX * cellStep.width
             let y = normalizedY * cellStep.height
@@ -101,6 +135,31 @@ struct TestScreen: View {
                 context.draw(text, at: CGPoint(x: hexRect.midX, y: hexRect.midY), anchor: .center)
             }
         }
+    }
+
+    // Helper to find the nearest cell and its center in canvas coordinates
+    private func findNearestCell(to point: CGPoint, gridWidth: CGFloat, gridHeight: CGFloat, normalizedOrigin: CGPoint, cellStep: CGSize) -> (cell: HexCell, center: CGPoint) {
+        let w = cellStep.width
+        var minDist: CGFloat = .greatestFiniteMagnitude
+        var nearest: HexCell? = nil
+        var nearestCenter: CGPoint = .zero
+        for cell in gridModel.gridItems {
+            let col = cell.offsetCoordinate.col
+            let row = cell.offsetCoordinate.row
+            let adjustedBy = (abs(row) > 1 ? Int(row / 2) * 2 : 0) * (-1)
+            let normalizedX = CGFloat(col) - normalizedOrigin.x + 1 / 2 * CGFloat((row + Int(adjustedBy)))
+            let normalizedY = CGFloat(row) - normalizedOrigin.y + 2 / 3
+            let x = normalizedX * cellStep.width
+            let y = normalizedY * cellStep.height
+            let center = CGPoint(x: x + w / 2, y: y + w / 2)
+            let dist = hypot(center.x - point.x, center.y - point.y)
+            if dist < minDist {
+                minDist = dist
+                nearest = cell
+                nearestCenter = center
+            }
+        }
+        return (nearest ?? gridModel.gridItems[0], nearestCenter)
     }
 }
 

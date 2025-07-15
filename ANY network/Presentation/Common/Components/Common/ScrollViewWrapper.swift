@@ -58,6 +58,11 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
         context.coordinator.hostingController = controller
         context.coordinator.scrollView = view
         
+        // Add double-tap gesture recognizer
+        let doubleTap = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleDoubleTap(_:)))
+        doubleTap.numberOfTapsRequired = 2
+        view.addGestureRecognizer(doubleTap)
+        
         return view
     }
     
@@ -118,21 +123,40 @@ public struct ScrollViewWrapper<Content: View>: UIViewRepresentable {
             self.userInteracting = userInteracting
         }
         
+        // Remove centerContent logic (no contentInset)
         func centerContent() {
-            guard let scrollView = scrollView else { return }
-            
-            let boundsSize = scrollView.bounds.size
-            let contentSize = scrollView.contentSize
-            
-            let x = max((boundsSize.width - contentSize.width) * 0.5, 0)
-            let y = max((boundsSize.height - contentSize.height) * 0.5, 0)
-            
-            scrollView.contentInset = UIEdgeInsets(
-                top: y,
-                left: x,
-                bottom: y,
-                right: x
+            // Do nothing (removes padding)
+        }
+        
+        // Add double-tap handler
+        @objc func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
+            guard let scrollView = gesture.view as? UIScrollView else { return }
+            let pointInView = gesture.location(in: scrollView.subviews.first)
+            let maxZoom = scrollView.maximumZoomScale
+            let minZoom = scrollView.minimumZoomScale
+            let currentZoom = scrollView.zoomScale
+            let newZoomScale: CGFloat
+            if abs(currentZoom - maxZoom) < 0.01 || currentZoom > maxZoom - 0.01 {
+                // If at or above max zoom, zoom out to min (1)
+                newZoomScale = minZoom
+            } else {
+                // Otherwise, jump directly to max zoom
+                newZoomScale = maxZoom
+            }
+            let zoomRect = self.zoomRect(for: scrollView, scale: newZoomScale, center: pointInView)
+            scrollView.zoom(to: zoomRect, animated: true)
+        }
+        
+        private func zoomRect(for scrollView: UIScrollView, scale: CGFloat, center: CGPoint) -> CGRect {
+            let size = CGSize(
+                width: scrollView.bounds.size.width / scale,
+                height: scrollView.bounds.size.height / scale
             )
+            let origin = CGPoint(
+                x: center.x - size.width / 2.0,
+                y: center.y - size.height / 2.0
+            )
+            return CGRect(origin: origin, size: size)
         }
         
         public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
