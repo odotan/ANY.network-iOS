@@ -116,7 +116,7 @@ struct ANY_networkApp: App {
 
     var body: some Scene {
         WindowGroup {
-            destination
+            TestScreen()
                 .background(SceneHandlerView())
                 .onChange(of: animationRedo.redoAnimation) { _, newValue in
                     if newValue {

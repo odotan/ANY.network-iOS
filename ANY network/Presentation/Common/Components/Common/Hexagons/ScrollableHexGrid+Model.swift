@@ -17,13 +17,15 @@ class ScrollableHexGridModel: ObservableObject {
     private let gridUtilities: GridUtilities = .init(items: HexCell.all)
 
     var gridItems: [HexCell]
+    private var circles: Int
     
     // Grid offset constants based on the grid layout
     private let gridRowOffset: Int = 1  // Adjusted based on actual behavior
     private let gridColOffset: Int = -3  // Adjusted based on actual behavior
     
-    init(gridItems: [HexCell]? = nil) {
+    init(gridItems: [HexCell]? = nil, numberOfCircles: Int = 9) {
         self.gridItems = gridItems ?? HexCell.all
+        self.circles = numberOfCircles
         generateGrid()
     }
 
@@ -157,7 +159,6 @@ class ScrollableHexGridModel: ObservableObject {
     private func generateGrid() {
         var array = [HexCell]()
         var count = 1
-        let circles = 9
         for idx in 1..<circles {
             count += idx * 6
         }
