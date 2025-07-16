@@ -33,4 +33,37 @@ extension Color {
 
         self.init(.sRGB, red: red, green: green, blue: blue, opacity: opacity)
     }
+
+    /// Returns the RGB components of the color if possible (sRGB only)
+    var rgbComponents: (red: Double, green: Double, blue: Double, opacity: Double)? {
+        #if canImport(UIKit)
+        let nativeColor = UIColor(self)
+        #elseif canImport(AppKit)
+        let nativeColor = NSColor(self)
+        #endif
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        guard nativeColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+            return nil
+        }
+        return (Double(red), Double(green), Double(blue), Double(alpha))
+    }
+    /// Returns the HSB (hue, saturation, brightness) components of the color if possible (sRGB only)
+    var hsbComponents: (hue: Double, saturation: Double, brightness: Double, opacity: Double)? {
+        #if canImport(UIKit)
+        let nativeColor = UIColor(self)
+        #elseif canImport(AppKit)
+        let nativeColor = NSColor(self)
+        #endif
+        var hue: CGFloat = 0
+        var saturation: CGFloat = 0
+        var brightness: CGFloat = 0
+        var alpha: CGFloat = 0
+        guard nativeColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha) else {
+            return nil
+        }
+        return (Double(hue), Double(saturation), Double(brightness), Double(alpha))
+    }
 }
