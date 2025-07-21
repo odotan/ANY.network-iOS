@@ -9,8 +9,10 @@ struct TestScreen: View {
     @State private var colorPacks: [ColorPack] = []
 
     // Adjustable ranges for color generation
-    @State private var hueMin: Double = 0.0
-    @State private var hueMax: Double = 1.0
+    @State private var hue1Min: Double = 0.0
+    @State private var hue1Max: Double = 0.6
+    @State private var hue2Min: Double = 0.7
+    @State private var hue2Max: Double = 1.0
     @State private var satMin: Double = 0.5
     @State private var satMax: Double = 1.0
     @State private var briMin: Double = 0.5
@@ -33,10 +35,15 @@ struct TestScreen: View {
         VStack {
             // Sliders for adjusting ranges
             Group {
-                Text("Top Color Hue Range: \(String(format: "%.2f", hueMin)) - \(String(format: "%.2f", hueMax))")
+                Text("Hue Range 1: \(String(format: "%.2f", hue1Min)) - \(String(format: "%.2f", hue1Max))")
                 HStack {
-                    Slider(value: $hueMin, in: 0...hueMax, step: 0.01, onEditingChanged: { _ in regenerateColorPacks() })
-                    Slider(value: $hueMax, in: hueMin...1, step: 0.01, onEditingChanged: { _ in regenerateColorPacks() })
+                    Slider(value: $hue1Min, in: 0...hue1Max, step: 0.01, onEditingChanged: { _ in regenerateColorPacks() })
+                    Slider(value: $hue1Max, in: hue1Min...1, step: 0.01, onEditingChanged: { _ in regenerateColorPacks() })
+                }
+                Text("Hue Range 2: \(String(format: "%.2f", hue2Min)) - \(String(format: "%.2f", hue2Max))")
+                HStack {
+                    Slider(value: $hue2Min, in: 0...hue2Max, step: 0.01, onEditingChanged: { _ in regenerateColorPacks() })
+                    Slider(value: $hue2Max, in: hue2Min...1, step: 0.01, onEditingChanged: { _ in regenerateColorPacks() })
                 }
                 Text("Top Color Saturation Range: \(String(format: "%.2f", satMin)) - \(String(format: "%.2f", satMax))")
                 HStack {
@@ -89,7 +96,7 @@ struct TestScreen: View {
                     colorPack = colorPacks[idx]
                 } else {
                     colorPack = ColorPack.random(
-                        hueRange: hueMin...hueMax,
+                        hueRanges: [(hue1Min...hue1Max), (hue2Min...hue2Max)],
                         saturationRange: satMin...satMax,
                         brightnessRange: briMin...briMax,
                         endHueDelta: endHueDelta,
@@ -114,7 +121,8 @@ struct TestScreen: View {
         }
         .fullScreenCover(isPresented: $showModal) {
             ModalGridView(
-                hueMin: hueMin, hueMax: hueMax,
+                hue1Min: hue1Min, hue1Max: hue1Max,
+                hue2Min: hue2Min, hue2Max: hue2Max,
                 satMin: satMin, satMax: satMax,
                 briMin: briMin, briMax: briMax,
                 endHueDelta: endHueDelta,
@@ -138,7 +146,7 @@ struct TestScreen: View {
         let count = gridModel.gridItems.count
         colorPacks = (0..<count).map { _ in
             ColorPack.random(
-                hueRange: hueMin...hueMax,
+                hueRanges: [(hue1Min...hue1Max), (hue2Min...hue2Max)],
                 saturationRange: satMin...satMax,
                 brightnessRange: briMin...briMax,
                 endHueDelta: endHueDelta,
@@ -180,8 +188,10 @@ struct TestScreen: View {
 }
 
 struct ModalGridView: View {
-    let hueMin: Double
-    let hueMax: Double
+    let hue1Min: Double
+    let hue1Max: Double
+    let hue2Min: Double
+    let hue2Max: Double
     let satMin: Double
     let satMax: Double
     let briMin: Double
@@ -201,7 +211,7 @@ struct ModalGridView: View {
             Color(.systemBackground).ignoresSafeArea()
             ScrollableHexGrid(viewModel: gridModel, content: { cell in
                 let colorPack = ColorPack.random(
-                    hueRange: hueMin...hueMax,
+                    hueRanges: [(hue1Min...hue1Max), (hue2Min...hue2Max)],
                     saturationRange: satMin...satMax,
                     brightnessRange: briMin...briMax,
                     endHueDelta: endHueDelta,
@@ -311,7 +321,7 @@ struct ColorPack {
     }()
 
     static func random(
-        hueRange: ClosedRange<Double> = 0...1,
+        hueRanges: [ClosedRange<Double>] = [0...1],
         saturationRange: ClosedRange<Double> = 0.5...1,
         brightnessRange: ClosedRange<Double> = 0.5...1,
         endHueDelta: Double = 0.04,
@@ -322,8 +332,9 @@ struct ColorPack {
         shadowBriDelta: Double = 0.25,
         pressedBrightnessPercent: Double = 0.9
     ) -> ColorPack {
-        // Generate a base color
-        let baseHue = Double.random(in: hueRange)
+        // Pick a random hue range
+        let chosenRange = hueRanges.randomElement() ?? (0...1)
+        let baseHue = Double.random(in: chosenRange)
         let baseSaturation = Double.random(in: saturationRange)
         let baseBrightness = Double.random(in: brightnessRange)
         let startColor = Color(hue: baseHue, saturation: baseSaturation, brightness: baseBrightness)
