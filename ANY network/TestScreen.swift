@@ -264,8 +264,8 @@ struct TestHex: View {
                     startPoint: .init(x: 0, y: 0),
                     endPoint: .init(x: 0, y: 1)
                 )
-                .shadow(.inner(color: .white.opacity(0.5), radius: 10, x: 0, y: 10))
-                .shadow(.inner(color: colorPack.innerShadow.opacity(0.7), radius: 5, x: 0, y: -4))
+                .shadow(.inner(color: .white.opacity(0.5), radius: 8.5, x: 0, y: 8.5))
+                .shadow(.inner(color: colorPack.innerShadow.opacity(0.7), radius: 4.2, x: 0, y: -4))
             )
     }
     
@@ -274,8 +274,8 @@ struct TestHex: View {
         HexagonShape(cornerRadius: 6)
             .foregroundStyle(
                 colorPack.pressed
-                    .shadow(.inner(color: .white.opacity(0.1), radius: 10, x: -10, y: -10))
-                    .shadow(.inner(color: colorPack.pressedInnerShadow, radius: 20, x: 10, y: 10))
+                    .shadow(.inner(color: .white.opacity(0.1), radius: 8.5, x: -8.5, y: -8.5))
+                    .shadow(.inner(color: colorPack.pressedInnerShadow, radius: 8.5, x: 8.5, y: 8.5))
             )
     }
 }
