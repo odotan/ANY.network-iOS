@@ -67,5 +67,7 @@ Your contacts are stored locally and are not shared with ANY network without you
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

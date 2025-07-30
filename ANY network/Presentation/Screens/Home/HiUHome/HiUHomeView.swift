@@ -15,6 +15,9 @@ struct HiUHomeView: View {
          ScrollableHexGrid(viewModel: viewModel.gridModel, content: { cell in
              AnyView(view(for: cell))
          })
+         .overlay(alignment: .top) {
+             DynamicIslandView()
+         }
          .edgesIgnoringSafeArea(.all)
          .onAppear {
              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
