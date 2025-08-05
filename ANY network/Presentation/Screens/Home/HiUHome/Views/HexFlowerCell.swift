@@ -5,10 +5,12 @@ struct HexFlowerCell: View, HexCellProtocol {
     @State var id: UUID = UUID()
     @State private var currentProgress: CGFloat = 0
     @State private var timer: Timer?
+    @State private var lastPoints: Int = 0
     var color: Color
 
     var stateChanged: (HexFlowerState) -> Void
     var details: () -> Void
+    var onPointsEarned: ((Int, CGPoint) -> Void)?
 
     var background: some View {
         ZStack {
@@ -52,6 +54,18 @@ struct HexFlowerCell: View, HexCellProtocol {
                 stateChanged(.finished)
                 timer?.invalidate()
                 timer = nil
+            }
+        }
+        
+        // Check if points increased and trigger flying animation
+        let currentPoints = Int(currentProgress)
+        if currentPoints > lastPoints && currentPoints > 0 {
+            let pointsEarned = currentPoints - lastPoints
+            lastPoints = currentPoints
+            
+            // Trigger flying points animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.onPointsEarned?(pointsEarned, CGPoint(x: 0, y: 0)) // Position will be calculated by parent
             }
         }
     }

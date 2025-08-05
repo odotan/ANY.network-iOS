@@ -15,6 +15,12 @@ struct HiUHomeView: View {
          ScrollableHexGrid(viewModel: viewModel.gridModel, content: { cell in
              AnyView(view(for: cell))
          })
+         .overlay(alignment: .top) {
+             DynamicIslandView(coordinator: viewModel.flyingPointsCoordinator)
+         }
+         .overlay {
+             FlyingPointsOverlay(coordinator: viewModel.flyingPointsCoordinator)
+         }
          .edgesIgnoringSafeArea(.all)
          .onAppear {
              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -69,10 +75,31 @@ struct HiUHomeView: View {
             },
             details: {
                 viewModel.handle(.details(cell))
+            },
+            onPointsEarned: { points, _ in
+                // Calculate the position of the hexagon cell in the screen
+                // For now, we'll use a simple approach - trigger the animation
+                // The actual position calculation would need to be done with GeometryReader
+                triggerFlyingPointsAnimation(points: points, from: cell.offsetCoordinate)
             }
         )
         .simultaneousGesture(TapGesture().onEnded {
             handleTap(for: cell)
         })
+    }
+    
+    private func triggerFlyingPointsAnimation(points: Int, from coordinate: OffsetCoordinate) {
+        // Calculate the approximate position of the hexagon cell
+        // This is a simplified calculation - in a real app you'd want to use GeometryReader
+        let screenWidth = UIScreen.main.bounds.width
+        let screenHeight = UIScreen.main.bounds.height
+        
+        let startX = screenWidth / 2 + CGFloat(coordinate.col) * 50
+        let startY = screenHeight / 2 + CGFloat(coordinate.row) * 60
+        
+        let startPosition = CGPoint(x: startX, y: startY)
+        let endPosition = CGPoint(x: screenWidth / 2, y: 100) // Dynamic Island position
+        
+        viewModel.flyingPointsCoordinator.triggerFlyingPoints(points: points, from: startPosition, to: endPosition)
     }
 }
