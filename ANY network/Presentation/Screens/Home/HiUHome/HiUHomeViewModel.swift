@@ -5,6 +5,7 @@ import XMTPiOS
 final class HiUHomeViewModel: ViewModel {
     @Published private(set) var state: State
     @Published var gridModel: HiUScrollableHexGridModel = .init()
+    @Published var flyingPointsCoordinator = FlyingPointsCoordinator()
 
     private let coordinator: MainCoordinatorProtocol
     private let createXMTPClientUseCase: CreateXMTPClientUseCase

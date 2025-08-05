@@ -7,8 +7,89 @@
 
 import SwiftUI
 
+// MARK: - Flying Points Coordinator
+class FlyingPointsCoordinator: ObservableObject {
+    @Published var totalPoints: Int = 0
+    @Published var isPulsing: Bool = false
+    @Published var flyingPoints: [FlyingPoint] = []
+    
+    func triggerFlyingPoints(points: Int, from startPosition: CGPoint, to endPosition: CGPoint) {
+        let flyingPoint = FlyingPoint(
+            points: points,
+            startPosition: startPosition,
+            endPosition: endPosition,
+            currentPosition: startPosition
+        )
+        
+        flyingPoints.append(flyingPoint)
+        
+        // Animate the point flying to the destination
+        withAnimation(.easeInOut(duration: 1.2)) {
+            if let index = flyingPoints.firstIndex(where: { $0.id == flyingPoint.id }) {
+                flyingPoints[index].currentPosition = endPosition
+                flyingPoints[index].opacity = 0.8
+                flyingPoints[index].scale = 0.8
+            }
+        }
+        
+        // Remove the point after animation and add to total
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            if let index = self.flyingPoints.firstIndex(where: { $0.id == flyingPoint.id }) {
+                let points = self.flyingPoints[index].points
+                self.flyingPoints.remove(at: index)
+                self.addPoints(points)
+            }
+        }
+    }
+    
+    private func addPoints(_ points: Int) {
+        totalPoints += points
+        
+        // Trigger pulse animation
+        isPulsing = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.isPulsing = false
+        }
+    }
+}
+
+// MARK: - Flying Point Model
+struct FlyingPoint: Identifiable {
+    let id = UUID()
+    let points: Int
+    let startPosition: CGPoint
+    let endPosition: CGPoint
+    var currentPosition: CGPoint
+    var opacity: Double = 1.0
+    var scale: Double = 1.0
+}
+
+// MARK: - Flying Points Overlay
+struct FlyingPointsOverlay: View {
+    @ObservedObject var coordinator: FlyingPointsCoordinator
+    
+    var body: some View {
+        ZStack {
+            ForEach(coordinator.flyingPoints) { point in
+                Text("+\(point.points)")
+                    .font(.montserat(size: 16, weight: .bold))
+                    .foregroundColor(.white)
+                    .background(
+                        Circle()
+                            .fill(Color.appGreen)
+                            .frame(width: 32, height: 32)
+                    )
+                    .position(point.currentPosition)
+                    .opacity(point.opacity)
+                    .scaleEffect(point.scale)
+            }
+        }
+    }
+}
+
 struct DynamicIslandView: View {
     @State private var safeAreaInsets: EdgeInsets = .init()
+    @ObservedObject var coordinator: FlyingPointsCoordinator
     
     var body: some View {
         GeometryReader { geometry in
@@ -60,9 +141,11 @@ struct DynamicIslandView: View {
                 HStack {
                     Image("flower-nav")
                         .frame(width: 20, height: 20)
-                    Text("123131")
+                    Text("\(coordinator.totalPoints)")
                         .foregroundColor(.white)
                         .font(.montserat(size: 20, weight: .semibold))
+                        .scaleEffect(coordinator.isPulsing ? 1.2 : 1.0)
+                        .animation(.easeInOut(duration: 0.3), value: coordinator.isPulsing)
                 }
                 .padding(.bottom, 3)
             }
@@ -71,8 +154,14 @@ struct DynamicIslandView: View {
         .position(x: position.x, y: position.y / 1.3)
         .edgesIgnoringSafeArea(.all)
     }
+    
+    func triggerFlyingPoints(points: Int, from startPosition: CGPoint) {
+        // Calculate the end position (Dynamic Island position)
+        let endPosition = CGPoint(x: UIScreen.main.bounds.width / 2, y: safeAreaInsets.top)
+        coordinator.triggerFlyingPoints(points: points, from: startPosition, to: endPosition)
+    }
 }
 
 #Preview {
-    DynamicIslandView()
+    DynamicIslandView(coordinator: FlyingPointsCoordinator())
 }
